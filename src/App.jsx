@@ -18,7 +18,7 @@ export default function App() {
   /* ---------- Rig constants ---------- */
   const RIG_W_CM = 60;
   const RIG_L_CM = 150;
-  const HEAD_OFFSET_CM = 5;
+  const HEAD_OFFSET_CM = 10;
 
   /* ---------- Geometry ---------- */
   const data = useMemo(() => {
@@ -127,10 +127,10 @@ export default function App() {
       </div>
 
       <div className="bg-gray-50 p-4 rounded text-sm text-gray-700 space-y-2">
-        <p>Use the sliders to dial in your actual setup—screen diagonal, aspect ratio, eye-to-screen distance (measure from your eyes to the centre of your main monitor), and bezel gap. The planner then finds the perfect tilt so distances to all screen edges are the same, giving you uniform screen coverage without gaps.</p>
-        <p><strong>Horizontal FOV</strong> shows your in-game side-to-side field of view, while <strong>Vertical FOV</strong> tells you how much screen height you cover—useful for seeing your dash and apex markers.</p>
+        <p>Use the sliders to dial in your actual setup—screen diagonal, aspect ratio, eye-to-screen distance (measure from your eyes to the centre of your main monitor), and bezel gap. The planner then finds the perfect tilt so distances to all screen edges are the same.</p>
+        <p><strong>Horizontal FOV</strong> shows your in-game side-to-side field of view, while <strong>Vertical FOV</strong> tells you how much screen height you cover—useful for seeing your dash and brake markers.</p>
         <p><strong>Total width</strong> is the straight-line distance between the outer edges of your side monitors, so you know exactly how much floor space to reserve.</p>
-        <p>The light-grey box represents a standard sim cockpit: 60 cm × 150 cm with your eye (red circle) 5 cm from the back edge (behind the wheel). It helps you check if bezels or screen edges will block your view.</p>
+        <p>The light-grey box represents a standard sim cockpit: 60 cm × 150 cm with your eye (red circle) 10 cm from the back edge of the rig.</p>
       </div>
 
       <div className="text-center text-sm text-gray-500 pt-4">
