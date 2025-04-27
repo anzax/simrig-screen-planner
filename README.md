@@ -1,1 +1,1 @@
-# triple-screen-planner
+# Triple Screen Planner
