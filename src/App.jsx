@@ -132,6 +132,10 @@ export default function App() {
         <p><strong>Total width</strong> is the straight-line distance between the outer edges of your side monitors, so you know exactly how much floor space to reserve.</p>
         <p>The light-grey box represents a standard sim cockpit: 60 cm × 150 cm with your eye (red circle) 5 cm from the back edge (behind the wheel). It helps you check if bezels or screen edges will block your view.</p>
       </div>
+
+      <div className="text-center text-sm text-gray-500 pt-4">
+        Built with 🏎️🏁. <a href="https://github.com/anzax/triple-screen-planner" className="underline hover:text-blue-600" target="_blank" rel="noopener noreferrer">View on GitHub</a>. Found a bug or have feedback? <a href="https://github.com/anzax/triple-screen-planner/issues" className="underline hover:text-blue-600" target="_blank" rel="noopener noreferrer">Open an issue</a>.
+      </div>
     </div>
   );
 }
