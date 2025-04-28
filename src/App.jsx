@@ -30,27 +30,25 @@ export default function App() {
     const H      = diagIn * (ar.h / diagFac);
     const a      = W / 2 + bezel;
 
-    // side monitor tilt
+    // side screen angle
     const x_c    = (W * d * d) / (d * d + a * a);
     const y_c    = (a * x_c - d * d) / d;
     const u_x    = 2 * (x_c - a);
     const u_y    = 2 * (y_c + d);
     const sideAngleDeg = Math.abs(Math.atan2(u_y, u_x)) * 180 / Math.PI;
 
-    // horizontal FOV
-    const pivotR = { x: a, y: -d }, pivotL = { x: -a, y: -d };
-    const uR     = { x: u_x, y: u_y }, uL     = { x: -u_x, y: u_y };
-    const outerR = { x: pivotR.x + uR.x, y: pivotR.y + uR.y };
-    const outerL = { x: pivotL.x + uL.x, y: pivotL.y + uL.y };
-    const dot    = outerL.x * outerR.x + outerL.y * outerR.y;
-    const magL   = Math.hypot(outerL.x, outerL.y);
-    const magR   = Math.hypot(outerR.x, outerR.y);
-    const hFOVdeg= Math.acos(dot / (magL * magR)) * 180 / Math.PI;
+    // horizontal FOV (fixed)
+    const hFOVrad = 2 * Math.atan((W / 2) / d);
+    const hFOVdeg = hFOVrad * 180 / Math.PI * 3;
 
     // vertical FOV
     const vFOVdeg = 2 * Math.atan((H / 2) / d) * 180 / Math.PI;
 
-        // total width between outer edges of side monitors
+    // total width between outer edges of side screens
+    const pivotR = { x: a, y: -d }, pivotL = { x: -a, y: -d };
+    const uR     = { x: u_x, y: u_y }, uL = { x: -u_x, y: u_y };
+    const outerR = { x: pivotR.x + uR.x, y: pivotR.y + uR.y };
+    const outerL = { x: pivotL.x + uL.x, y: pivotL.y + uL.y };
     const totalWidthIn = outerR.x - outerL.x;
     const totalWidthCm = in2cm(totalWidthIn);
 
@@ -110,12 +108,12 @@ export default function App() {
       </div>
 
       <div className="grid sm:grid-cols-6 gap-4 text-center">
-        <Card v={`${data.sideAngleDeg.toFixed(1)}°`} l="Side monitor tilt"/>
+        <Card v={`${data.sideAngleDeg.toFixed(1)}°`} l="Side screen angle"/>
         <Card v={`${data.hFOVdeg.toFixed(1)}°`} l="Horizontal FOV"/>
         <Card v={`${data.vFOVdeg.toFixed(1)}°`} l="Vertical FOV"/>
-        <Card v={`${data.cm.distance.toFixed(1)} cm`} l="Eye‑to‑screen"/>
-        <Card v={`${data.cm.bezel.toFixed(1)} cm`} l="Bezel gap"/>
-        <Card v={`${data.cm.totalWidth.toFixed(1)} cm`} l="Total width"/>
+        <Card v={`${data.cm.distance.toFixed(1)} cm`} l="Eye‑to‑screen"/>
+        <Card v={`${data.cm.bezel.toFixed(1)} cm`} l="Bezel size"/>
+        <Card v={`${data.cm.totalWidth.toFixed(1)} cm`} l="Total width"/>
       </div>
 
       <div className="bg-white rounded shadow p-2 overflow-auto" style={{ maxHeight: '70vh' }}>
@@ -127,10 +125,10 @@ export default function App() {
       </div>
 
       <div className="bg-gray-50 p-4 rounded text-sm text-gray-700 space-y-2">
-        <p>Use the sliders to dial in your actual setup—screen diagonal, aspect ratio, eye-to-screen distance (measure from your eyes to the centre of your main monitor), and bezel gap. The planner then finds the perfect tilt so distances to all screen edges are the same.</p>
+        <p>Use the sliders to dial in your actual setup—screen diagonal, aspect ratio, eye-to-screen distance (measure from your eyes to the centre of your main screen), and bezel size. The planner then finds the perfect angle so distances to all screen edges are the same.</p>
         <p><strong>Horizontal FOV</strong> shows your in-game side-to-side field of view, while <strong>Vertical FOV</strong> tells you how much screen height you cover—useful for seeing your dash and brake markers.</p>
-        <p><strong>Total width</strong> is the straight-line distance between the outer edges of your side monitors, so you know exactly how much floor space to reserve.</p>
-        <p>The light-grey box represents a standard sim cockpit: 60 cm × 150 cm with your eye (red circle) 10 cm from the back edge of the rig.</p>
+        <p><strong>Total width</strong> is the straight-line distance between the outer edges of your side screens, so you know exactly how much floor space to reserve.</p>
+        <p>The <strong>light-grey box</strong> represents a standard sim cockpit: 60 cm × 150 cm with your head (red circle) 10 cm from the back edge of the rig.</p>
       </div>
 
       <div className="text-center text-sm text-gray-500 pt-4">
