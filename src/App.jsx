@@ -9,7 +9,7 @@ export default function App() {
   const [diagIn, setDiagIn]   = useState(32);
   const [ratio,  setRatio]    = useState("16:9");
   const [distCm, setDistCm]   = useState(60);
-  const [bezelCm,setBezelCm]  = useState(0);
+  const [bezelMm,setBezelMm]  = useState(0);
 
   /* ---------- Helpers ---------- */
   const cm2in = cm => cm / 2.54;
@@ -23,7 +23,7 @@ export default function App() {
   /* ---------- Geometry ---------- */
   const data = useMemo(() => {
     const d      = cm2in(distCm);
-    const bezel  = cm2in(bezelCm);
+    const bezel  = cm2in(bezelMm / 10);
     const ar     = ratio === "16:9" ? { w: 16, h: 9 } : { w: 21, h: 9 };
     const diagFac= Math.hypot(ar.w, ar.h);
     const W      = diagIn * (ar.w / diagFac);
@@ -37,9 +37,9 @@ export default function App() {
     const u_y    = 2 * (y_c + d);
     const sideAngleDeg = Math.abs(Math.atan2(u_y, u_x)) * 180 / Math.PI;
 
-    // horizontal FOV (fixed)
+    // horizontal FOV (including bezels)
     const hFOVrad = 2 * Math.atan((W / 2) / d);
-    const hFOVdeg = hFOVrad * 180 / Math.PI * 3;
+    const hFOVdeg = (hFOVrad * 180 / Math.PI * 3) + (2 * Math.atan(bezel / d) * 180 / Math.PI * 2);
 
     // vertical FOV
     const vFOVdeg = 2 * Math.atan((H / 2) / d) * 180 / Math.PI;
@@ -53,10 +53,10 @@ export default function App() {
     const totalWidthCm = in2cm(totalWidthIn);
 
     return { sideAngleDeg, hFOVdeg, vFOVdeg,
-      cm: { distance: distCm, bezel: bezelCm, totalWidth: totalWidthCm },
+      cm: { distance: distCm, bezel: bezelMm, totalWidth: totalWidthCm },
       geom: { pivotL, pivotR, uL, uR }
     };
-  }, [diagIn, ratio, distCm, bezelCm]);
+  }, [diagIn, ratio, distCm, bezelMm]);
 
   /* ---------- SVG layout ---------- */
   const view = useMemo(() => {
@@ -104,7 +104,7 @@ export default function App() {
           </select>
         </div>
         <Slider label={`Eye‑to‑screen (cm): ${distCm}`} min={50} max={150} val={distCm} setVal={setDistCm}/>
-        <Input label="Bezel (cm)" value={bezelCm} setValue={setBezelCm}/>
+        <Slider label={`Bezel (mm): ${bezelMm}`} min={0} max={50} val={bezelMm} setVal={setBezelMm}/>
       </div>
 
       <div className="grid sm:grid-cols-6 gap-4 text-center">
@@ -112,7 +112,7 @@ export default function App() {
         <Card v={`${data.hFOVdeg.toFixed(1)}°`} l="Horizontal FOV"/>
         <Card v={`${data.vFOVdeg.toFixed(1)}°`} l="Vertical FOV"/>
         <Card v={`${data.cm.distance.toFixed(1)} cm`} l="Eye‑to‑screen"/>
-        <Card v={`${data.cm.bezel.toFixed(1)} cm`} l="Bezel size"/>
+        <Card v={`${Math.round(data.cm.bezel)} mm`} l="Bezel size"/>
         <Card v={`${data.cm.totalWidth.toFixed(1)} cm`} l="Total width"/>
       </div>
 
