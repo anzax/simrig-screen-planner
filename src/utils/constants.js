@@ -7,4 +7,5 @@ export const RIG_CONSTANTS = {
 export const ASPECT_RATIOS = {
   '16:9': { w: 16, h: 9 },
   '21:9': { w: 21, h: 9 },
+  '32:9': { w: 32, h: 9 },
 }

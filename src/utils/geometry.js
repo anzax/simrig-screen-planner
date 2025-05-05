@@ -1,37 +1,82 @@
 import { cm2in, in2cm } from './conversions'
 
-export function calculateScreenGeometry(diagIn, ratio, distCm, bezelMm) {
+export function calculateScreenGeometry(
+  diagIn,
+  ratio,
+  distCm,
+  bezelMm,
+  setupType = 'triple',
+  angleMode = 'auto',
+  manualAngle = 60
+) {
   const d = cm2in(distCm)
   const bezel = cm2in(bezelMm / 10)
-  const ar = ratio === '16:9' ? { w: 16, h: 9 } : { w: 21, h: 9 }
+  const ar =
+    ratio === '16:9' ? { w: 16, h: 9 } : ratio === '21:9' ? { w: 21, h: 9 } : { w: 32, h: 9 }
   const diagFac = Math.hypot(ar.w, ar.h)
   const W = diagIn * (ar.w / diagFac)
   const H = diagIn * (ar.h / diagFac)
   const a = W / 2 + bezel
 
   // side screen angle
-  const x_c = (W * d * d) / (d * d + a * a)
-  const y_c = (a * x_c - d * d) / d
-  const u_x = 2 * (x_c - a)
-  const u_y = 2 * (y_c + d)
-  const sideAngleDeg = (Math.abs(Math.atan2(u_y, u_x)) * 180) / Math.PI
+  let sideAngleDeg = 0
+
+  if (setupType === 'triple') {
+    if (angleMode === 'auto') {
+      const x_c = (W * d * d) / (d * d + a * a)
+      const y_c = (a * x_c - d * d) / d
+      const u_x = 2 * (x_c - a)
+      const u_y = 2 * (y_c + d)
+      sideAngleDeg = (Math.abs(Math.atan2(u_y, u_x)) * 180) / Math.PI
+    } else {
+      // Use manual angle
+      sideAngleDeg = manualAngle
+    }
+  }
 
   // horizontal FOV (including bezels)
-  const hFOVrad = 2 * Math.atan(W / 2 / d)
-  const hFOVdeg = ((hFOVrad * 180) / Math.PI) * 3 + ((2 * Math.atan(bezel / d) * 180) / Math.PI) * 2
+  let hFOVdeg, vFOVdeg, totalWidthCm
+  let pivotR, pivotL, uR, uL
 
-  // vertical FOV
-  const vFOVdeg = (2 * Math.atan(H / 2 / d) * 180) / Math.PI
+  if (setupType === 'single') {
+    // For single screen, FOV is just the angle of the screen from the eye
+    const hFOVrad = 2 * Math.atan(W / 2 / d)
+    hFOVdeg = (hFOVrad * 180) / Math.PI
 
-  // total width between outer edges of side screens
-  const pivotR = { x: a, y: -d },
+    // vertical FOV
+    vFOVdeg = (2 * Math.atan(H / 2 / d) * 180) / Math.PI
+
+    // For single screen, total width is just the screen width
+    totalWidthCm = in2cm(W)
+
+    // Set up geometry for visualization
+    pivotR = { x: W / 2, y: -d }
+    pivotL = { x: -W / 2, y: -d }
+    uR = { x: 0, y: 0 }
+    uL = { x: 0, y: 0 }
+  } else {
+    // For triple screen, calculate FOV including all screens and bezels
+    const hFOVrad = 2 * Math.atan(W / 2 / d)
+    hFOVdeg = ((hFOVrad * 180) / Math.PI) * 3 + ((2 * Math.atan(bezel / d) * 180) / Math.PI) * 2
+
+    // vertical FOV
+    vFOVdeg = (2 * Math.atan(H / 2 / d) * 180) / Math.PI
+
+    // Calculate vectors for side screens based on angle
+    const angleRad = (sideAngleDeg * Math.PI) / 180
+    const u_x = W * Math.cos(angleRad)
+    const u_y = W * Math.sin(angleRad)
+
+    // total width between outer edges of side screens
+    pivotR = { x: a, y: -d }
     pivotL = { x: -a, y: -d }
-  const uR = { x: u_x, y: u_y },
+    uR = { x: u_x, y: u_y }
     uL = { x: -u_x, y: u_y }
-  const outerR = { x: pivotR.x + uR.x, y: pivotR.y + uR.y }
-  const outerL = { x: pivotL.x + uL.x, y: pivotL.y + uL.y }
-  const totalWidthIn = outerR.x - outerL.x
-  const totalWidthCm = in2cm(totalWidthIn)
+    const outerR = { x: pivotR.x + uR.x, y: pivotR.y + uR.y }
+    const outerL = { x: pivotL.x + uL.x, y: pivotL.y + uL.y }
+    const totalWidthIn = outerR.x - outerL.x
+    totalWidthCm = in2cm(totalWidthIn)
+  }
 
   return {
     sideAngleDeg,

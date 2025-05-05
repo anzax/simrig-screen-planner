@@ -4,8 +4,8 @@ import { calculateScreenGeometry, calculateSvgLayout } from '../geometry'
 import { RIG_CONSTANTS } from '../constants'
 
 describe('calculateScreenGeometry', () => {
-  // Test standard 16:9 monitor setup
-  it('calculates correct geometry for 27" 16:9 monitors', () => {
+  // Test standard 16:9 monitor setup with triple screens (default)
+  it('calculates correct geometry for 27" 16:9 monitors with triple setup', () => {
     const result = calculateScreenGeometry(27, '16:9', 70, 10)
 
     // Check that all expected properties are returned
@@ -30,6 +30,30 @@ describe('calculateScreenGeometry', () => {
     expect(result.geom.pivotR.x).toBeGreaterThan(0)
   })
 
+  // Test single screen setup
+  it('calculates correct geometry for single screen setup', () => {
+    const result = calculateScreenGeometry(27, '16:9', 70, 10, 'single')
+
+    // For single screen, side angle should be 0
+    expect(result.sideAngleDeg).toBe(0)
+
+    // FOV should be smaller for single screen compared to triple
+    const tripleResult = calculateScreenGeometry(27, '16:9', 70, 10, 'triple')
+    expect(result.hFOVdeg).toBeLessThan(tripleResult.hFOVdeg)
+
+    // Total width should be just the screen width for single setup
+    expect(result.cm.totalWidth).toBeLessThan(tripleResult.cm.totalWidth)
+  })
+
+  // Test manual angle mode
+  it('uses manual angle when angleMode is set to manual', () => {
+    const manualAngle = 45
+    const result = calculateScreenGeometry(27, '16:9', 70, 10, 'triple', 'manual', manualAngle)
+
+    // Side angle should match the manual angle
+    expect(result.sideAngleDeg).toBe(manualAngle)
+  })
+
   // Test ultrawide 21:9 monitor setup
   it('calculates correct geometry for 34" 21:9 monitors', () => {
     const result = calculateScreenGeometry(34, '21:9', 75, 15)
@@ -37,6 +61,23 @@ describe('calculateScreenGeometry', () => {
     expect(result.sideAngleDeg).toBeCloseTo(59.4, 1)
     expect(result.hFOVdeg).toBeGreaterThan(150)
     expect(result.vFOVdeg).toBeLessThan(30)
+
+    // Check that total width is calculated correctly
+    expect(result.cm.totalWidth).toBeGreaterThan(0)
+  })
+
+  // Test super ultrawide 32:9 monitor setup
+  it('calculates correct geometry for 49" 32:9 monitors', () => {
+    const result = calculateScreenGeometry(49, '32:9', 80, 15)
+
+    // Check that all expected properties are returned
+    expect(result).toHaveProperty('sideAngleDeg')
+    expect(result).toHaveProperty('hFOVdeg')
+    expect(result).toHaveProperty('vFOVdeg')
+
+    // 32:9 should have wider FOV than 21:9 with similar size
+    const result21_9 = calculateScreenGeometry(34, '21:9', 80, 15)
+    expect(result.hFOVdeg).toBeGreaterThan(result21_9.hFOVdeg)
 
     // Check that total width is calculated correctly
     expect(result.cm.totalWidth).toBeGreaterThan(0)

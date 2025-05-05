@@ -43,6 +43,18 @@ export default function Footer() {
           Open an issue
         </a>
         .
+        <p className="mt-2 mb-2   text-gray-600 font-semibold">
+          🏁 Crafted by a fellow sim racer for{' '}
+          <a
+            href="https://www.reddit.com/r/simracing/"
+            className="underline decoration-solid hover:text-blue-600"
+            target="_blank"
+            rel="noopener noreferrer"
+          >
+            r/simracing
+          </a>{' '}
+          community 🔥
+        </p>
       </div>
     </>
   )

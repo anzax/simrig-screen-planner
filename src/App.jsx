@@ -12,8 +12,24 @@ export default function App() {
   const [distCm, setDistCm] = useState(60)
   const [bezelMm, setBezelMm] = useState(0)
 
+  /* ---------- Enhanced Inputs ---------- */
+  const [inputMode, setInputMode] = useState('diagonal')
+  const [setupType, setSetupType] = useState('triple')
+  const [angleMode, setAngleMode] = useState('auto')
+  const [manualAngle, setManualAngle] = useState(60)
+  const [screenWidth, setScreenWidth] = useState(0)
+  const [screenHeight, setScreenHeight] = useState(0)
+
   /* ---------- Calculations ---------- */
-  const { data, view } = useScreenCalculations(diagIn, ratio, distCm, bezelMm)
+  const { data, view } = useScreenCalculations(
+    diagIn,
+    ratio,
+    distCm,
+    bezelMm,
+    setupType,
+    angleMode,
+    manualAngle
+  )
 
   /* ---------- UI ---------- */
   return (
@@ -31,6 +47,18 @@ export default function App() {
         setDistCm={setDistCm}
         bezelMm={bezelMm}
         setBezelMm={setBezelMm}
+        inputMode={inputMode}
+        setInputMode={setInputMode}
+        setupType={setupType}
+        setSetupType={setSetupType}
+        angleMode={angleMode}
+        setAngleMode={setAngleMode}
+        manualAngle={manualAngle}
+        setManualAngle={setManualAngle}
+        screenWidth={screenWidth}
+        setScreenWidth={setScreenWidth}
+        screenHeight={screenHeight}
+        setScreenHeight={setScreenHeight}
       />
 
       <StatsDisplay data={data} />

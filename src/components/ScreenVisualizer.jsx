@@ -2,7 +2,10 @@ import React from 'react'
 
 export default function ScreenVisualizer({ view }) {
   return (
-    <div className="bg-white rounded shadow p-2 overflow-auto" style={{ maxHeight: '70vh' }}>
+    <div
+      className="bg-white rounded shadow p-2 overflow-auto flex justify-center items-center"
+      style={{ maxHeight: '70vh' }}
+    >
       <svg width={view.widthPx} height={view.heightPx}>
         <rect
           x={view.rig.x}
