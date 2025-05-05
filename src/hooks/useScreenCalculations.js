@@ -1,5 +1,5 @@
 import { useMemo } from 'react'
-import { ASPECT_RATIOS, RIG_CONSTANTS } from '../utils/constants'
+import { RIG_CONSTANTS } from '../utils/constants'
 import { calculateScreenGeometry, calculateSvgLayout } from '../utils/geometry'
 
 export function useScreenCalculations(

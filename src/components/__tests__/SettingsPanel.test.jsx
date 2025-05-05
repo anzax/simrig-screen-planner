@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import SettingsPanel from '../SettingsPanel'
 import { useSettingsStore } from '../../store/settingsStore'
@@ -8,13 +8,13 @@ vi.mock('../NumberInputWithSlider', () => ({
   default: ({ label, value, onChange }) => (
     <div>
       <label>{label}</label>
-      <input 
-        data-testid={`slider-${label}`} 
-        value={value} 
-        onChange={(e) => onChange(Number(e.target.value))} 
+      <input
+        data-testid={`slider-${label}`}
+        value={value}
+        onChange={e => onChange(Number(e.target.value))}
       />
     </div>
-  )
+  ),
 }))
 
 describe('SettingsPanel', () => {
@@ -32,7 +32,7 @@ describe('SettingsPanel', () => {
       screenWidth: 700,
       screenHeight: 400,
       isCurved: false,
-      curveRadius: 1000
+      curveRadius: 1000,
     })
   })
 
@@ -60,9 +60,9 @@ describe('SettingsPanel', () => {
 
     // Click to change to manual mode
     // Use a more reliable way to find the button
-    const buttons = screen.getAllByRole('button');
-    const manualButton = buttons.find(button => button.textContent.includes('Width'));
-    fireEvent.click(manualButton);
+    const buttons = screen.getAllByRole('button')
+    const manualButton = buttons.find(button => button.textContent.includes('Width'))
+    fireEvent.click(manualButton)
 
     // Check that store was updated
     expect(useSettingsStore.getState().inputMode).toBe('manual')

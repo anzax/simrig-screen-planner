@@ -1,4 +1,5 @@
 import { cm2in, in2cm } from './conversions'
+import { ASPECT_RATIOS } from './constants'
 
 export function calculateScreenGeometry(
   diagIn,
@@ -21,8 +22,7 @@ export function calculateScreenGeometry(
   let W, H
 
   if (inputMode === 'diagonal') {
-    const ar =
-      ratio === '16:9' ? { w: 16, h: 9 } : ratio === '21:9' ? { w: 21, h: 9 } : { w: 32, h: 9 }
+    const ar = ASPECT_RATIOS[ratio]
     const diagFac = Math.hypot(ar.w, ar.h)
     // Convert bezel from mm to inches and add it to the diagonal
     const bezelInches = (bezelMm * 2) / 25.4
