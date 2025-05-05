@@ -60,7 +60,7 @@ export default function NumberInputWithSlider({
         <div className="flex items-center">
           <input
             type="number"
-            className="w-14 px-1.5 py-0.5 text-sm border border-gray-300 rounded"
+            className="w-20 px-1.5 py-0.5 text-sm border border-gray-300 rounded"
             value={localValue}
             onChange={handleInputChange}
             onBlur={handleCommit}
