@@ -7,16 +7,38 @@ export function calculateScreenGeometry(
   bezelMm,
   setupType = 'triple',
   angleMode = 'auto',
-  manualAngle = 60
+  manualAngle = 60,
+  inputMode = 'diagonal',
+  screenWidth = 700,
+  screenHeight = 400,
+  isCurved = false,
+  curveRadius = 1000
 ) {
   const d = cm2in(distCm)
   const bezel = cm2in(bezelMm / 10)
-  const ar =
-    ratio === '16:9' ? { w: 16, h: 9 } : ratio === '21:9' ? { w: 21, h: 9 } : { w: 32, h: 9 }
-  const diagFac = Math.hypot(ar.w, ar.h)
-  const W = diagIn * (ar.w / diagFac)
-  const H = diagIn * (ar.h / diagFac)
+
+  // Calculate screen dimensions based on input mode
+  let W, H
+
+  if (inputMode === 'diagonal') {
+    const ar =
+      ratio === '16:9' ? { w: 16, h: 9 } : ratio === '21:9' ? { w: 21, h: 9 } : { w: 32, h: 9 }
+    const diagFac = Math.hypot(ar.w, ar.h)
+    // Convert bezel from mm to inches and add it to the diagonal
+    const bezelInches = (bezelMm * 2) / 25.4
+    const effectiveDiagIn = diagIn + bezelInches
+    W = effectiveDiagIn * (ar.w / diagFac)
+    H = effectiveDiagIn * (ar.h / diagFac)
+  } else {
+    // Convert mm to inches
+    W = screenWidth / 25.4
+    H = screenHeight / 25.4
+  }
+
   const a = W / 2 + bezel
+
+  // Note: isCurved and curveRadius are accepted but not used in calculations yet
+  // This is a placeholder for future implementation
 
   // side screen angle
   let sideAngleDeg = 0
@@ -84,6 +106,14 @@ export function calculateScreenGeometry(
     vFOVdeg,
     cm: { distance: distCm, bezel: bezelMm, totalWidth: totalWidthCm },
     geom: { pivotL, pivotR, uL, uR },
+    // Add curved screen info to the returned data for future use
+    curved: { isCurved, curveRadius },
+    // Add screen dimensions info
+    screen: {
+      inputMode,
+      widthMm: inputMode === 'diagonal' ? Math.round(W * 25.4) : screenWidth,
+      heightMm: inputMode === 'diagonal' ? Math.round(H * 25.4) : screenHeight,
+    },
   }
 }
 

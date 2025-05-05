@@ -17,8 +17,12 @@ export default function App() {
   const [setupType, setSetupType] = useState('triple')
   const [angleMode, setAngleMode] = useState('auto')
   const [manualAngle, setManualAngle] = useState(60)
-  const [screenWidth, setScreenWidth] = useState(0)
-  const [screenHeight, setScreenHeight] = useState(0)
+  const [screenWidth, setScreenWidth] = useState(700) // Default value in mm
+  const [screenHeight, setScreenHeight] = useState(400) // Default value in mm
+
+  /* ---------- Curved Screen Options ---------- */
+  const [isCurved, setIsCurved] = useState(false)
+  const [curveRadius, setCurveRadius] = useState(1000)
 
   /* ---------- Calculations ---------- */
   const { data, view } = useScreenCalculations(
@@ -28,7 +32,12 @@ export default function App() {
     bezelMm,
     setupType,
     angleMode,
-    manualAngle
+    manualAngle,
+    inputMode,
+    screenWidth,
+    screenHeight,
+    isCurved,
+    curveRadius
   )
 
   /* ---------- UI ---------- */
@@ -59,6 +68,10 @@ export default function App() {
         setScreenWidth={setScreenWidth}
         screenHeight={screenHeight}
         setScreenHeight={setScreenHeight}
+        isCurved={isCurved}
+        setIsCurved={setIsCurved}
+        curveRadius={curveRadius}
+        setCurveRadius={setCurveRadius}
       />
 
       <StatsDisplay data={data} />

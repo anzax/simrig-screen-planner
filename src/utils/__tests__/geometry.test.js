@@ -16,9 +16,9 @@ describe('calculateScreenGeometry', () => {
     expect(result).toHaveProperty('geom')
 
     // Verify specific values with reasonable precision
-    expect(result.sideAngleDeg).toBeCloseTo(49.1, 1)
-    expect(result.hFOVdeg).toBeCloseTo(142, 0)
-    expect(result.vFOVdeg).toBeCloseTo(27, 0)
+    expect(result.sideAngleDeg).toBeCloseTo(50.2, 1)
+    expect(result.hFOVdeg).toBeCloseTo(146, 0)
+    expect(result.vFOVdeg).toBeCloseTo(27.8, 1)
 
     // Check cm object properties
     expect(result.cm.distance).toBe(70)
@@ -58,7 +58,7 @@ describe('calculateScreenGeometry', () => {
   it('calculates correct geometry for 34" 21:9 monitors', () => {
     const result = calculateScreenGeometry(34, '21:9', 75, 15)
 
-    expect(result.sideAngleDeg).toBeCloseTo(59.4, 1)
+    expect(result.sideAngleDeg).toBeCloseTo(61.0, 1)
     expect(result.hFOVdeg).toBeGreaterThan(150)
     expect(result.vFOVdeg).toBeLessThan(30)
 

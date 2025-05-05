@@ -9,7 +9,12 @@ export function useScreenCalculations(
   bezelMm,
   setupType = 'triple',
   angleMode = 'auto',
-  manualAngle = 60
+  manualAngle = 60,
+  inputMode = 'diagonal',
+  screenWidth = 700,
+  screenHeight = 400,
+  isCurved = false,
+  curveRadius = 1000
 ) {
   const data = useMemo(() => {
     return calculateScreenGeometry(
@@ -19,9 +24,27 @@ export function useScreenCalculations(
       bezelMm,
       setupType,
       angleMode,
-      manualAngle
+      manualAngle,
+      inputMode,
+      screenWidth,
+      screenHeight,
+      isCurved,
+      curveRadius
     )
-  }, [diagIn, ratio, distCm, bezelMm, setupType, angleMode, manualAngle])
+  }, [
+    diagIn,
+    ratio,
+    distCm,
+    bezelMm,
+    setupType,
+    angleMode,
+    manualAngle,
+    inputMode,
+    screenWidth,
+    screenHeight,
+    isCurved,
+    curveRadius,
+  ])
 
   const view = useMemo(() => {
     return calculateSvgLayout(data.geom, RIG_CONSTANTS)

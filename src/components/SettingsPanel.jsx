@@ -24,24 +24,25 @@ export default function SettingsPanel({
   setScreenWidth,
   screenHeight,
   setScreenHeight,
+  // Curved screen options
+  isCurved,
+  setIsCurved,
+  curveRadius,
+  setCurveRadius,
 }) {
-  // State for curved screen options
-  const [isCurved, setIsCurved] = useState(false)
-  const [curveRadius, setCurveRadius] = useState(1000)
   // Calculate optimal angle based on current settings
   const calculatedAngle =
     diagIn && ratio && distCm
       ? parseFloat(
           (
             (Math.atan(
-              ((diagIn *
+              ((diagIn + (bezelMm * 2) / 25.4) *
                 (ratio === '16:9'
                   ? 16 / Math.hypot(16, 9)
                   : ratio === '21:9'
                     ? 21 / Math.hypot(21, 9)
                     : 32 / Math.hypot(32, 9))) /
-                2 +
-                bezelMm / 25.4) /
+                2 /
                 (distCm / 2.54)
             ) *
               180) /

@@ -10,6 +10,15 @@ export default function StatsDisplay({ data }) {
       <Card v={`${data.cm.distance.toFixed(1)} cm`} l="Eye‑to‑screen" />
       <Card v={`${Math.round(data.cm.bezel)} mm`} l="Bezel size" />
       <Card v={`${data.cm.totalWidth.toFixed(1)} cm`} l="Total width" />
+      {/* Show screen dimensions */}
+      <Card
+        v={`${data.screen.widthMm} × ${data.screen.heightMm} mm`}
+        l={data.screen.inputMode === 'diagonal' ? 'Screen dimensions (calc)' : 'Screen dimensions'}
+      />
+      {/* Show curved screen info if enabled */}
+      {data.curved && data.curved.isCurved && (
+        <Card v={`${data.curved.curveRadius} mm`} l="Curve radius" />
+      )}
     </div>
   )
 }
