@@ -1,6 +1,6 @@
 # Triple-Screen Planner Project Overview v1
 
-*Snapshot: May 4, 2025*
+_Snapshot: May 4, 2025_
 
 ## Application Purpose
 
@@ -17,12 +17,14 @@ Calculate optimal triple-screen configurations for sim racing setups. Determines
 ## Core Features
 
 ### Input Parameters
+
 - Screen Size: 17-77 inches (diagonal)
 - Aspect Ratio: 16:9 / 21:9
 - Eye-to-Screen Distance: 50-150 cm
 - Bezel Size: 0-50 mm
 
 ### Calculated Outputs
+
 - Side Screen Angle
 - Horizontal FOV
 - Vertical FOV
@@ -32,6 +34,7 @@ Calculate optimal triple-screen configurations for sim racing setups. Determines
 ## Architecture
 
 ### Component Structure
+
 ```
 App.jsx
 ├── State: useState for inputs
@@ -43,14 +46,16 @@ App.jsx
 ### Key Algorithms
 
 **Side Screen Angle**
+
 ```javascript
-const x_c = (W * d * d) / (d * d + a * a);
-const sideAngleDeg = Math.abs(Math.atan2(u_y, u_x)) * 180 / Math.PI;
+const x_c = (W * d * d) / (d * d + a * a)
+const sideAngleDeg = (Math.abs(Math.atan2(u_y, u_x)) * 180) / Math.PI
 ```
 
 **Horizontal FOV**
+
 ```javascript
-const hFOVdeg = (hFOVrad * 180 / Math.PI * 3) + (2 * Math.atan(bezel / d) * 180 / Math.PI * 2);
+const hFOVdeg = ((hFOVrad * 180) / Math.PI) * 3 + ((2 * Math.atan(bezel / d) * 180) / Math.PI) * 2
 ```
 
 ## File Structure
@@ -67,12 +72,14 @@ index.html       # HTML template
 ## Dependencies
 
 **Production**
+
 - react: 19.0.0
 - react-dom: 19.0.0
 - tailwindcss: 4.1.4
 - gh-pages: 6.3.0
 
 **Development**
+
 - vite: 6.3.1
 - eslint: 9.22.0
 - @vitejs/plugin-react: 4.3.4
@@ -94,4 +101,4 @@ npm run deploy   # Deploy to GitHub Pages
 
 ---
 
-*v1 Snapshot: May 4, 2025*
+_v1 Snapshot: May 4, 2025_
