@@ -1,4 +1,5 @@
-import React, { useState } from 'react'
+import React from 'react'
+import { useSettingsStore } from './store/settingsStore'
 import { useScreenCalculations } from './hooks/useScreenCalculations'
 import SettingsPanel from './components/SettingsPanel'
 import StatsDisplay from './components/StatsDisplay'
@@ -6,23 +7,21 @@ import ScreenVisualizer from './components/ScreenVisualizer'
 import Footer from './components/Footer'
 
 export default function App() {
-  /* ---------- Inputs ---------- */
-  const [diagIn, setDiagIn] = useState(32)
-  const [ratio, setRatio] = useState('16:9')
-  const [distCm, setDistCm] = useState(60)
-  const [bezelMm, setBezelMm] = useState(0)
-
-  /* ---------- Enhanced Inputs ---------- */
-  const [inputMode, setInputMode] = useState('diagonal')
-  const [setupType, setSetupType] = useState('triple')
-  const [angleMode, setAngleMode] = useState('auto')
-  const [manualAngle, setManualAngle] = useState(60)
-  const [screenWidth, setScreenWidth] = useState(700) // Default value in mm
-  const [screenHeight, setScreenHeight] = useState(400) // Default value in mm
-
-  /* ---------- Curved Screen Options ---------- */
-  const [isCurved, setIsCurved] = useState(false)
-  const [curveRadius, setCurveRadius] = useState(1000)
+  // Get all settings from the store
+  const {
+    diagIn,
+    ratio,
+    distCm,
+    bezelMm,
+    inputMode,
+    setupType,
+    angleMode,
+    manualAngle,
+    screenWidth,
+    screenHeight,
+    isCurved,
+    curveRadius,
+  } = useSettingsStore()
 
   /* ---------- Calculations ---------- */
   const { data, view } = useScreenCalculations(
@@ -47,32 +46,7 @@ export default function App() {
         Triple‑Screen Planner <span className="text-sm font-normal">(Sim‑Racing)</span>
       </h1>
 
-      <SettingsPanel
-        diagIn={diagIn}
-        setDiagIn={setDiagIn}
-        ratio={ratio}
-        setRatio={setRatio}
-        distCm={distCm}
-        setDistCm={setDistCm}
-        bezelMm={bezelMm}
-        setBezelMm={setBezelMm}
-        inputMode={inputMode}
-        setInputMode={setInputMode}
-        setupType={setupType}
-        setSetupType={setSetupType}
-        angleMode={angleMode}
-        setAngleMode={setAngleMode}
-        manualAngle={manualAngle}
-        setManualAngle={setManualAngle}
-        screenWidth={screenWidth}
-        setScreenWidth={setScreenWidth}
-        screenHeight={screenHeight}
-        setScreenHeight={setScreenHeight}
-        isCurved={isCurved}
-        setIsCurved={setIsCurved}
-        curveRadius={curveRadius}
-        setCurveRadius={setCurveRadius}
-      />
+      <SettingsPanel />
 
       <StatsDisplay data={data} />
 

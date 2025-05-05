@@ -1,35 +1,40 @@
-import React, { useState } from 'react'
+import React from 'react'
 import NumberInputWithSlider from './NumberInputWithSlider'
+import { useSettingsStore } from '../store/settingsStore'
 
-export default function SettingsPanel({
-  // Basic inputs
-  diagIn,
-  setDiagIn,
-  ratio,
-  setRatio,
-  distCm,
-  setDistCm,
-  bezelMm,
-  setBezelMm,
-  // Enhanced inputs
-  inputMode,
-  setInputMode,
-  setupType,
-  setSetupType,
-  angleMode,
-  setAngleMode,
-  manualAngle,
-  setManualAngle,
-  screenWidth,
-  setScreenWidth,
-  screenHeight,
-  setScreenHeight,
-  // Curved screen options
-  isCurved,
-  setIsCurved,
-  curveRadius,
-  setCurveRadius,
-}) {
+export default function SettingsPanel() {
+  // Get state and actions from the store
+  const {
+    // Basic inputs
+    diagIn,
+    setDiagIn,
+    ratio,
+    setRatio,
+    distCm,
+    setDistCm,
+    bezelMm,
+    setBezelMm,
+
+    // Enhanced inputs
+    inputMode,
+    setInputMode,
+    setupType,
+    setSetupType,
+    angleMode,
+    setAngleMode,
+    manualAngle,
+    setManualAngle,
+    screenWidth,
+    setScreenWidth,
+    screenHeight,
+    setScreenHeight,
+
+    // Curved screen options
+    isCurved,
+    setIsCurved,
+    curveRadius,
+    setCurveRadius,
+  } = useSettingsStore()
   // Calculate optimal angle based on current settings
   const calculatedAngle =
     diagIn && ratio && distCm
