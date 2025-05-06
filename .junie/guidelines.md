@@ -1,3 +1,3 @@
 # Project Guidelines
-    
-- `npm run test` before submitting
+
+- `npm run test && npm run lint` before submitting

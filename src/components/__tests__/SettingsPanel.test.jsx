@@ -1,7 +1,7 @@
 import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import SettingsPanel from '../SettingsPanel'
-import { useSettingsStore } from '../../store/settingsStore'
+import { setLegacyTestState, getLegacyTestState } from '../../store/testAdapter'
 
 // Mock the NumberInputWithSlider component to simplify testing
 vi.mock('../NumberInputWithSlider', () => ({
@@ -20,7 +20,7 @@ vi.mock('../NumberInputWithSlider', () => ({
 describe('SettingsPanel', () => {
   // Reset store to initial state before each test
   beforeEach(() => {
-    useSettingsStore.setState({
+    setLegacyTestState({
       diagIn: 32,
       ratio: '16:9',
       distCm: 60,
@@ -56,7 +56,7 @@ describe('SettingsPanel', () => {
     render(<SettingsPanel />)
 
     // Initially in diagonal mode
-    expect(useSettingsStore.getState().inputMode).toBe('diagonal')
+    expect(getLegacyTestState().inputMode).toBe('diagonal')
 
     // Click to change to manual mode
     // Use a more reliable way to find the button
@@ -65,32 +65,32 @@ describe('SettingsPanel', () => {
     fireEvent.click(manualButton)
 
     // Check that store was updated
-    expect(useSettingsStore.getState().inputMode).toBe('manual')
+    expect(getLegacyTestState().inputMode).toBe('manual')
   })
 
   it('should update store when setup type is changed', () => {
     render(<SettingsPanel />)
 
     // Initially in triple mode
-    expect(useSettingsStore.getState().setupType).toBe('triple')
+    expect(getLegacyTestState().setupType).toBe('triple')
 
     // Click to change to single mode
     fireEvent.click(screen.getByText('Single'))
 
     // Check that store was updated
-    expect(useSettingsStore.getState().setupType).toBe('single')
+    expect(getLegacyTestState().setupType).toBe('single')
   })
 
   it('should toggle curved screen options correctly', () => {
     render(<SettingsPanel />)
 
     // Initially flat (not curved)
-    expect(useSettingsStore.getState().isCurved).toBe(false)
+    expect(getLegacyTestState().isCurved).toBe(false)
 
     // Click to change to curved
     fireEvent.click(screen.getByText('Curved'))
 
     // Check that store was updated
-    expect(useSettingsStore.getState().isCurved).toBe(true)
+    expect(getLegacyTestState().isCurved).toBe(true)
   })
 })

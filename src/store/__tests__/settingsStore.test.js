@@ -1,10 +1,11 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { useSettingsStore } from '../settingsStore'
+import { useSettingsStore, useUIStore } from '../settingsStore'
+import { setLegacyTestState, getLegacyTestState } from '../testAdapter'
 
 describe('Settings Store', () => {
   // Reset store to initial state before each test
   beforeEach(() => {
-    useSettingsStore.setState({
+    setLegacyTestState({
       diagIn: 32,
       ratio: '16:9',
       distCm: 60,
@@ -21,7 +22,7 @@ describe('Settings Store', () => {
   })
 
   it('should initialize with correct default values', () => {
-    const state = useSettingsStore.getState()
+    const state = getLegacyTestState()
 
     // Test basic inputs
     expect(state.diagIn).toBe(32)
@@ -43,30 +44,30 @@ describe('Settings Store', () => {
 
     // Test updating diagonal size
     setDiagIn(27)
-    expect(useSettingsStore.getState().diagIn).toBe(27)
+    expect(getLegacyTestState().diagIn).toBe(27)
 
     // Test updating aspect ratio
     setRatio('21:9')
-    expect(useSettingsStore.getState().ratio).toBe('21:9')
+    expect(getLegacyTestState().ratio).toBe('21:9')
 
     // Test updating setup type
     setSetupType('single')
-    expect(useSettingsStore.getState().setupType).toBe('single')
+    expect(getLegacyTestState().setupType).toBe('single')
 
     // Test toggling curved screen
     setIsCurved(true)
-    expect(useSettingsStore.getState().isCurved).toBe(true)
+    expect(getLegacyTestState().isCurved).toBe(true)
   })
 
   it('should handle related state changes correctly', () => {
-    const { setInputMode, setAngleMode } = useSettingsStore.getState()
+    const { setInputMode, setAngleMode } = useUIStore.getState()
 
     // Test changing input mode
     setInputMode('manual')
-    expect(useSettingsStore.getState().inputMode).toBe('manual')
+    expect(getLegacyTestState().inputMode).toBe('manual')
 
     // Test changing angle mode
     setAngleMode('manual')
-    expect(useSettingsStore.getState().angleMode).toBe('manual')
+    expect(getLegacyTestState().angleMode).toBe('manual')
   })
 })

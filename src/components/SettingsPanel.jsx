@@ -1,60 +1,35 @@
 import React from 'react'
-import NumberInputWithSlider from './NumberInputWithSlider'
-import { useSettingsStore } from '../store/settingsStore'
+import NumberInputWithSlider from './ui/NumberInputWithSlider.jsx'
+import NumberInput from './ui/NumberInput.jsx'
+import MultiToggle from './ui/MultiToggle.jsx'
+import { useSettingsStore, useUIStore } from '../store/settingsStore'
+import { calculateOptimalAngle } from '../utils/geometry'
 
 export default function SettingsPanel() {
-  // Get state and actions from the store
-  const {
-    // Basic inputs
-    diagIn,
-    setDiagIn,
-    ratio,
-    setRatio,
-    distCm,
-    setDistCm,
-    bezelMm,
-    setBezelMm,
+  // Get screen properties directly from the store
+  const { screen, distance, layout, curvature } = useSettingsStore()
+  const { diagIn, ratio, bezelMm, screenWidth, screenHeight } = screen
+  const { distCm } = distance
+  const { setupType, manualAngle } = layout
+  const { isCurved, curveRadius } = curvature
 
-    // Enhanced inputs
-    inputMode,
-    setInputMode,
-    setupType,
-    setSetupType,
-    angleMode,
-    setAngleMode,
-    manualAngle,
-    setManualAngle,
-    screenWidth,
-    setScreenWidth,
-    screenHeight,
-    setScreenHeight,
+  // Get UI state and actions from the UI store
+  const { inputMode, angleMode, setInputMode, setAngleMode } = useUIStore()
 
-    // Curved screen options
-    isCurved,
-    setIsCurved,
-    curveRadius,
-    setCurveRadius,
-  } = useSettingsStore()
-  // Calculate optimal angle based on current settings
-  const calculatedAngle =
-    diagIn && ratio && distCm
-      ? parseFloat(
-          (
-            (Math.atan(
-              ((diagIn + (bezelMm * 2) / 25.4) *
-                (ratio === '16:9'
-                  ? 16 / Math.hypot(16, 9)
-                  : ratio === '21:9'
-                    ? 21 / Math.hypot(21, 9)
-                    : 32 / Math.hypot(32, 9))) /
-                2 /
-                (distCm / 2.54)
-            ) *
-              180) /
-            Math.PI
-          ).toFixed(1)
-        )
-      : 60
+  // Get domain actions from the settings store
+  const setDiagIn = useSettingsStore(state => state.setDiagIn)
+  const setRatio = useSettingsStore(state => state.setRatio)
+  const setDistCm = useSettingsStore(state => state.setDistCm)
+  const setBezelMm = useSettingsStore(state => state.setBezelMm)
+  const setSetupType = useSettingsStore(state => state.setSetupType)
+  const setManualAngle = useSettingsStore(state => state.setManualAngle)
+  const setScreenWidth = useSettingsStore(state => state.setScreenWidth)
+  const setScreenHeight = useSettingsStore(state => state.setScreenHeight)
+  const setIsCurved = useSettingsStore(state => state.setIsCurved)
+  const setCurveRadius = useSettingsStore(state => state.setCurveRadius)
+
+  // Calculate the angle using the utility function
+  const calculatedAngle = calculateOptimalAngle(screen, distance)
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
@@ -66,28 +41,14 @@ export default function SettingsPanel() {
 
           {/* Input Method Toggle */}
           <div className="mb-3">
-            <div className="flex gap-1 p-1 bg-gray-100 rounded-lg">
-              <button
-                className={`flex-1 px-3 py-1.5 text-sm rounded-md transition-colors ${
-                  inputMode === 'diagonal'
-                    ? 'bg-white text-gray-900 font-medium shadow-sm'
-                    : 'text-gray-600'
-                }`}
-                onClick={() => setInputMode('diagonal')}
-              >
-                Diagonal
-              </button>
-              <button
-                className={`flex-1 px-3 py-1.5 text-sm rounded-md transition-colors ${
-                  inputMode === 'manual'
-                    ? 'bg-white text-gray-900 font-medium shadow-sm'
-                    : 'text-gray-600'
-                }`}
-                onClick={() => setInputMode('manual')}
-              >
-                Width&nbsp;&times;&nbsp;Height
-              </button>
-            </div>
+            <MultiToggle
+              value={inputMode}
+              onChange={setInputMode}
+              options={[
+                { value: 'diagonal', label: 'Diagonal' },
+                { value: 'manual', label: 'Width\u00A0\u00D7\u00A0Height' },
+              ]}
+            />
           </div>
 
           {/* Screen Dimensions - Conditional based on input mode */}
@@ -103,18 +64,16 @@ export default function SettingsPanel() {
               />
 
               {/* Aspect Ratio */}
-              <div>
-                <div className="text-xs text-gray-600 mb-0.5">Aspect Ratio</div>
-                <select
-                  className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md bg-white"
-                  value={ratio}
-                  onChange={e => setRatio(e.target.value)}
-                >
-                  <option value="16:9">16:9</option>
-                  <option value="21:9">21:9</option>
-                  <option value="32:9">32:9</option>
-                </select>
-              </div>
+              <MultiToggle
+                label="Aspect Ratio"
+                value={ratio}
+                onChange={setRatio}
+                options={[
+                  { value: '16:9', label: '16:9' },
+                  { value: '21:9', label: '21:9' },
+                  { value: '32:9', label: '32:9' },
+                ]}
+              />
 
               {/* Bezel Thickness */}
               <NumberInputWithSlider
@@ -133,26 +92,10 @@ export default function SettingsPanel() {
               </div>
 
               {/* Width */}
-              <div>
-                <div className="text-xs text-gray-600 mb-0.5">Width, mm</div>
-                <input
-                  type="number"
-                  className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md"
-                  value={screenWidth}
-                  onChange={e => setScreenWidth(+e.target.value)}
-                />
-              </div>
+              <NumberInput label="Width, mm" value={screenWidth} onChange={setScreenWidth} />
 
               {/* Height */}
-              <div>
-                <div className="text-xs text-gray-600 mb-0.5">Height, mm</div>
-                <input
-                  type="number"
-                  className="w-full px-2 py-1 text-sm border border-gray-300 rounded-md"
-                  value={screenHeight}
-                  onChange={e => setScreenHeight(+e.target.value)}
-                />
-              </div>
+              <NumberInput label="Height, mm" value={screenHeight} onChange={setScreenHeight} />
             </div>
           )}
         </div>
@@ -163,57 +106,29 @@ export default function SettingsPanel() {
 
           {/* Setup Type */}
           <div className="mb-3">
-            <div className="flex gap-1 p-1 bg-gray-100 rounded-lg">
-              <button
-                className={`flex-1 px-3 py-1.5 text-sm rounded-md transition-colors ${
-                  setupType === 'single'
-                    ? 'bg-white text-gray-900 font-medium shadow-sm'
-                    : 'text-gray-600'
-                }`}
-                onClick={() => setSetupType('single')}
-              >
-                Single
-              </button>
-              <button
-                className={`flex-1 px-3 py-1.5 text-sm rounded-md transition-colors ${
-                  setupType === 'triple'
-                    ? 'bg-white text-gray-900 font-medium shadow-sm'
-                    : 'text-gray-600'
-                }`}
-                onClick={() => setSetupType('triple')}
-              >
-                Triple
-              </button>
-            </div>
+            <MultiToggle
+              value={setupType}
+              onChange={setSetupType}
+              options={[
+                { value: 'single', label: 'Single' },
+                { value: 'triple', label: 'Triple' },
+              ]}
+            />
           </div>
 
           {/* Monitor Angle - only for triple */}
           {setupType === 'triple' ? (
             <div className="space-y-3">
-              <div>
-                <div className="text-xs text-gray-600 mb-0.5">Side Screen Angle</div>
-                <div className="flex gap-1 p-1 bg-gray-100 rounded-lg mb-1">
-                  <button
-                    className={`flex-1 px-3 py-1 text-sm rounded-md transition-colors ${
-                      angleMode === 'auto'
-                        ? 'bg-white text-gray-900 font-medium shadow-sm'
-                        : 'text-gray-600'
-                    }`}
-                    onClick={() => setAngleMode('auto')}
-                  >
-                    Auto
-                  </button>
-                  <button
-                    className={`flex-1 px-3 py-1 text-sm rounded-md transition-colors ${
-                      angleMode === 'manual'
-                        ? 'bg-white text-gray-900 font-medium shadow-sm'
-                        : 'text-gray-600'
-                    }`}
-                    onClick={() => setAngleMode('manual')}
-                  >
-                    Manual
-                  </button>
-                </div>
+              <div className="mb-1">
+                <MultiToggle
+                  label="Side Screen Angle"
+                  value={angleMode}
+                  onChange={setAngleMode}
+                  options={[
+                    { value: 'auto', label: 'Auto' },
+                    { value: 'manual', label: 'Manual' },
+                  ]}
+                />
               </div>
 
               {angleMode === 'auto' ? (
@@ -271,24 +186,14 @@ export default function SettingsPanel() {
 
             {/* Flat/Curved Toggle */}
             <div className="mb-3">
-              <div className="flex gap-1 p-1 bg-gray-100 rounded-lg">
-                <button
-                  className={`flex-1 px-3 py-1.5 text-sm rounded-md transition-colors ${
-                    !isCurved ? 'bg-white text-gray-900 font-medium shadow-sm' : 'text-gray-600'
-                  }`}
-                  onClick={() => setIsCurved(false)}
-                >
-                  Flat
-                </button>
-                <button
-                  className={`flex-1 px-3 py-1.5 text-sm rounded-md transition-colors ${
-                    isCurved ? 'bg-white text-gray-900 font-medium shadow-sm' : 'text-gray-600'
-                  }`}
-                  onClick={() => setIsCurved(true)}
-                >
-                  Curved
-                </button>
-              </div>
+              <MultiToggle
+                value={isCurved ? 'curved' : 'flat'}
+                onChange={value => setIsCurved(value === 'curved')}
+                options={[
+                  { value: 'flat', label: 'Flat' },
+                  { value: 'curved', label: 'Curved' },
+                ]}
+              />
             </div>
 
             {/* Curve Radius - only shown when curved is selected */}
