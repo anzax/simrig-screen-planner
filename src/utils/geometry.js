@@ -81,9 +81,10 @@ export function calculateScreenGeometry(
     // Calculate sagitta (s = R * (1 - cos(theta/2)))
     s = Rin * (1 - Math.cos(theta / 2))
 
-    // For curved screens, d is now the distance to the center of the curve
-    // Calculate the distance to the chord plane
-    d_chord = d + s
+    // For curved screens, we want to keep the distance to the deepest point of the curve
+    // consistent with the flat screen distance (maintain actual screen-to-eye distance)
+    // So the chord plane distance needs to be adjusted
+    d_chord = d - s
 
     // Validate curved screen parameters
     if (curveRadius < W * 25.4) {
@@ -123,9 +124,22 @@ export function calculateScreenGeometry(
   let svgArcs = []
 
   if (setupType === 'single') {
-    // For single screen, FOV is just the angle of the screen from the eye
-    const hFOVrad = 2 * Math.atan((isCurved ? C : W) / 2 / d)
-    hFOVdeg = (hFOVrad * 180) / Math.PI
+    if (isCurved) {
+      // For curved single screen, FOV is the angle between eye-to-edge vectors
+      // We need to account for the edges being closer to the eye than the center
+      const edgeX = C / 2 // Half chord width
+      const edgeY = -d + s // Edge is forward by sagitta
+
+      // Calculate angle from eye to each edge
+      const edgeAngle = Math.atan2(edgeY, edgeX)
+
+      // Total horizontal FOV is twice this angle (symmetric on both sides)
+      hFOVdeg = Math.abs(edgeAngle * 2 * 180 / Math.PI)
+    } else {
+      // For flat screen, FOV is just the angle of the screen from the eye
+      const hFOVrad = 2 * Math.atan(W / 2 / d)
+      hFOVdeg = (hFOVrad * 180) / Math.PI
+    }
 
     // vertical FOV (not affected by curvature)
     vFOVdeg = (2 * Math.atan(H / 2 / d) * 180) / Math.PI
@@ -141,54 +155,102 @@ export function calculateScreenGeometry(
 
     // Add SVG arc for curved screen
     if (isCurved) {
-      svgArcs.push({
-        centerX: 0,
-        centerY: -d,
-        radius: Rin,
-        startAngle: -theta / 2,
-        endAngle: theta / 2,
-      })
+      // For single curved screen, use Bézier curve approach for consistency with triple
+      // This ensures the screen is visible and properly rendered
+      const halfWidth = C / 2
+      const centerY = -d
+
+      // Position endpoints forward by sagitta to create proper curve
+      // This makes the chord plane at d+s and deepest point at d
+      // const curveDepth = s  // Not used in this scope
+
+      // Calculate the true position of the deepest point of the curve
+      // For a circular arc, this is exactly at the specified eye distance
+      const actualDeepestY = -d
+
+      svgArcs = [
+        {
+          type: 'bezier',
+          startX: -halfWidth,
+          startY: centerY + s, // Move forward by sagitta
+          endX: halfWidth,
+          endY: centerY + s, // Move forward by sagitta
+          controlX: 0,
+          controlY: centerY, // Control point at exact eye distance
+          actualDeepestY: actualDeepestY, // Store the actual deepest point for debugging
+        }
+      ]
     }
   } else {
     // For triple screen, calculate FOV including all screens and bezels
 
-    // Calculate vectors for side screens based on angle
-    const angleRad = (sideAngleDeg * Math.PI) / 180
-    const sideScreenWidth = isCurved ? C : W
+    if (isCurved) {
+      // For curved triple screens, calculate FOV using actual edge positions
+      const angleRad = (sideAngleDeg * Math.PI) / 180
 
-    // Calculate the position of the outer edge of the side screens
-    const centerEdgeX = (isCurved ? C : W) / 2
-    const centerEdgeY = -d
+      // Calculate adjusted positions for the edges of the side screens
+      const halfChord = C / 2
+      const centerPlaneY = -d + s // Chord plane is forward by sagitta
 
-    // Calculate the position of the outer edge of the right side screen
-    const rightOuterX = centerEdgeX + sideScreenWidth * Math.cos(angleRad)
-    const rightOuterY = centerEdgeY + sideScreenWidth * Math.sin(angleRad)
+      // Position of outermost edges with adjustments for curvature
+      const leftOuterX = -halfChord - C * Math.cos(angleRad)
+      const leftOuterY = centerPlaneY + C * Math.sin(angleRad)
+      const rightOuterX = halfChord + C * Math.cos(angleRad)
+      const rightOuterY = centerPlaneY + C * Math.sin(angleRad)
 
-    // Calculate the angle from eye to the outer edge of the right side screen
-    // Use Math.atan2 to get the correct quadrant
-    const rightOuterAngle = Math.atan2(rightOuterY, rightOuterX)
+      // Calculate angles from eye to edges
+      const leftAngle = Math.atan2(leftOuterY, leftOuterX)
+      const rightAngle = Math.atan2(rightOuterY, rightOuterX)
 
-    // Calculate the angle from eye to the outer edge of the left side screen (symmetrical)
-    const leftOuterAngle = Math.atan2(rightOuterY, -rightOuterX)
+      // Calculate bezel angle (accounting for distance to chord plane)
+      const bezelAngle = 2 * Math.atan(bezel / (-d + s))
 
-    // Total horizontal FOV is the angle between the outer edges of the side screens
-    // plus the angles for the bezels
-    const bezelAngle = 2 * Math.atan(bezel / d)
+      // Calculate total FOV
+      const totalAngle = Math.abs(leftAngle) + Math.abs(rightAngle)
+      hFOVdeg = (totalAngle * 180) / Math.PI + ((bezelAngle * 180) / Math.PI) * 2
+    } else {
+      // Standard flat screen FOV calculation
+      // Calculate vectors for side screens based on angle
+      const angleRad = (sideAngleDeg * Math.PI) / 180
+      const sideScreenWidth = W
 
-    // Calculate the absolute difference between the angles and ensure it's positive
-    const angleDiff = Math.abs(leftOuterAngle - rightOuterAngle)
+      // Calculate the position of the outer edge of the side screens
+      const centerEdgeX = W / 2
+      const centerEdgeY = -d
 
-    // If we're in the wrong quadrants, we need to adjust the calculation
-    // The total FOV should be the sum of the absolute values of the angles
-    const totalAngle =
-      rightOuterAngle < 0 && leftOuterAngle > 0
-        ? Math.abs(rightOuterAngle) + Math.abs(leftOuterAngle)
-        : angleDiff
+      // Calculate the position of the outer edge of the right side screen
+      const rightOuterX = centerEdgeX + sideScreenWidth * Math.cos(angleRad)
+      const rightOuterY = centerEdgeY + sideScreenWidth * Math.sin(angleRad)
 
-    hFOVdeg = (totalAngle * 180) / Math.PI + ((bezelAngle * 180) / Math.PI) * 2
+      // Calculate the angle from eye to the outer edge of the right side screen
+      // Use Math.atan2 to get the correct quadrant
+      const rightOuterAngle = Math.atan2(rightOuterY, rightOuterX)
+
+      // Calculate the angle from eye to the outer edge of the left side screen (symmetrical)
+      const leftOuterAngle = Math.atan2(rightOuterY, -rightOuterX)
+
+      // Total horizontal FOV is the angle between the outer edges of the side screens
+      // plus the angles for the bezels
+      const bezelAngle = 2 * Math.atan(bezel / d)
+
+      // Calculate the absolute difference between the angles and ensure it's positive
+      const angleDiff = Math.abs(leftOuterAngle - rightOuterAngle)
+
+      // If we're in the wrong quadrants, we need to adjust the calculation
+      // The total FOV should be the sum of the absolute values of the angles
+      const totalAngle =
+        rightOuterAngle < 0 && leftOuterAngle > 0
+          ? Math.abs(rightOuterAngle) + Math.abs(leftOuterAngle)
+          : angleDiff
+
+      hFOVdeg = (totalAngle * 180) / Math.PI + ((bezelAngle * 180) / Math.PI) * 2
+    }
 
     // vertical FOV (not affected by curvature)
     vFOVdeg = (2 * Math.atan(H / 2 / d) * 180) / Math.PI
+
+    // Define angleRad for use in vector calculations
+    const angleRad = (sideAngleDeg * Math.PI) / 180
 
     // Calculate vectors for side screen positioning
     const u_x = (isCurved ? C : W) * Math.cos(angleRad)
@@ -206,49 +268,64 @@ export function calculateScreenGeometry(
 
     // Add SVG arcs for curved screens
     if (isCurved) {
-      // Center screen
-      svgArcs.push({
-        centerX: 0,
-        centerY: -d,
-        radius: Rin,
-        startAngle: -theta / 2,
-        endAngle: theta / 2,
-      })
-
-      // Left and right screens (rotated)
       if (setupType === 'triple') {
-        // Calculate the edges of the center screen
-        const centerLeftEdgeX = -C / 2
-        const centerLeftEdgeY = -d
-        const centerRightEdgeX = C / 2
-        const centerRightEdgeY = -d
+        // Calculate screen dimensions
+        const screenWidth = C // chord width
+        const halfWidth = screenWidth / 2
+        const curveDepth = s // sagitta - depth of curve
 
-        // Calculate the angle from the center of the center screen to its edge
-        const edgeAngle = Math.atan2(s, C / 2)
+        // Side screen angle in radians
+        const angleRad = (sideAngleDeg * Math.PI) / 180
 
-        // Calculate the center positions of the side screens
-        // The side screens should be positioned so that their edges touch the center screen's edges
-        const leftCenterX = centerLeftEdgeX - Rin * Math.cos(Math.PI / 2 - edgeAngle - angleRad)
-        const leftCenterY = centerLeftEdgeY - Rin * Math.sin(Math.PI / 2 - edgeAngle - angleRad)
-        const rightCenterX = centerRightEdgeX + Rin * Math.cos(Math.PI / 2 - edgeAngle - angleRad)
-        const rightCenterY = centerRightEdgeY - Rin * Math.sin(Math.PI / 2 - edgeAngle - angleRad)
+        // Base position for center screen - proper distance representation
+        const centerY = -d
 
-        // Add arcs for side screens
-        svgArcs.push({
-          centerX: leftCenterX,
-          centerY: leftCenterY,
-          radius: Rin,
-          startAngle: Math.PI - angleRad - theta / 2,
-          endAngle: Math.PI - angleRad + theta / 2,
-        })
+        // Calculate positions for side screens
+        const leftOuterX = -halfWidth - screenWidth * Math.cos(angleRad)
+        const leftOuterY = centerY + s + screenWidth * Math.sin(angleRad) // Adjust for sagitta
+        const rightOuterX = halfWidth + screenWidth * Math.cos(angleRad)
+        const rightOuterY = centerY + s + screenWidth * Math.sin(angleRad) // Adjust for sagitta
 
-        svgArcs.push({
-          centerX: rightCenterX,
-          centerY: rightCenterY,
-          radius: Rin,
-          startAngle: angleRad - theta / 2,
-          endAngle: angleRad + theta / 2,
-        })
+        // Define the three screens using Bézier curves
+        // For a real curved monitor, the center of each screen should be at the correct distance
+        // And the edges should be forward by sagitta
+        const actualDeepestY = -d // True deepest point of the curve
+
+        svgArcs = [
+          // Left screen
+          {
+            type: 'bezier',
+            startX: leftOuterX,
+            startY: leftOuterY,
+            endX: -halfWidth,
+            endY: centerY + s, // Adjust for sagitta
+            controlX: (leftOuterX - halfWidth) / 2,
+            controlY: ((leftOuterY + centerY + s) / 2) - curveDepth * Math.cos(angleRad),
+            actualDeepestY: actualDeepestY + (Math.abs(Math.sin(angleRad)) * s/2),
+          },
+          // Center screen
+          {
+            type: 'bezier',
+            startX: -halfWidth,
+            startY: centerY + s, // Adjust for sagitta
+            endX: halfWidth,
+            endY: centerY + s, // Adjust for sagitta
+            controlX: 0,
+            controlY: centerY, // Control point at exact eye distance
+            actualDeepestY: actualDeepestY,
+          },
+          // Right screen
+          {
+            type: 'bezier',
+            startX: halfWidth,
+            startY: centerY + s, // Adjust for sagitta
+            endX: rightOuterX,
+            endY: rightOuterY,
+            controlX: (halfWidth + rightOuterX) / 2,
+            controlY: ((centerY + s + rightOuterY) / 2) - curveDepth * Math.cos(angleRad),
+            actualDeepestY: actualDeepestY + (Math.abs(Math.sin(angleRad)) * s/2),
+          },
+        ]
       }
     }
   }
@@ -283,8 +360,54 @@ export function calculateSvgLayout(geomData, rigConstants) {
   const endL = { x: pivotL.x + uL.x, y: pivotL.y + uL.y }
   const endR = { x: pivotR.x + uR.x, y: pivotR.y + uR.y }
 
-  // bounds from screens & eye
-  const pts = [pivotL, pivotR, endL, endR, { x: 0, y: 0 }]
+  // Create a fixed set of points for calculating bounds that won't change between curved and flat
+  // Use the maximum possible extent of screens to ensure consistent container size
+  const fixedPts = [
+    // Eye position
+    { x: 0, y: 0 },
+    // Pivot points for screens
+    pivotL, pivotR,
+    // End points for screens (use the maximum possible extent)
+    { x: Math.min(pivotL.x, endL.x) * 1.2, y: Math.min(pivotL.y, endL.y) * 1.2 },
+    { x: Math.max(pivotR.x, endR.x) * 1.2, y: Math.max(pivotR.y, endR.y, endL.y) * 1.2 }
+  ]
+
+  // Add actual screen points for rendering
+  const pts = [...fixedPts, endL, endR]
+
+  if (svgArcs && svgArcs.length) {
+    svgArcs.forEach(arc => {
+      if (arc.type === 'bezier') {
+        // For Bézier curves, use the pre-calculated points
+        pts.push(
+          { x: arc.startX, y: arc.startY },
+          { x: arc.endX, y: arc.endY },
+          // Include control point for accurate bounds calculation
+          { x: arc.controlX, y: arc.controlY }
+        )
+      } else {
+        // For standard arcs, compute the two visible endpoints
+        const sx = arc.centerX + arc.radius * Math.cos(arc.startAngle)
+        const sy = arc.centerY + arc.radius * Math.sin(arc.startAngle)
+        const ex = arc.centerX + arc.radius * Math.cos(arc.endAngle)
+        const ey = arc.centerY + arc.radius * Math.sin(arc.endAngle)
+
+        // Also include the center point and midpoint of the arc for better bounds calculation
+        const midAngle = (arc.startAngle + arc.endAngle) / 2
+        const mx = arc.centerX + arc.radius * Math.cos(midAngle)
+        const my = arc.centerY + arc.radius * Math.sin(midAngle)
+
+        pts.push(
+          { x: sx, y: sy },
+          { x: ex, y: ey },
+          { x: arc.centerX, y: arc.centerY },
+          { x: mx, y: my }
+        )
+      }
+    })
+  }
+
+  // Calculate bounds based on all points to ensure everything is visible
   const minX = Math.min(...pts.map(p => p.x)),
     maxX = Math.max(...pts.map(p => p.x))
   const minY = Math.min(...pts.map(p => p.y)),
@@ -303,18 +426,47 @@ export function calculateSvgLayout(geomData, rigConstants) {
   // Process SVG arcs for curved screens
   const arcs = svgArcs
     ? svgArcs.map(arc => {
-        // Convert arc to SVG path
-        const startX = arc.centerX + arc.radius * Math.cos(arc.startAngle)
-        const startY = arc.centerY + arc.radius * Math.sin(arc.startAngle)
-        const endX = arc.centerX + arc.radius * Math.cos(arc.endAngle)
-        const endY = arc.centerY + arc.radius * Math.sin(arc.endAngle)
+        if (arc.type === 'bezier') {
+          // For Bézier curves, use the pre-calculated points
+          return {
+            type: 'bezier',
+            path: `M ${tx(arc.startX)} ${ty(arc.startY)} Q ${tx(arc.controlX)} ${ty(arc.controlY)} ${tx(arc.endX)} ${ty(arc.endY)}`,
+            // Store these points for debugging
+            startX: tx(arc.startX),
+            startY: ty(arc.startY),
+            endX: tx(arc.endX),
+            endY: ty(arc.endY),
+            controlX: tx(arc.controlX),
+            controlY: ty(arc.controlY),
+            // Pass through actual deepest point for debugging
+            actualDeepestY: arc.actualDeepestY ? ty(arc.actualDeepestY) : undefined,
+          }
+        } else {
+          // For standard arcs, calculate points from center and angles
+          const startX = arc.startX || arc.centerX + arc.radius * Math.cos(arc.startAngle)
+          const startY = arc.startY || arc.centerY + arc.radius * Math.sin(arc.startAngle)
+          const endX = arc.endX || arc.centerX + arc.radius * Math.cos(arc.endAngle)
+          const endY = arc.endY || arc.centerY + arc.radius * Math.sin(arc.endAngle)
 
-        // Determine if the arc is larger than 180 degrees (large-arc-flag)
-        const largeArcFlag = Math.abs(arc.endAngle - arc.startAngle) > Math.PI ? 1 : 0
+          // Determine if the arc is larger than 180 degrees (large-arc-flag)
+          const largeArcFlag = Math.abs(arc.endAngle - arc.startAngle) > Math.PI ? 1 : 0
 
-        // SVG path for arc
-        return {
-          path: `M ${tx(startX)} ${ty(startY)} A ${arc.radius * scale} ${arc.radius * scale} 0 ${largeArcFlag} 1 ${tx(endX)} ${ty(endY)}`,
+          // Important: Include sweep flag based on angle direction
+          const sweepFlag = arc.endAngle > arc.startAngle ? 1 : 0
+
+          // SVG path for arc
+          return {
+          path: `M ${tx(startX)} ${ty(startY)} A ${arc.radius * scale} ${arc.radius * scale} 0 ${largeArcFlag} ${sweepFlag} ${tx(endX)} ${ty(endY)}`,
+          // Store these points for debugging
+          centerX: tx(arc.centerX),
+          centerY: ty(arc.centerY),
+          startX: tx(startX),
+          startY: ty(startY),
+          endX: tx(endX),
+          endY: ty(endY),
+              // Pass through actual deepest point for debugging
+              actualDeepestY: arc.actualDeepestY ? ty(arc.actualDeepestY) : undefined,
+          }
         }
       })
     : []

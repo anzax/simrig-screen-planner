@@ -309,9 +309,17 @@ describe('calculateSvgLayout', () => {
     result.arcs.forEach(arc => {
       expect(arc).toHaveProperty('path')
       expect(typeof arc.path).toBe('string')
-      // SVG path should start with M and include A for arc
+      // SVG path should start with M
       expect(arc.path.startsWith('M ')).toBe(true)
-      expect(arc.path.includes(' A ')).toBe(true)
+      // Path should include either A for arc or Q for Bézier curve
+      expect(arc.path.includes(' A ') || arc.path.includes(' Q ')).toBe(true)
+
+      // If it's a Bézier curve, it should have the type property
+      if (arc.path.includes(' Q ')) {
+        expect(arc).toHaveProperty('type', 'bezier')
+        expect(arc).toHaveProperty('controlX')
+        expect(arc).toHaveProperty('controlY')
+      }
     })
   })
 })

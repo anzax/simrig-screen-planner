@@ -10,7 +10,7 @@ export default function Screens({ view, color = '#000', debug = false }) {
   return (
     <>
       {isCurved ? (
-        <CurvedScreens arcs={arcs} color={color} />
+        <CurvedScreens arcs={arcs} color={color} debug={debug} />
       ) : (
         <FlatScreens lines={lines} color={color} />
       )}
