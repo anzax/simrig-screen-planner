@@ -97,18 +97,18 @@ export default function CurvedScreens({ arcs, color = '#000', debug = false }) {
                       strokeWidth={1}
                       strokeDasharray="3,2"
                     />
-                    
+
                     {/* Add actual curve midpoint (true deepest point) */}
-                    <circle 
-                      cx={(startX + endX)/2} 
-                      cy={arc.actualDeepestY || arc.controlY} 
-                      r={3} 
-                      fill="yellow" 
+                    <circle
+                      cx={(startX + endX) / 2}
+                      cy={arc.actualDeepestY || arc.controlY}
+                      r={3}
+                      fill="yellow"
                       stroke="black"
                       strokeWidth={0.5}
                     />
                     <text
-                      x={(startX + endX)/2}
+                      x={(startX + endX) / 2}
                       y={arc.actualDeepestY || arc.controlY - 10}
                       fontSize="8px"
                       textAnchor="middle"

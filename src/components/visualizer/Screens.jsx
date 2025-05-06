@@ -1,6 +1,6 @@
 import React from 'react'
 import FlatScreens from './FlatScreens'
-import CurvedScreens from './CurvedScreens'
+import CurvedScreensD3 from './CurvedScreensD3' // New D3 component
 import DebugHelpers from './DebugHelpers'
 
 export default function Screens({ view, color = '#000', debug = false }) {
@@ -10,7 +10,7 @@ export default function Screens({ view, color = '#000', debug = false }) {
   return (
     <>
       {isCurved ? (
-        <CurvedScreens arcs={arcs} color={color} debug={debug} />
+        <CurvedScreensD3 arcs={arcs} color={color} debug={debug} />
       ) : (
         <FlatScreens lines={lines} color={color} />
       )}

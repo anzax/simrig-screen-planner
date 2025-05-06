@@ -3,7 +3,7 @@ import NumberInputWithSlider from './ui/NumberInputWithSlider.jsx'
 import NumberInput from './ui/NumberInput.jsx'
 import MultiToggle from './ui/MultiToggle.jsx'
 import { useSettingsStore, useUIStore } from '../store/settingsStore'
-import { calculateOptimalAngle } from '../utils/geometry'
+import { calculateOptimalAngle } from '../utils/geometryCore'
 
 export default function SettingsPanel() {
   // Get screen properties directly from the store

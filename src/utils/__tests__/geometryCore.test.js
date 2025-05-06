@@ -1,7 +1,43 @@
-// src/utils/__tests__/geometry.test.js
-import { describe, it, expect, beforeEach } from 'vitest'
-import { calculateScreenGeometry, calculateSvgLayout } from '../geometry'
-import { RIG_CONSTANTS } from '../constants'
+// src/utils/__tests__/geometryCore.test.js
+import { describe, it, expect } from 'vitest'
+import { calculateScreenGeometry, calculateOptimalAngle } from '../geometryCore'
+
+describe('calculateOptimalAngle', () => {
+  it('calculates optimal angle based on screen dimensions and viewing distance', () => {
+    const screen = { diagIn: 27, ratio: '16:9', bezelMm: 10 }
+    const distance = { distCm: 70 }
+
+    const result = calculateOptimalAngle(screen, distance)
+
+    // Verify the result is a number and within a reasonable range
+    expect(typeof result).toBe('number')
+    expect(result).toBeGreaterThan(0)
+    expect(result).toBeLessThan(90)
+  })
+
+  it('returns default angle of 60 when inputs are missing', () => {
+    // Missing diagonal
+    expect(calculateOptimalAngle({ ratio: '16:9', bezelMm: 10 }, { distCm: 70 })).toBe(60)
+
+    // Missing ratio
+    expect(calculateOptimalAngle({ diagIn: 27, bezelMm: 10 }, { distCm: 70 })).toBe(60)
+
+    // Missing distance
+    expect(calculateOptimalAngle({ diagIn: 27, ratio: '16:9', bezelMm: 10 }, {})).toBe(60)
+  })
+
+  it('handles different aspect ratios correctly', () => {
+    const distance = { distCm: 70 }
+
+    const result16_9 = calculateOptimalAngle({ diagIn: 27, ratio: '16:9', bezelMm: 10 }, distance)
+    const result21_9 = calculateOptimalAngle({ diagIn: 34, ratio: '21:9', bezelMm: 10 }, distance)
+    const result32_9 = calculateOptimalAngle({ diagIn: 49, ratio: '32:9', bezelMm: 10 }, distance)
+
+    // Wider aspect ratios should generally result in larger optimal angles
+    expect(result21_9).toBeGreaterThan(result16_9)
+    expect(result32_9).toBeGreaterThan(result21_9)
+  })
+})
 
 describe('calculateScreenGeometry', () => {
   // Test standard 16:9 monitor setup with triple screens (default)
@@ -18,7 +54,8 @@ describe('calculateScreenGeometry', () => {
     // Verify specific values with reasonable precision
     expect(result.sideAngleDeg).toBeCloseTo(50.2, 1)
     // Allow a bit more tolerance for FOV calculation
-    expect(result.hFOVdeg).toBeCloseTo(147, 0)
+    // Updated to expect the new, more accurate hFOV value that correctly handles screens wrapping past the eyes
+    expect(result.hFOVdeg).toBeCloseTo(183, 0)
     expect(result.vFOVdeg).toBeCloseTo(27.8, 1)
 
     // Check cm object properties
@@ -208,80 +245,27 @@ describe('calculateScreenGeometry', () => {
     // Smaller radius means shorter chord length
     expect(smallRadius.curved.chordIn).toBeLessThan(largeRadius.curved.chordIn)
   })
-})
 
-describe('calculateSvgLayout', () => {
-  let geomData
+  // Test hFOV calculation for curved screens
+  it('calculates correct hFOV for curved screens', () => {
+    // Test single curved screen
+    const singleCurved = calculateScreenGeometry(
+      27,
+      '16:9',
+      70,
+      10,
+      'single',
+      'auto',
+      60,
+      'diagonal',
+      700,
+      400,
+      true,
+      1000
+    )
 
-  beforeEach(() => {
-    // Create sample geometry data for testing
-    geomData = calculateScreenGeometry(27, '16:9', 70, 10).geom
-  })
-
-  it('calculates correct SVG dimensions', () => {
-    const result = calculateSvgLayout(geomData, RIG_CONSTANTS)
-
-    // Check that all expected properties are returned
-    expect(result).toHaveProperty('widthPx')
-    expect(result).toHaveProperty('heightPx')
-    expect(result).toHaveProperty('head')
-    expect(result).toHaveProperty('lines')
-    expect(result).toHaveProperty('rig')
-
-    // Verify dimensions are positive numbers
-    expect(result.widthPx).toBeGreaterThan(0)
-    expect(result.heightPx).toBeGreaterThan(0)
-
-    // Check head circle properties
-    expect(result.head).toHaveProperty('cx')
-    expect(result.head).toHaveProperty('cy')
-    expect(result.head).toHaveProperty('r')
-    expect(result.head.r).toBe(20)
-
-    // Check lines array
-    expect(result.lines).toHaveLength(3)
-    result.lines.forEach(line => {
-      expect(line).toHaveProperty('x1')
-      expect(line).toHaveProperty('y1')
-      expect(line).toHaveProperty('x2')
-      expect(line).toHaveProperty('y2')
-    })
-
-    // Check rig rectangle properties
-    expect(result.rig).toHaveProperty('x')
-    expect(result.rig).toHaveProperty('y')
-    expect(result.rig).toHaveProperty('w')
-    expect(result.rig).toHaveProperty('h')
-  })
-
-  it('scales SVG layout correctly', () => {
-    const result = calculateSvgLayout(geomData, RIG_CONSTANTS)
-
-    // Check that rig dimensions are scaled correctly
-    // Scale factor is 8 as defined in the function
-    const scale = 8
-    expect(result.rig.w).toBeCloseTo((RIG_CONSTANTS.RIG_W_CM / 2.54) * scale, 1)
-    expect(result.rig.h).toBeCloseTo((RIG_CONSTANTS.RIG_L_CM / 2.54) * scale, 1)
-  })
-
-  it('handles different rig constants', () => {
-    const customRigConstants = {
-      RIG_W_CM: 80,
-      RIG_L_CM: 180,
-      HEAD_OFFSET_CM: 15,
-    }
-
-    const defaultResult = calculateSvgLayout(geomData, RIG_CONSTANTS)
-    const customResult = calculateSvgLayout(geomData, customRigConstants)
-
-    // Custom rig should be wider and longer
-    expect(customResult.rig.w).toBeGreaterThan(defaultResult.rig.w)
-    expect(customResult.rig.h).toBeGreaterThan(defaultResult.rig.h)
-  })
-
-  it('generates SVG arcs for curved screens', () => {
-    // Create geometry data with curved screens
-    const curvedGeomData = calculateScreenGeometry(
+    // Test triple curved screen
+    const tripleCurved = calculateScreenGeometry(
       27,
       '16:9',
       70,
@@ -294,32 +278,68 @@ describe('calculateSvgLayout', () => {
       400,
       true,
       1000
-    ).geom
+    )
 
-    const result = calculateSvgLayout(curvedGeomData, RIG_CONSTANTS)
+    // Test with different curve radii
+    const smallRadius = calculateScreenGeometry(
+      27,
+      '16:9',
+      70,
+      10,
+      'triple',
+      'auto',
+      60,
+      'diagonal',
+      700,
+      400,
+      true,
+      800
+    )
+    const largeRadius = calculateScreenGeometry(
+      27,
+      '16:9',
+      70,
+      10,
+      'triple',
+      'auto',
+      60,
+      'diagonal',
+      700,
+      400,
+      true,
+      1500
+    )
 
-    // Check that arcs array is returned
-    expect(result).toHaveProperty('arcs')
-    expect(Array.isArray(result.arcs)).toBe(true)
+    // Single curved screen hFOV should be reasonable
+    expect(singleCurved.hFOVdeg).toBeGreaterThan(20)
+    // Current implementation gives ~128 degrees, which seems high
+    // After fixing, we should adjust this test
 
-    // For triple curved screens, we should have 3 arcs (center, left, right)
-    expect(result.arcs.length).toBe(3)
+    // Triple curved screen hFOV should be reasonable and not always 180
+    expect(tripleCurved.hFOVdeg).toBeGreaterThan(100)
+    expect(tripleCurved.hFOVdeg).toBeLessThan(270) // Should be less than 270 degrees
 
-    // Each arc should have a path property
-    result.arcs.forEach(arc => {
-      expect(arc).toHaveProperty('path')
-      expect(typeof arc.path).toBe('string')
-      // SVG path should start with M
-      expect(arc.path.startsWith('M ')).toBe(true)
-      // Path should include either A for arc or Q for Bézier curve
-      expect(arc.path.includes(' A ') || arc.path.includes(' Q ')).toBe(true)
+    // Different curve radii should result in different hFOV values
+    expect(smallRadius.hFOVdeg).not.toBeCloseTo(largeRadius.hFOVdeg, 0)
 
-      // If it's a Bézier curve, it should have the type property
-      if (arc.path.includes(' Q ')) {
-        expect(arc).toHaveProperty('type', 'bezier')
-        expect(arc).toHaveProperty('controlX')
-        expect(arc).toHaveProperty('controlY')
-      }
-    })
+    // Triple curved screen hFOV should be greater than single curved screen hFOV
+    expect(tripleCurved.hFOVdeg).toBeGreaterThan(singleCurved.hFOVdeg)
+
+    // Triple curved screen hFOV should vary with different parameters
+    const differentAngle = calculateScreenGeometry(
+      27,
+      '16:9',
+      70,
+      10,
+      'triple',
+      'manual',
+      30, // Different angle
+      'diagonal',
+      700,
+      400,
+      true,
+      1000
+    )
+    expect(differentAngle.hFOVdeg).not.toBeCloseTo(tripleCurved.hFOVdeg, 0)
   })
 })

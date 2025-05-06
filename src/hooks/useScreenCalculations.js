@@ -1,6 +1,7 @@
 import { useMemo } from 'react'
 import { RIG_CONSTANTS } from '../utils/constants'
-import { calculateScreenGeometry, calculateSvgLayout } from '../utils/geometry'
+import { calculateScreenGeometry } from '../utils/geometryCore'
+import { calculateSvgLayout } from '../utils/geometryUI'
 
 export function useScreenCalculations(
   diagIn,
