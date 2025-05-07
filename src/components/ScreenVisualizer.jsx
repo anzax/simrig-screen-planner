@@ -22,13 +22,15 @@ export default function ScreenVisualizer({ view, comparisonView }) {
         {comparisonView && <Screens view={comparisonView} color="#3B82F6" debug={debug} />}
       </svg>
 
-      {/* Debug toggle button - always available but can be hidden with CSS in production */}
-      <button
-        className="mt-2 px-2 py-1 text-xs bg-gray-200 hover:bg-gray-300 rounded debug-toggle"
-        onClick={() => setDebug(!debug)}
-      >
-        {debug ? 'Hide Debug Info' : 'Show Debug Info'}
-      </button>
+      {/* Debug toggle button - only shown in development mode */}
+      {!import.meta.env.PROD && (
+        <button
+          className="mt-2 px-2 py-1 text-xs bg-gray-200 hover:bg-gray-300 rounded debug-toggle"
+          onClick={() => setDebug(!debug)}
+        >
+          {debug ? 'Hide Debug Info' : 'Show Debug Info'}
+        </button>
+      )}
     </div>
   )
 }
