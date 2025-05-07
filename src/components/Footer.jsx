@@ -29,7 +29,7 @@ export default function Footer() {
 
       <div className="text-center text-sm text-gray-500 pt-4">
         <a
-          href="https://github.com/anzax/triple-screen-planner"
+          href="https://github.com/anzax/simrig-screen-planner"
           className="underline hover:text-blue-600"
           target="_blank"
           rel="noopener noreferrer"
@@ -38,7 +38,7 @@ export default function Footer() {
         </a>
         . Found a bug or have feedback?{' '}
         <a
-          href="https://github.com/anzax/triple-screen-planner/issues"
+          href="https://github.com/anzax/simrig-screen-planner/issues"
           className="underline hover:text-blue-600"
           target="_blank"
           rel="noopener noreferrer"

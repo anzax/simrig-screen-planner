@@ -11,12 +11,12 @@ describe('Footer', () => {
 
     // Check that links are present
     const githubLink = screen.getByText('View on GitHub')
-    expect(githubLink).toHaveAttribute('href', 'https://github.com/anzax/triple-screen-planner')
+    expect(githubLink).toHaveAttribute('href', 'https://github.com/anzax/simrig-screen-planner')
 
     const issuesLink = screen.getByText('Open an issue')
     expect(issuesLink).toHaveAttribute(
       'href',
-      'https://github.com/anzax/triple-screen-planner/issues'
+      'https://github.com/anzax/simrig-screen-planner/issues'
     )
   })
 })
