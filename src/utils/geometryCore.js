@@ -52,7 +52,7 @@ function calculateCurvedGeometry(W, curveRadius) {
   // Calculate sagitta (s = R * (1 - cos(theta/2)))
   const s = Rin * (1 - Math.cos(theta / 2))
 
-  return { C, s, Rin, theta }
+  return { C, s, Rin }
 }
 
 // Helper function to calculate normalized values for angle calculation
@@ -213,7 +213,6 @@ export function calculateScreenGeometry(params) {
   // Initialize curved screen variables
   let C = W // Default chord length is width (for flat screens)
   let s = 0 // Default sagitta is 0 (for flat screens)
-  let theta = 0 // Default central angle is 0 (for flat screens)
   let Rin = 0 // Default radius in inches
   let d_chord = d // Default chord distance is the actual distance (for flat screens)
 
@@ -223,7 +222,6 @@ export function calculateScreenGeometry(params) {
     C = curvedGeometry.C
     s = curvedGeometry.s
     Rin = curvedGeometry.Rin
-    theta = curvedGeometry.theta
 
     // For curved screens, we want to keep the distance to the deepest point of the curve
     // consistent with the flat screen distance (maintain actual screen-to-eye distance)
@@ -346,20 +344,5 @@ export function calculateScreenGeometry(params) {
     vFOVdeg,
     cm: { distance: distCm, bezel: bezelMm, totalWidth: totalWidthCm },
     geom: { pivotL, pivotR, uL, uR, svgArcs },
-    // Add curved screen info to the returned data
-    curved: {
-      isCurved,
-      curveRadius,
-      chordIn: isCurved ? C : W,
-      sagittaIn: s,
-      theta: theta,
-      chordDistanceIn: isCurved ? d_chord : d,
-    },
-    // Add screen dimensions info
-    screen: {
-      inputMode,
-      widthMm: inputMode === 'diagonal' ? Math.round(W * 25.4) : screenWidth,
-      heightMm: inputMode === 'diagonal' ? Math.round(H * 25.4) : screenHeight,
-    },
   }
 }

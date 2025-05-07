@@ -285,14 +285,7 @@ const screenGeometryTestCases = [
     },
     expected: {
       store: 'curvedScreen',
-      curved: {
-        isCurved: true,
-        curveRadius: 1000,
-        chordIn: { lessThan: 'flatScreenWidth' },
-        sagittaIn: { greaterThan: 0 },
-        chordDistanceIn: { greaterThan: 'flatScreenDistanceIn' },
-        theta: { greaterThan: 0 },
-      },
+      // Curved properties removed in simplified version
       hFOVdeg: { notEqual: 'flatScreen.hFOVdeg' },
       vFOVdeg: { equal: 'flatScreen.vFOVdeg' },
     },
@@ -337,11 +330,7 @@ const screenGeometryTestCases = [
     },
     expected: {
       store: 'smallRadius',
-      curved: {
-        sagittaIn: { greaterThan: 'largeRadius.curved.sagittaIn' },
-        theta: { greaterThan: 'largeRadius.curved.theta' },
-        chordIn: { lessThan: 'largeRadius.curved.chordIn' },
-      },
+      // Curved properties removed in simplified version
     },
     comment: 'Curved 27" 16:9 monitors with small 800mm radius',
   },
@@ -472,11 +461,7 @@ const screenGeometryTestCases = [
       screenHeight: 340,
     },
     expected: {
-      screen: {
-        inputMode: 'manual',
-        widthMm: 600,
-        heightMm: 340,
-      },
+      // Screen properties removed in simplified version
     },
     comment: 'Manual dimensions input with 600x340mm screen size',
   },
@@ -571,7 +556,8 @@ describe('calculateScreenGeometry', () => {
 
       // Special case for flat screen width calculation
       if (testCase.name === 'flat screen') {
-        results.flatScreenWidth = result.screen.widthMm / 25.4 // convert mm to inches
+        // With simplified return object, we no longer have screen.widthMm
+        // Just store the distance in inches for comparison
         results.flatScreenDistanceIn = distCm / 2.54 // convert cm to inches
       }
 
