@@ -65,6 +65,48 @@ function autoSideAngle(a, W_eff, d_eff) {
   return Math.abs(Math.atan2(u_y, u_x)) * DEG
 }
 
+// Helper function to calculate screen dimensions
+function calculateScreenDimensions(diagIn, ratio, bezelMm, inputMode, screenWidth, screenHeight) {
+  let W, H
+  if (inputMode === 'diagonal') {
+    const ar = ASPECT_RATIOS[ratio]
+    const diagFac = Math.hypot(ar.w, ar.h)
+    const bezelInches = (bezelMm * 2) / 25.4
+    const effectiveDiagIn = diagIn + bezelInches
+    W = effectiveDiagIn * (ar.w / diagFac)
+    H = effectiveDiagIn * (ar.h / diagFac)
+  } else {
+    // Convert mm to inches
+    W = screenWidth / 25.4
+    H = screenHeight / 25.4
+  }
+  return { W, H }
+}
+
+// Helper function to calculate curved screen geometry
+function calculateCurvedGeometry(W, curveRadius) {
+  // Convert radius from mm to inches
+  const Rin = curveRadius / 25.4
+
+  // Calculate central angle (theta = arc length / radius)
+  const theta = W / Rin
+
+  // Calculate chord length (C = 2R * sin(theta/2))
+  const C = 2 * Rin * Math.sin(theta / 2)
+
+  // Calculate sagitta (s = R * (1 - cos(theta/2)))
+  const s = Rin * (1 - Math.cos(theta / 2))
+
+  return { C, s, Rin, theta }
+}
+
+// Helper function to calculate normalized values for angle calculation
+function calculateNormalizedValues(W, d, isCurved, C, s) {
+  const W_eff = isCurved ? C : W // chord for curved, width for flat
+  const d_eff = isCurved ? d - s : d // eye-to-surface distance
+  return { W_eff, d_eff }
+}
+
 // Calculate the optimal angle based on screen dimensions and viewing distance
 export function calculateOptimalAngle(screen, distance) {
   const { diagIn, ratio, bezelMm } = screen
@@ -72,7 +114,8 @@ export function calculateOptimalAngle(screen, distance) {
 
   if (!diagIn || !ratio || !distCm) return 60
 
-  return parseFloat(
+  // Calculate the angle
+  const calculatedAngle = parseFloat(
     (
       (Math.atan(
         ((diagIn + (bezelMm * 2) / 25.4) *
@@ -88,6 +131,57 @@ export function calculateOptimalAngle(screen, distance) {
       Math.PI
     ).toFixed(1)
   )
+
+  // Cap the angle at 90 degrees as it does not have practical sense to go beyond
+  return Math.min(calculatedAngle, 90)
+}
+
+// Calculate the side angle using the same method as in calculateScreenGeometry
+// This ensures consistency between the recommended angle and the actual angle
+export function calculateSideAngle(screen, distance) {
+  const { diagIn, ratio, bezelMm, screenWidth, screenHeight } = screen
+  const { distCm } = distance
+  const { isCurved, curveRadius } = screen.curvature || { isCurved: false, curveRadius: 1000 }
+  const inputMode = screen.inputMode || 'diagonal'
+
+  if ((!diagIn && inputMode === 'diagonal') || !ratio || !distCm) return 60
+
+  // Convert to inches
+  const d = cm2in(distCm)
+  const bezel = cm2in(bezelMm / 10)
+
+  // Calculate screen dimensions
+  const { W } = calculateScreenDimensions(
+    diagIn,
+    ratio,
+    bezelMm,
+    inputMode,
+    screenWidth,
+    screenHeight
+  )
+
+  // Initialize curved screen variables
+  let C = W // Default chord length is width (for flat screens)
+  let s = 0 // Default sagitta is 0 (for flat screens)
+
+  // Calculate curved screen geometry if enabled
+  if (isCurved) {
+    const curvedGeometry = calculateCurvedGeometry(W, curveRadius)
+    C = curvedGeometry.C
+    s = curvedGeometry.s
+  }
+
+  // Calculate the distance between screens
+  const a = isCurved ? C / 2 + bezel : W / 2 + bezel
+
+  // Get normalized values for angle calculation
+  const { W_eff, d_eff } = calculateNormalizedValues(W, d, isCurved, C, s)
+
+  // Calculate the angle using autoSideAngle
+  const sideAngleDeg = autoSideAngle(a, W_eff, d_eff)
+
+  // Cap at 90 degrees as it does not have practical sense to go beyond
+  return Math.min(sideAngleDeg, 90)
 }
 
 export function calculateScreenGeometry(
@@ -107,22 +201,15 @@ export function calculateScreenGeometry(
   const d = cm2in(distCm)
   const bezel = cm2in(bezelMm / 10)
 
-  // Calculate screen dimensions based on input mode
-  let W, H
-
-  if (inputMode === 'diagonal') {
-    const ar = ASPECT_RATIOS[ratio]
-    const diagFac = Math.hypot(ar.w, ar.h)
-    // Convert bezel from mm to inches and add it to the diagonal
-    const bezelInches = (bezelMm * 2) / 25.4
-    const effectiveDiagIn = diagIn + bezelInches
-    W = effectiveDiagIn * (ar.w / diagFac)
-    H = effectiveDiagIn * (ar.h / diagFac)
-  } else {
-    // Convert mm to inches
-    W = screenWidth / 25.4
-    H = screenHeight / 25.4
-  }
+  // Calculate screen dimensions
+  const { W, H } = calculateScreenDimensions(
+    diagIn,
+    ratio,
+    bezelMm,
+    inputMode,
+    screenWidth,
+    screenHeight
+  )
 
   // Initialize curved screen variables
   let C = W // Default chord length is width (for flat screens)
@@ -133,17 +220,11 @@ export function calculateScreenGeometry(
 
   // Calculate curved screen geometry if enabled
   if (isCurved) {
-    // Convert radius from mm to inches
-    Rin = curveRadius / 25.4
-
-    // Calculate central angle (theta = arc length / radius)
-    theta = W / Rin
-
-    // Calculate chord length (C = 2R * sin(theta/2))
-    C = 2 * Rin * Math.sin(theta / 2)
-
-    // Calculate sagitta (s = R * (1 - cos(theta/2)))
-    s = Rin * (1 - Math.cos(theta / 2))
+    const curvedGeometry = calculateCurvedGeometry(W, curveRadius)
+    C = curvedGeometry.C
+    s = curvedGeometry.s
+    Rin = curvedGeometry.Rin
+    theta = curvedGeometry.theta
 
     // For curved screens, we want to keep the distance to the deepest point of the curve
     // consistent with the flat screen distance (maintain actual screen-to-eye distance)
@@ -165,15 +246,17 @@ export function calculateScreenGeometry(
 
   const a = isCurved ? C / 2 + bezel : W / 2 + bezel
 
-  // Normalised values used everywhere below
-  const W_eff = isCurved ? C : W // chord for curved, width for flat
-  const d_eff = isCurved ? d - s : d // eye-to-surface distance
+  // Get normalized values for angle calculation
+  const { W_eff, d_eff } = calculateNormalizedValues(W, d, isCurved, C, s)
 
   // side screen angle
   let sideAngleDeg = 0
   if (setupType === 'triple') {
     if (angleMode === 'auto') {
+      // Calculate the auto angle
       sideAngleDeg = autoSideAngle(a, W_eff, d_eff)
+      // Cap at 90 degrees as it does not have practical sense to go beyond
+      sideAngleDeg = Math.min(sideAngleDeg, 90)
     } else {
       sideAngleDeg = manualAngle
     }
@@ -239,7 +322,6 @@ export function calculateScreenGeometry(
   }
   // --- Curved-panel SVG paths ------------------------------------
   if (isCurved) {
-    svgArcs = []
     const centerY = -d_eff // chord plane
     const screenW = W_eff // chord width
     const depth = s // sagitta
@@ -252,13 +334,19 @@ export function calculateScreenGeometry(
       svgArcs.push(curvedScreenBezier(screenW, centerY, depth, sideAngleDeg, true, a)) // right
       svgArcs.push(curvedScreenBezier(screenW, centerY, depth, -sideAngleDeg, true, -a)) // left
     }
-  } else {
-    svgArcs = [] // flat panels use straight lines already in geom
   }
   // compute total width for footprint reporting
-  totalWidthCm = in2cm(
-    setupType === 'single' ? W_eff : W_eff * 3 + bezel * 2 // simple estimate for triple
-  )
+  if (setupType === 'single') {
+    totalWidthCm = in2cm(W_eff)
+  } else {
+    // For triple setup, calculate the width between the outer edges of the side screens
+    // Calculate the x-coordinate of the right edge of the right screen
+    const rightEdgeX = pivotR.x + uR.x
+    // Calculate the x-coordinate of the left edge of the left screen
+    const leftEdgeX = pivotL.x + uL.x
+    // Total width is the distance between these two points
+    totalWidthCm = in2cm(rightEdgeX - leftEdgeX)
+  }
   return {
     sideAngleDeg,
     hFOVdeg,

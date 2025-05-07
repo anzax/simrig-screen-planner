@@ -3,7 +3,7 @@ import NumberInputWithSlider from './ui/NumberInputWithSlider.jsx'
 import NumberInput from './ui/NumberInput.jsx'
 import MultiToggle from './ui/MultiToggle.jsx'
 import { useSettingsStore, useUIStore } from '../store/settingsStore'
-import { calculateOptimalAngle } from '../utils/geometryCore'
+import { calculateSideAngle } from '../utils/geometryCore'
 
 export default function SettingsPanel() {
   // Get screen properties directly from the store
@@ -29,7 +29,10 @@ export default function SettingsPanel() {
   const setCurveRadius = useSettingsStore(state => state.setCurveRadius)
 
   // Calculate the angle using the utility function
-  const calculatedAngle = calculateOptimalAngle(screen, distance)
+  const calculatedAngle = calculateSideAngle(
+    { ...screen, curvature: { isCurved, curveRadius }, inputMode },
+    distance
+  )
 
   return (
     <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
@@ -134,14 +137,15 @@ export default function SettingsPanel() {
               {angleMode === 'auto' ? (
                 <div className="bg-green-50 border border-green-200 rounded-lg py-1.5 px-2">
                   <div className="text-xs text-green-700">
-                    Recommended: <span className="font-medium">{calculatedAngle}°</span>
+                    Recommended: <span className="font-medium">{calculatedAngle.toFixed(1)}°</span>
                   </div>
                 </div>
               ) : (
                 <>
                   <div className="bg-yellow-50 border border-yellow-200 rounded-lg py-1.5 px-2 mb-1.5">
                     <div className="text-xs text-yellow-700">
-                      Recommended: <span className="font-medium">{calculatedAngle}°</span>
+                      Recommended:{' '}
+                      <span className="font-medium">{calculatedAngle.toFixed(1)}°</span>
                     </div>
                   </div>
                   <NumberInputWithSlider
