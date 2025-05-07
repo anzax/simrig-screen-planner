@@ -1,56 +1,11 @@
 import { cm2in, in2cm } from './conversions'
 import { ASPECT_RATIOS } from './constants'
+import { generateCurvedScreenArcs } from './geometryUI'
 
 /** ------------------------------------------------------------------
  *  Geometry helpers – keep the main function readable
  * -----------------------------------------------------------------*/
 const DEG = 180 / Math.PI
-
-/* ------------------------------------------------------------------
- *  Bézier helper for curved-panel SVG preview
- * -----------------------------------------------------------------*/
-function curvedScreenBezier(chordW, centerY, sagittaIn, yawDeg = 0, mirror = false, pivotX = 0) {
-  const half = chordW / 2
-  let p0 = { x: -half, y: centerY }
-  // Pull the midpoint *toward* the viewer (y closer to 0 -> less negative)
-  let p1 = { x: 0, y: centerY - sagittaIn }
-  let p2 = { x: half, y: centerY }
-
-  // rotate points by yaw around pivotX, centerY
-  // Negative sign flips rotation so side panels bow toward the user
-  const ang = (-yawDeg * Math.PI) / 180
-  const cos = Math.cos(ang)
-  const sin = Math.sin(ang)
-  const rot = ({ x, y }) => {
-    const relX = x - pivotX
-    const relY = y - centerY // subtract pivotY as well
-    return {
-      x: pivotX + cos * relX - sin * relY,
-      y: centerY + sin * relX + cos * relY,
-    }
-  }
-
-  p0 = rot(p0)
-  p1 = rot(p1)
-  p2 = rot(p2)
-
-  if (mirror) {
-    p0.x = 2 * pivotX - p0.x
-    p1.x = 2 * pivotX - p1.x
-    p2.x = 2 * pivotX - p2.x
-  }
-
-  return {
-    type: 'bezier',
-    startX: p0.x,
-    startY: p0.y,
-    controlX: p1.x,
-    controlY: p1.y,
-    endX: p2.x,
-    endY: p2.y,
-    path: `M ${p0.x} ${p0.y} Q ${p1.x} ${p1.y} ${p2.x} ${p2.y}`,
-  }
-}
 
 // FOV helpers
 const panelFOVdeg = (W, d) => 2 * Math.atan(W / (2 * d)) * DEG
@@ -107,45 +62,51 @@ function calculateNormalizedValues(W, d, isCurved, C, s) {
   return { W_eff, d_eff }
 }
 
-// Calculate the optimal angle based on screen dimensions and viewing distance
-export function calculateOptimalAngle(screen, distance) {
-  const { diagIn, ratio, bezelMm } = screen
-  const { distCm } = distance
+/**
+ * Core angle calculation function that can be used by both optimal angle and side angle calculations
+ */
+function calculateAngle(params) {
+  const {
+    diagIn,
+    ratio,
+    distCm,
+    bezelMm,
+    inputMode = 'diagonal',
+    screenWidth,
+    screenHeight,
+    isCurved = false,
+    curveRadius = 1000,
+    useAutoSideAngle = false,
+  } = params
 
-  if (!diagIn || !ratio || !distCm) return 60
-
-  // Calculate the angle
-  const calculatedAngle = parseFloat(
-    (
-      (Math.atan(
-        ((diagIn + (bezelMm * 2) / 25.4) *
-          (ratio === '16:9'
-            ? 16 / Math.hypot(16, 9)
-            : ratio === '21:9'
-              ? 21 / Math.hypot(21, 9)
-              : 32 / Math.hypot(32, 9))) /
-          2 /
-          (distCm / 2.54)
-      ) *
-        180) /
-      Math.PI
-    ).toFixed(1)
-  )
-
-  // Cap the angle at 90 degrees as it does not have practical sense to go beyond
-  return Math.min(calculatedAngle, 90)
-}
-
-// Calculate the side angle using the same method as in calculateScreenGeometry
-// This ensures consistency between the recommended angle and the actual angle
-export function calculateSideAngle(screen, distance) {
-  const { diagIn, ratio, bezelMm, screenWidth, screenHeight } = screen
-  const { distCm } = distance
-  const { isCurved, curveRadius } = screen.curvature || { isCurved: false, curveRadius: 1000 }
-  const inputMode = screen.inputMode || 'diagonal'
-
+  // Default return value for invalid inputs
   if ((!diagIn && inputMode === 'diagonal') || !ratio || !distCm) return 60
 
+  // For optimal angle calculation (not using autoSideAngle)
+  if (!useAutoSideAngle) {
+    // Calculate the angle using the aspect ratio and diagonal
+    const calculatedAngle = parseFloat(
+      (
+        (Math.atan(
+          ((diagIn + (bezelMm * 2) / 25.4) *
+            (ratio === '16:9'
+              ? 16 / Math.hypot(16, 9)
+              : ratio === '21:9'
+                ? 21 / Math.hypot(21, 9)
+                : 32 / Math.hypot(32, 9))) /
+            2 /
+            (distCm / 2.54)
+        ) *
+          180) /
+        Math.PI
+      ).toFixed(1)
+    )
+
+    // Cap the angle at 90 degrees as it does not have practical sense to go beyond
+    return Math.min(calculatedAngle, 90)
+  }
+
+  // For side angle calculation (using autoSideAngle)
   // Convert to inches
   const d = cm2in(distCm)
   const bezel = cm2in(bezelMm / 10)
@@ -184,20 +145,58 @@ export function calculateSideAngle(screen, distance) {
   return Math.min(sideAngleDeg, 90)
 }
 
-export function calculateScreenGeometry(
-  diagIn,
-  ratio,
-  distCm,
-  bezelMm,
-  setupType = 'triple',
-  angleMode = 'auto',
-  manualAngle = 60,
-  inputMode = 'diagonal',
-  screenWidth = 700,
-  screenHeight = 400,
-  isCurved = false,
-  curveRadius = 1000
-) {
+// Calculate the optimal angle based on screen dimensions and viewing distance
+export function calculateOptimalAngle(screen, distance) {
+  const { diagIn, ratio, bezelMm } = screen
+  const { distCm } = distance
+
+  return calculateAngle({
+    diagIn,
+    ratio,
+    distCm,
+    bezelMm,
+    useAutoSideAngle: false,
+  })
+}
+
+// Calculate the side angle using the same method as in calculateScreenGeometry
+// This ensures consistency between the recommended angle and the actual angle
+export function calculateSideAngle(screen, distance) {
+  const { diagIn, ratio, bezelMm, screenWidth, screenHeight } = screen
+  const { distCm } = distance
+  const { isCurved, curveRadius } = screen.curvature || { isCurved: false, curveRadius: 1000 }
+  const inputMode = screen.inputMode || 'diagonal'
+
+  return calculateAngle({
+    diagIn,
+    ratio,
+    distCm,
+    bezelMm,
+    inputMode,
+    screenWidth,
+    screenHeight,
+    isCurved,
+    curveRadius,
+    useAutoSideAngle: true,
+  })
+}
+
+export function calculateScreenGeometry(params) {
+  // Extract parameters with defaults
+  const {
+    diagIn,
+    ratio,
+    distCm,
+    bezelMm,
+    setupType = 'triple',
+    angleMode = 'auto',
+    manualAngle = 60,
+    inputMode = 'diagonal',
+    screenWidth = 700,
+    screenHeight = 400,
+    isCurved = false,
+    curveRadius = 1000,
+  } = params
   const d = cm2in(distCm)
   const bezel = cm2in(bezelMm / 10)
 
@@ -326,14 +325,8 @@ export function calculateScreenGeometry(
     const screenW = W_eff // chord width
     const depth = s // sagitta
 
-    if (setupType === 'single') {
-      svgArcs.push(curvedScreenBezier(screenW, centerY, depth, 0, false, 0))
-    } else {
-      // triple
-      svgArcs.push(curvedScreenBezier(screenW, centerY, depth, 0, false, 0)) // centre
-      svgArcs.push(curvedScreenBezier(screenW, centerY, depth, sideAngleDeg, true, a)) // right
-      svgArcs.push(curvedScreenBezier(screenW, centerY, depth, -sideAngleDeg, true, -a)) // left
-    }
+    // Use the UI module to generate SVG arcs
+    svgArcs = generateCurvedScreenArcs(screenW, centerY, depth, sideAngleDeg, setupType, a)
   }
   // compute total width for footprint reporting
   if (setupType === 'single') {

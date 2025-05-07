@@ -9,7 +9,12 @@ describe('calculateSvgLayout', () => {
 
   beforeEach(() => {
     // Create sample geometry data for testing
-    geomData = calculateScreenGeometry(27, '16:9', 70, 10).geom
+    geomData = calculateScreenGeometry({
+      diagIn: 27,
+      ratio: '16:9',
+      distCm: 70,
+      bezelMm: 10,
+    }).geom
   })
 
   it('calculates correct SVG dimensions', () => {
@@ -75,20 +80,20 @@ describe('calculateSvgLayout', () => {
 
   it('generates SVG arcs for curved screens', () => {
     // Create geometry data with curved screens
-    const curvedGeomData = calculateScreenGeometry(
-      27,
-      '16:9',
-      70,
-      10,
-      'triple',
-      'auto',
-      60,
-      'diagonal',
-      700,
-      400,
-      true,
-      1000
-    ).geom
+    const curvedGeomData = calculateScreenGeometry({
+      diagIn: 27,
+      ratio: '16:9',
+      distCm: 70,
+      bezelMm: 10,
+      setupType: 'triple',
+      angleMode: 'auto',
+      manualAngle: 60,
+      inputMode: 'diagonal',
+      screenWidth: 700,
+      screenHeight: 400,
+      isCurved: true,
+      curveRadius: 1000,
+    }).geom
 
     const result = calculateSvgLayout(curvedGeomData, RIG_CONSTANTS)
 

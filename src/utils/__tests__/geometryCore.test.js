@@ -549,7 +549,7 @@ describe('calculateScreenGeometry', () => {
         curveRadius = 1000,
       } = testCase.input
 
-      const result = calculateScreenGeometry(
+      const result = calculateScreenGeometry({
         diagIn,
         ratio,
         distCm,
@@ -561,8 +561,8 @@ describe('calculateScreenGeometry', () => {
         screenWidth,
         screenHeight,
         isCurved,
-        curveRadius
-      )
+        curveRadius,
+      })
 
       // Store result if needed for comparison
       if (testCase.expected.store) {

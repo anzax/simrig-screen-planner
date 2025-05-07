@@ -18,7 +18,7 @@ export function useScreenCalculations(
   curveRadius = 1000
 ) {
   const data = useMemo(() => {
-    return calculateScreenGeometry(
+    return calculateScreenGeometry({
       diagIn,
       ratio,
       distCm,
@@ -30,8 +30,8 @@ export function useScreenCalculations(
       screenWidth,
       screenHeight,
       isCurved,
-      curveRadius
-    )
+      curveRadius,
+    })
   }, [
     diagIn,
     ratio,
