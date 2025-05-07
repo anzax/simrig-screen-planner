@@ -1,1 +1,1 @@
-# Triple Screen Planner
+# SimRig Screen Planner

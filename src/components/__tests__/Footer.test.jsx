@@ -6,7 +6,7 @@ describe('Footer', () => {
   it('renders correctly', () => {
     render(<Footer />)
     // Check that the footer content is rendered
-    expect(screen.getByText(/Use the sliders to dial in your actual setup/)).toBeInTheDocument()
+    expect(screen.getByText(/Configure your exact setup parameters/)).toBeInTheDocument()
     expect(screen.getByText(/View on GitHub/)).toBeInTheDocument()
 
     // Check that links are present

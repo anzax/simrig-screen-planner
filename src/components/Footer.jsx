@@ -5,22 +5,25 @@ export default function Footer() {
     <>
       <div className="bg-gray-50 p-4 rounded text-sm text-gray-700 space-y-2">
         <p>
-          Use the sliders to dial in your actual setup—screen diagonal, aspect ratio, eye-to-screen
-          distance (measure from your eyes to the centre of your main screen), and bezel size. The
-          planner then finds the perfect angle so distances to all screen edges are the same.
+          Configure your exact setup parameters to calculate optimal triple-screen positioning. The
+          planner determines angles for equidistant viewing across all screens, maximizing immersion
+          while maintaining proper perspective.
         </p>
         <p>
-          <strong>Horizontal FOV</strong> shows your in-game side-to-side field of view, while{' '}
-          <strong>Vertical FOV</strong> tells you how much screen height you cover—useful for seeing
-          your dash and brake markers.
+          <strong>Support arm angle</strong> provides the physical mounting angle for your side
+          monitors.
+          <strong> Horizontal FOV</strong> and <strong>Vertical FOV</strong> values can be used for
+          in-game camera settings, critical for proper depth perception and spatial awareness.
         </p>
         <p>
-          <strong>Total width</strong> is the straight-line distance between the outer edges of your
-          side screens, so you know exactly how much floor space to reserve.
+          <strong>Total width</strong> shows the straight-line distance between outer edges of your
+          side screens. Remember to allow extra space for monitor depth, arms and stand placement.
+          The visualization represents a standard sim rig (60×150cm) with head position 10cm from
+          rear edge.
         </p>
         <p>
-          The <strong>light-grey box</strong> represents a standard sim cockpit: 60 cm × 150 cm with
-          your head (red circle) 10 cm from the back edge of the rig.
+          <strong>Note:</strong> All calculations are mathematical estimates and may require
+          fine-tuning based on your specific hardware, mounting solutions, and personal preference.
         </p>
       </div>
 

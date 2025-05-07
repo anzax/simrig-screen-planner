@@ -31,7 +31,7 @@ export default function App() {
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6">
       <h1 className="text-3xl font-semibold">
-        Triple‑Screen Planner <span className="text-sm font-normal">(Sim‑Racing)</span>
+        SimRig Screen Planner <span className="text-sm font-normal">(Sim‑Racing)</span>
       </h1>
 
       <SettingsPanel />
