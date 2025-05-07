@@ -7,12 +7,12 @@ import { ASPECT_RATIOS } from './constants'
 const DEG = 180 / Math.PI
 
 /* ------------------------------------------------------------------
- *  Bézier helper for curved‑panel SVG preview
+ *  Bézier helper for curved-panel SVG preview
  * -----------------------------------------------------------------*/
 function curvedScreenBezier(chordW, centerY, sagittaIn, yawDeg = 0, mirror = false, pivotX = 0) {
   const half = chordW / 2
   let p0 = { x: -half, y: centerY }
-  // Pull the midpoint *toward* the viewer (y closer to 0 → less negative)
+  // Pull the midpoint *toward* the viewer (y closer to 0 -> less negative)
   let p1 = { x: 0, y: centerY - sagittaIn }
   let p2 = { x: half, y: centerY }
 
@@ -56,7 +56,7 @@ function curvedScreenBezier(chordW, centerY, sagittaIn, yawDeg = 0, mirror = fal
 const panelFOVdeg = (W, d) => 2 * Math.atan(W / (2 * d)) * DEG
 const bezelFOVdeg = (bezel, d) => 2 * Math.atan(bezel / d) * DEG
 
-// Automatic side‑screen angle (works for both flat & curved once we pass in W_eff, d_eff)
+// Automatic side-screen angle (works for both flat & curved once we pass in W_eff, d_eff)
 function autoSideAngle(a, W_eff, d_eff) {
   const x_c = (W_eff * d_eff * d_eff) / (d_eff * d_eff + a * a)
   const y_c = (a * x_c - d_eff * d_eff) / d_eff
@@ -167,7 +167,7 @@ export function calculateScreenGeometry(
 
   // Normalised values used everywhere below
   const W_eff = isCurved ? C : W // chord for curved, width for flat
-  const d_eff = isCurved ? d - s : d // eye‑to‑surface distance
+  const d_eff = isCurved ? d - s : d // eye-to-surface distance
 
   // side screen angle
   let sideAngleDeg = 0
@@ -193,7 +193,7 @@ export function calculateScreenGeometry(
     if (setupType === 'single') {
       hFOVdeg = hSingleDeg // bezels ignored for single
     } else {
-      // Vector‑based span between eye -> outer edge of each side panel
+      // Vector-based span between eye -> outer edge of each side panel
       const ang = (sideAngleDeg * Math.PI) / 180
       const edgeR = { x: a + W_eff * Math.cos(ang), y: -d_eff + W_eff * Math.sin(ang) }
       const edgeL = { x: -a - W_eff * Math.cos(ang), y: -d_eff + W_eff * Math.sin(ang) }
@@ -202,22 +202,22 @@ export function calculateScreenGeometry(
       const angleL = Math.atan2(edgeL.y, edgeL.x) * DEG
       const to360 = deg => (deg + 360) % 360
 
-      // Signed shortest difference from R→L (−180 … +180)
+      // Signed shortest difference from R->L (-180 ... +180)
       let delta = (to360(angleL) - to360(angleR) + 360) % 360
-      if (delta > 180) delta -= 360 // now in −180…180
-      const spanSmall = Math.abs(delta) // the small arc (≤180)
+      if (delta > 180) delta -= 360 // now in -180...180
+      const spanSmall = Math.abs(delta) // the small arc (<=180)
 
-      // Take the arc whose midpoint faces the screens (y < 0 ⇒ sin < 0)
+      // Take the arc whose midpoint faces the screens (y < 0 => sin < 0)
       const midDeg = (to360(angleR) + delta / 2 + 360) % 360
       const span =
         Math.sin(midDeg / DEG) < 0 // DEG = 180/Math.PI
-          ? spanSmall // midpoint in front ⇒ small arc
-          : 360 - spanSmall // midpoint behind  ⇒ large arc (wraps around head)
+          ? spanSmall // midpoint in front => small arc
+          : 360 - spanSmall // midpoint behind => large arc (wraps around head)
 
       hFOVdeg = span + bDeg * 2
     }
 
-    // vertical FOV uses eye‑to‑centre distance only (curvature does not matter)
+    // vertical FOV uses eye-to-centre distance only (curvature does not matter)
     vFOVdeg = panelFOVdeg(H, d)
   }
 
@@ -237,7 +237,7 @@ export function calculateScreenGeometry(
     pivotR = { x: a, y: -d }
     pivotL = { x: -a, y: -d }
   }
-  // --- Curved‑panel SVG paths ------------------------------------
+  // --- Curved-panel SVG paths ------------------------------------
   if (isCurved) {
     svgArcs = []
     const centerY = -d_eff // chord plane
