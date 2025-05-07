@@ -1,8 +1,15 @@
 {
   "name": "simrig-screen-planner",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
+  "license": "Apache-2.0",
+  "author": "Andrii Zakhariuk <andrii@anzax.dev>",
+  "description": "Triple-screen configuration calculator for sim racing setups",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/anzax/simrig-screen-planner.git"
+  },
   "scripts": {
     "dev": "vite",
     "build": "vite build",
@@ -41,5 +48,12 @@
     "prettier": "^3.5.3",
     "vite": "^6.3.1",
     "vitest": "^3.1.2"
-  }
+  },
+  "keywords": [
+    "sim racing",
+    "triple screen",
+    "monitor setup",
+    "fov calculator",
+    "racing simulator"
+  ]
 }
