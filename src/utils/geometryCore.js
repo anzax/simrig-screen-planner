@@ -320,7 +320,7 @@ export function calculateScreenGeometry(params) {
   // --- Curved-panel SVG paths ------------------------------------
   if (isCurved) {
     const centerY = -d_eff // chord plane
-    const screenW = W_eff // chord width
+    const screenW = W_eff + 2 * bezel // chord width + bezels on both sides
     const depth = s // sagitta
 
     // Use the UI module to generate SVG arcs
