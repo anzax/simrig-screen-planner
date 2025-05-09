@@ -196,6 +196,29 @@ export function calculateSvgLayout(geomData, rigConstants) {
       })
     : []
 
+  // Extract screen edges for FOV lines
+  const screenEdges = []
+
+  // For flat screens, use the line endpoints
+  if (!svgArcs || svgArcs.length === 0) {
+    screenEdges.push(
+      { x: tx(endL.x), y: ty(endL.y) }, // Left screen outer edge
+      { x: tx(pivotL.x), y: ty(pivotL.y) }, // Left screen inner edge
+      { x: tx(pivotR.x), y: ty(pivotR.y) }, // Right screen inner edge
+      { x: tx(endR.x), y: ty(endR.y) } // Right screen outer edge
+    )
+  }
+  // For curved screens, extract edge points from arcs
+  else {
+    arcs.forEach(arc => {
+      if (arc.type === 'bezier') {
+        screenEdges.push({ x: arc.startX, y: arc.startY }, { x: arc.endX, y: arc.endY })
+      } else {
+        screenEdges.push({ x: arc.startX, y: arc.startY }, { x: arc.endX, y: arc.endY })
+      }
+    })
+  }
+
   return {
     widthPx: (maxX - minX) * scale + pad * 2,
     heightPx: (maxY - minY) * scale + pad * 2,
@@ -205,6 +228,7 @@ export function calculateSvgLayout(geomData, rigConstants) {
       { x1: tx(pivotR.x), y1: ty(pivotR.y), x2: tx(endR.x), y2: ty(endR.y) },
       { x1: tx(pivotL.x), y1: ty(pivotL.y), x2: tx(pivotR.x), y2: ty(pivotR.y) },
     ],
+    screenEdges: screenEdges,
     rig: rigRect,
     arcs: arcs,
   }
