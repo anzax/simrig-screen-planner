@@ -1,8 +1,11 @@
 # SimRig Screen Planner
 
-A tool for sim racers to optimize screen placement, FOV settings, and mounting positions.
+A tool for sim racers to optimize screen placement, FOV settings, choose optimal screen
+configurations and estimate required space for your triple-screen setup.
 
-**[Launch App: srsp.anzax.dev](https://srsp.anzax.dev)**
+**[Try it out!](https://simrigbuild.com)**
+
+![screen-planner.png](doc/screen-planner.png)
 
 ## Purpose
 
@@ -10,7 +13,7 @@ SimRig Screen Planner helps you:
 
 - Calculate proper screen positioning and angles for optimal immersion
 - Compare different setup options before purchasing or mounting hardware
-- Determine correct mounting positions and support arm angles
+- Determine correct support arm angles
 - Find the right FOV settings for your racing games
 - Visualize how your setup will look from above
 
@@ -33,7 +36,6 @@ SimRig Screen Planner helps you:
 - **Racing Game Settings**
   - Horizontal and vertical FOV values
   - Side screen angle recommendations
-  - Mounting measurements
 
 ## How to Use
 

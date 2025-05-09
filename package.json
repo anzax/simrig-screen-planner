@@ -4,7 +4,7 @@
   "version": "0.1.0",
   "type": "module",
   "license": "Apache-2.0",
-  "author": "Andrii Zakhariuk <andrii@anzax.dev>",
+  "author": "Andrii Zakhariuk <andrii@simrigbuild.com>",
   "description": "Triple-screen configuration calculator for sim racing setups",
   "repository": {
     "type": "git",
