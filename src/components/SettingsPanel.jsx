@@ -5,7 +5,11 @@ import MultiToggle from './ui/MultiToggle.jsx'
 import { useSettingsStore, useUIStore } from '../store/settingsStore'
 import { calculateSideAngle } from '../utils/geometryCore'
 
-export default function SettingsPanel() {
+export default function SettingsPanel({
+  hasSecondConfig = false,
+  setHasSecondConfig = () => {},
+  activeConfig = 'main',
+}) {
   // Get screen properties directly from the store
   const { screen, distance, layout, curvature } = useSettingsStore()
   const { diagIn, ratio, bezelMm, screenWidth, screenHeight } = screen
@@ -34,8 +38,11 @@ export default function SettingsPanel() {
     distance
   )
 
+  // Determine background color based on active config
+  const bgColorClass = activeConfig === 'second' ? 'bg-blue-100' : 'bg-white'
+
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+    <div className={`${bgColorClass} rounded-lg shadow-sm border border-gray-200 p-4`}>
       {/* Three-column layout container */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Column 1: Screen Size with toggle and relevant controls */}
