@@ -7,6 +7,7 @@ export default function StatsDisplay({
   onAddConfig,
   activeConfig,
   setActiveConfig,
+  isAnimating = false,
 }) {
   const hasSecondConfig = secondConfig !== undefined
 
@@ -44,7 +45,7 @@ export default function StatsDisplay({
     <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
       {/* Main Configuration Container */}
       <div
-        className={`bg-white rounded-lg shadow-sm border p-4 ${hasSecondConfig && activeConfig === 'main' ? 'border-blue-600' : 'border-gray-200 hover:border-blue-300 transition-colors cursor-pointer'}`}
+        className={`bg-white rounded-lg shadow-sm border p-4 transition-all duration-300 ${activeConfig === 'main' ? 'border-gray-600 shadow-md ' + (isAnimating && activeConfig === 'main' ? 'animate-highlight' : '') : 'border-gray-200 hover:border-gray-600 transition-colors cursor-pointer'}`}
         onClick={() => hasSecondConfig && setActiveConfig('main')}
       >
         {renderStatsCard(data)}
@@ -52,7 +53,7 @@ export default function StatsDisplay({
 
       {/* Second Configuration Container */}
       <div
-        className={`rounded-lg shadow-sm border p-4 ${!hasSecondConfig ? 'bg-white border-gray-200 hover:border-blue-300 transition-colors cursor-pointer' : 'bg-blue-100 ' + (activeConfig === 'second' ? 'border-blue-600' : 'border-gray-200 hover:border-blue-300 transition-colors cursor-pointer')}`}
+        className={`rounded-lg shadow-sm border p-4 transition-all duration-300 ${!hasSecondConfig ? 'bg-white border-blue-200 hover:border-blue-500 transition-colors cursor-pointer' : 'bg-blue-100 ' + (activeConfig === 'second' ? 'border-blue-600 shadow-md ' + (isAnimating && activeConfig === 'second' ? 'animate-highlight' : '') : 'border-gray-200 hover:border-blue-500 transition-colors cursor-pointer')}`}
         onClick={!hasSecondConfig ? onAddConfig : () => setActiveConfig('second')}
       >
         {hasSecondConfig ? renderStatsCard(secondConfig, true) : renderAddConfigCard()}

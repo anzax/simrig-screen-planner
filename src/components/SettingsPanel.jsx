@@ -9,6 +9,7 @@ export default function SettingsPanel({
   hasSecondConfig = false,
   setHasSecondConfig = () => {},
   activeConfig = 'main',
+  isAnimating = false,
 }) {
   // Get screen properties directly from the store
   const { screen, distance, layout, curvature } = useSettingsStore()
@@ -38,11 +39,14 @@ export default function SettingsPanel({
     distance
   )
 
-  // Determine background color based on active config
+  // Determine styling based on active config
+  const borderColor = activeConfig === 'second' ? 'border-blue-600' : 'border-gray-600'
   const bgColorClass = activeConfig === 'second' ? 'bg-blue-100' : 'bg-white'
 
   return (
-    <div className={`${bgColorClass} rounded-lg shadow-sm border border-gray-200 p-4`}>
+    <div
+      className={`${bgColorClass} rounded-lg shadow-sm border ${borderColor} p-4 transition-all duration-300 ${isAnimating ? 'animate-highlight' : ''}`}
+    >
       {/* Three-column layout container */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Column 1: Screen Size with toggle and relevant controls */}

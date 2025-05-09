@@ -10,6 +10,16 @@ export default function App() {
   // State for configurations
   const [hasSecondConfig, setHasSecondConfig] = useState(false)
   const [activeConfig, setActiveConfig] = useState('main')
+  const [isAnimating, setIsAnimating] = useState(false)
+
+  // Effect to handle animation when config changes
+  useEffect(() => {
+    if (hasSecondConfig) {
+      setIsAnimating(true)
+      const timer = setTimeout(() => setIsAnimating(false), 1000) // Animation duration
+      return () => clearTimeout(timer)
+    }
+  }, [activeConfig, hasSecondConfig])
 
   // Debug log for state changes
   useEffect(() => {
@@ -57,6 +67,7 @@ export default function App() {
         hasSecondConfig={hasSecondConfig}
         setHasSecondConfig={setHasSecondConfig}
         activeConfig={activeConfig}
+        isAnimating={isAnimating}
       />
 
       <StatsDisplay
@@ -75,6 +86,7 @@ export default function App() {
         onAddConfig={addSecondConfig}
         activeConfig={activeConfig}
         setActiveConfig={setActiveConfig}
+        isAnimating={isAnimating}
       />
 
       <ScreenVisualizer view={view} />
