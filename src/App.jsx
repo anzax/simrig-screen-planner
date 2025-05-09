@@ -57,6 +57,13 @@ export default function App() {
     console.log('Added second config and switched active configuration to second')
   }
 
+  // Handle removing the second configuration
+  const removeSecondConfig = () => {
+    setHasSecondConfig(false)
+    setActiveConfig('main')
+    console.log('Removed second config and switched back to main configuration')
+  }
+
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6">
       <h1 className="text-3xl font-semibold">
@@ -87,6 +94,7 @@ export default function App() {
         activeConfig={activeConfig}
         setActiveConfig={setActiveConfig}
         isAnimating={isAnimating}
+        removeSecondConfig={removeSecondConfig}
       />
 
       <ScreenVisualizer view={view} />
