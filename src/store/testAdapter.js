@@ -73,28 +73,30 @@ export function setLegacyTestState(flatState) {
  * TEST ONLY: Get legacy flat state format for assertions
  */
 export function getLegacyTestState() {
-  // Get state from both stores
-  const { screen, distance, layout, curvature } = useSettingsStore.getState()
+  // Get state from configStore only (settings store retained for backward compatibility)
+  // const { screen, distance, layout, curvature } = useSettingsStore.getState()
   const configState = useConfigStore.getState()
   // Get UI state from configStore instead
-  const { inputMode, angleMode } = configState.configs.main.ui || {
-    inputMode: 'diagonal',
-    angleMode: 'auto',
-  }
+  // These variables are not used anymore, we directly extract them below
+  // const { inputMode, angleMode } = configState.configs.main.ui || {
+  //   inputMode: 'diagonal',
+  //   angleMode: 'auto',
+  // }
 
   // Return the state from the configStore for tests
   const mainConfig = configState.configs.main
+  const { screen, distance, layout, curvature } = mainConfig
   return {
-    diagIn: mainConfig.screen.diagIn,
-    ratio: mainConfig.screen.ratio,
-    bezelMm: mainConfig.screen.bezelMm,
-    screenWidth: mainConfig.screen.screenWidth,
-    screenHeight: mainConfig.screen.screenHeight,
-    distCm: mainConfig.distance.distCm,
-    setupType: mainConfig.layout.setupType,
-    manualAngle: mainConfig.layout.manualAngle,
-    isCurved: mainConfig.curvature.isCurved,
-    curveRadius: mainConfig.curvature.curveRadius,
+    diagIn: screen.diagIn,
+    ratio: screen.ratio,
+    bezelMm: screen.bezelMm,
+    screenWidth: screen.screenWidth,
+    screenHeight: screen.screenHeight,
+    distCm: distance.distCm,
+    setupType: layout.setupType,
+    manualAngle: layout.manualAngle,
+    isCurved: curvature.isCurved,
+    curveRadius: curvature.curveRadius,
     inputMode: mainConfig.ui?.inputMode || 'diagonal',
     angleMode: mainConfig.ui?.angleMode || 'auto',
   }

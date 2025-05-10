@@ -23,10 +23,11 @@ export default function App() {
   const comparisonConfig = useConfigStore(state => state.configs.comparison)
 
   // Get active configuration - no longer need separate UI state
-  const activeConfig = useConfigStore(state => {
-    const { configs, activeConfigId } = state
-    return configs[activeConfigId] || configs.main
-  })
+  // Using activeConfigId directly instead of this derived value
+  // const activeConfig = useConfigStore(state => {
+  //   const { configs, activeConfigId } = state
+  //   return configs[activeConfigId] || configs.main
+  // })
 
   // Animation state for UI feedback
   const [isAnimating, setIsAnimating] = useState(false)
@@ -190,8 +191,8 @@ export default function App() {
       console.error('Error in calculations:', error)
       // Don't update state on error to keep the default/previous values
     }
-    // Only use configKey as dependency which will update when configs change
-  }, [configKey, calculateConfig])
+    // Need to include these dependencies for React Hooks ESLint rules
+  }, [configKey, calculateConfig, mainConfig, comparisonConfig, defaultData, defaultView])
 
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6">

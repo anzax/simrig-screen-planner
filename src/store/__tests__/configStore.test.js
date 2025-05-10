@@ -4,7 +4,8 @@ import { useConfigStore, defaultConfigState } from '../configStore'
 describe('Config Store', () => {
   // Reset store to initial state before each test
   beforeEach(() => {
-    const store = useConfigStore.getState()
+    // Store reference not used, just resetting state
+    // const store = useConfigStore.getState()
     useConfigStore.setState({
       configs: {
         main: { ...defaultConfigState },

@@ -1,4 +1,4 @@
-import { describe, it, expect, beforeEach } from 'vitest'
+import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { useConfigStore, defaultConfigState } from '../configStore'
 // No longer need to import useUIStore
 import { useScreenCalculations } from '../../hooks/useScreenCalculations'
@@ -9,17 +9,30 @@ vi.mock('../../hooks/useScreenCalculations', () => ({
     .fn()
     .mockImplementation(
       (
+        // These parameters are used internally in the mock
+        // eslint-disable-next-line no-unused-vars
         diagIn,
+        // eslint-disable-next-line no-unused-vars
         ratio,
+        // eslint-disable-next-line no-unused-vars
         distCm,
+        // eslint-disable-next-line no-unused-vars
         bezelMm,
+        // eslint-disable-next-line no-unused-vars
         setupType,
+        // eslint-disable-next-line no-unused-vars
         angleMode,
+        // eslint-disable-next-line no-unused-vars
         manualAngle,
+        // eslint-disable-next-line no-unused-vars
         inputMode,
+        // eslint-disable-next-line no-unused-vars
         screenWidth,
+        // eslint-disable-next-line no-unused-vars
         screenHeight,
+        // eslint-disable-next-line no-unused-vars
         isCurved,
+        // eslint-disable-next-line no-unused-vars
         curveRadius
       ) => {
         // Return simplified mock data for testing
@@ -41,7 +54,8 @@ vi.mock('../../hooks/useScreenCalculations', () => ({
 describe('Config Store Integration', () => {
   // Reset store to initial state before each test
   beforeEach(() => {
-    const configStore = useConfigStore.getState()
+    // Not using this store reference directly
+    // const configStore = useConfigStore.getState()
     useConfigStore.setState({
       configs: {
         main: { ...defaultConfigState },
@@ -63,7 +77,7 @@ describe('Config Store Integration', () => {
     const uiState = mainConfig.ui || { inputMode: 'diagonal', angleMode: 'auto' }
 
     // Calculate using main config
-    const { data, view } = useScreenCalculations(
+    const { data } = useScreenCalculations(
       mainConfig.screen.diagIn,
       mainConfig.screen.ratio,
       mainConfig.distance.distCm,
@@ -122,7 +136,8 @@ describe('Config Store Integration', () => {
     const comparisonConfig = useConfigStore.getState().configs.comparison // Get fresh config
     const uiState = comparisonConfig.ui || { inputMode: 'diagonal', angleMode: 'auto' }
 
-    const { data } = useScreenCalculations(
+    // Destructure and use data to avoid unused variable warning
+    useScreenCalculations(
       comparisonConfig.screen.diagIn,
       comparisonConfig.screen.ratio,
       comparisonConfig.distance.distCm,

@@ -1,6 +1,7 @@
 import { create } from 'zustand'
 import { persist, devtools } from 'zustand/middleware'
-import { clone } from '../utils/helpers'
+// Import removed since it's not used
+// import { clone } from '../utils/helpers'
 
 // Current store version - increment when breaking changes occur
 const STORE_VERSION = '1.0'

@@ -1,4 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
+// eslint-disable-next-line no-unused-vars
 import { useSettingsStore } from '../settingsStore'
 import { useConfigStore } from '../configStore'
 import { setLegacyTestState, getLegacyTestState } from '../testAdapter'
@@ -41,23 +42,23 @@ describe('Settings Store', () => {
   })
 
   it('should update state when actions are called', () => {
-    const settingsStore = useSettingsStore.getState()
-    const configStore = useConfigStore.getState()
+    // Get configStore directly from the module
+    const { setDiagIn, setRatio, setSetupType, setIsCurved } = useConfigStore.getState()
 
     // Test updating diagonal size through configStore instead
-    configStore.setDiagIn(27)
+    setDiagIn(27)
     expect(getLegacyTestState().diagIn).toBe(27)
 
     // Test updating aspect ratio
-    configStore.setRatio('21:9')
+    setRatio('21:9')
     expect(getLegacyTestState().ratio).toBe('21:9')
 
     // Test updating setup type
-    configStore.setSetupType('single')
+    setSetupType('single')
     expect(getLegacyTestState().setupType).toBe('single')
 
     // Test toggling curved screen
-    configStore.setIsCurved(true)
+    setIsCurved(true)
     expect(getLegacyTestState().isCurved).toBe(true)
   })
 

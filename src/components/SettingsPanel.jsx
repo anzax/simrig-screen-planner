@@ -6,6 +6,8 @@ import { useConfigStore } from '../store/configStore'
 import { calculateSideAngle } from '../utils/geometryCore'
 
 export default function SettingsPanel({
+  // hasComparisonConfig is needed for future functionality
+  // eslint-disable-next-line no-unused-vars
   hasComparisonConfig = false,
   activeConfigId = 'main',
   isAnimating = false,
