@@ -5,7 +5,7 @@ import FOVLines from './visualizer/FOVLines'
 import ReferenceGrid from './visualizer/ReferenceGrid'
 import { calculateViewportConfig } from '../utils/viewportManager'
 
-// Create a context to share viewport configuration with all child components
+// Create a context to share data with all child components
 export const VisualizerContext = createContext({})
 
 export default function ScreenVisualizer({ view, comparisonView }) {
@@ -13,11 +13,10 @@ export default function ScreenVisualizer({ view, comparisonView }) {
   const defaultView = {
     widthPx: 800,
     heightPx: 400,
-    rig: { w: 40, h: 40 },
     screenEdges: [],
     lines: [],
     arcs: [],
-    totalWidth: 800
+    totalWidth: 800,
   }
 
   // Safely use the view or fallback to defaults
@@ -30,7 +29,15 @@ export default function ScreenVisualizer({ view, comparisonView }) {
   const viewport = calculateViewportConfig(safeView, safeComparisonView)
 
   return (
-    <VisualizerContext.Provider value={{ viewport }}>
+    <VisualizerContext.Provider
+      value={{
+        viewport,
+        view: safeView,
+        comparisonView: safeComparisonView,
+        debug,
+        showFOV,
+      }}
+    >
       <div
         className="bg-white rounded p-2 overflow-auto flex flex-col justify-center"
         style={{
@@ -48,42 +55,20 @@ export default function ScreenVisualizer({ view, comparisonView }) {
           {/* Create main coordinate system - using translation only, no scaling */}
           <g transform={`translate(${viewport.centerX},${viewport.centerY})`}>
             {/* Base layer - grid or reference lines if needed */}
-            <ReferenceGrid debug={debug} />
+            <ReferenceGrid />
 
             {/* Main setup */}
             <g className="main-setup">
-              <RigAndHead
-                rig={safeView.rig}
-                head={safeView.head}
-                color="#000"
-              />
-              {showFOV && (
-                <FOVLines
-                  screenEdges={safeView.screenEdges}
-                  color="#555"
-                />
-              )}
-              <Screens
-                view={safeView}
-                color="#000"
-                debug={debug}
-              />
+              <RigAndHead />
+              <FOVLines />
+              <Screens />
             </g>
 
             {/* Comparison setup */}
             {safeComparisonView && (
               <g className="comparison-setup" style={{ opacity: 1.0 }}>
-                {showFOV && (
-                  <FOVLines
-                    screenEdges={safeComparisonView.screenEdges}
-                    color="#1E40AF"
-                  />
-                )}
-                <Screens
-                  view={safeComparisonView}
-                  color="#1E40AF"
-                  debug={debug}
-                />
+                <FOVLines isComparison={true} />
+                <Screens isComparison={true} />
               </g>
             )}
           </g>

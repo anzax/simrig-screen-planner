@@ -1,14 +1,17 @@
 import React, { useContext } from 'react'
 import { VisualizerContext } from '../ScreenVisualizer'
 
-export default function DebugHelpers({ view, debug = false }) {
-  // If debug is off, or view is undefined, return null
-  if (!debug || !view) return null
+export default function DebugHelpers({ isComparison = false }) {
+  const { viewport, view, comparisonView, debug } = useContext(VisualizerContext)
 
-  const { viewport } = useContext(VisualizerContext)
+  // Get the appropriate view based on isComparison flag
+  const currentView = isComparison ? comparisonView : view
+
+  // If debug is off, or view is undefined, return null
+  if (!debug || !currentView) return null
   const pixelsPerInch = viewport?.pixelsPerInch || 10
 
-  const { arcs = [] } = view
+  const { arcs = [] } = currentView
   // If not curved or no arcs, return null
   if (!arcs || arcs.length === 0) return null
 
@@ -50,9 +53,9 @@ export default function DebugHelpers({ view, debug = false }) {
               strokeWidth={0.1 * pixelsPerInch} // 0.1 inches
               strokeDasharray={`${0.5 * pixelsPerInch},${0.5 * pixelsPerInch}`} // 0.5 inches
             />
-
             {/* Arc center */}
-            <circle cx={centerXPx} cy={centerYPx} r={0.4 * pixelsPerInch} fill="red" /> {/* 0.4 inches */}
+            <circle cx={centerXPx} cy={centerYPx} r={0.4 * pixelsPerInch} fill="red" />{' '}
+            {/* 0.4 inches */}
           </React.Fragment>
         )
       })}

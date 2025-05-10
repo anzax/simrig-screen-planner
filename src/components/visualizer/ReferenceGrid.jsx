@@ -1,10 +1,10 @@
 import React, { useContext } from 'react'
 import { VisualizerContext } from '../ScreenVisualizer'
 
-export default function ReferenceGrid({ debug }) {
-  if (!debug) return null
+export default function ReferenceGrid() {
+  const { viewport, debug } = useContext(VisualizerContext)
 
-  const { viewport } = useContext(VisualizerContext)
+  if (!debug) return null
   const pixelsPerInch = viewport?.pixelsPerInch || 10
   const strokeWidth = 0.1 * pixelsPerInch // 0.1 inches
 
@@ -15,7 +15,14 @@ export default function ReferenceGrid({ debug }) {
     <>
       {/* Center crosshair */}
       <line x1={-gridSize} y1={0} x2={gridSize} y2={0} stroke="#999" strokeWidth={strokeWidth} />
-      <line x1={0} y1={-gridSize} x2={0} y2={10 * pixelsPerInch} stroke="#999" strokeWidth={strokeWidth} />
+      <line
+        x1={0}
+        y1={-gridSize}
+        x2={0}
+        y2={10 * pixelsPerInch}
+        stroke="#999"
+        strokeWidth={strokeWidth}
+      />
 
       {/* Reference measurements */}
       <text x={5 * pixelsPerInch} y={1 * pixelsPerInch} fontSize={1.2 * pixelsPerInch} fill="#666">

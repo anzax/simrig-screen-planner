@@ -1,11 +1,24 @@
 import React, { useContext } from 'react'
 import { VisualizerContext } from '../ScreenVisualizer'
 
-export default function FOVLines({ screenEdges, color = '#555555' }) {
-  // Return early if no data
-  if (!screenEdges || screenEdges.length === 0) return null
+export default function FOVLines({ isComparison = false }) {
+  const { viewport, view, comparisonView, showFOV } = useContext(VisualizerContext)
 
-  const { viewport } = useContext(VisualizerContext)
+  // If FOV lines are disabled, return null
+  if (!showFOV) return null
+
+  // Get the appropriate view based on isComparison flag
+  const currentView = isComparison ? comparisonView : view
+
+  // Get screenEdges from the current view
+  const screenEdges = currentView?.screenEdges || []
+
+  // Return early if no data
+  if (screenEdges.length === 0) return null
+
+  // Determine color based on isComparison flag
+  const color = isComparison ? '#1E40AF' : '#555555'
+
   const pixelsPerInch = viewport?.pixelsPerInch || 10
 
   // Convert stroke width and dash array from inches to pixels

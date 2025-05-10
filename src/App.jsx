@@ -54,8 +54,6 @@ export default function App() {
     () => ({
       widthPx: 800,
       heightPx: 400,
-      rig: { x: 400, y: 350, w: 40, h: 40 },
-      head: { x: 400, y: 350, r: 15 },
       screenEdges: [],
       lines: [],
       arcs: [],

@@ -18,7 +18,7 @@ export default function Footer() {
         <p>
           <strong>Total Width</strong> shows the straight-line distance between outer edges of your
           side screens. Remember to allow extra space for monitor depth, arms and stand placement.
-          The visualization represents a standard sim rig (60×150cm) with head position 10cm from
+          The visualization represents a standard sim rig (60×150cm) with head position ~10cm from
           rear edge.
         </p>
         <p>

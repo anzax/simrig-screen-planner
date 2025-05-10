@@ -29,7 +29,7 @@ export default function CurvedScreensD3({ arcs = [], color = '#000', debug = fal
         centerX: (arc.centerX || 0) * pixelsPerInch,
         centerY: (arc.centerY || 0) * pixelsPerInch,
         radius: (arc.radius || 0) * pixelsPerInch,
-        actualDeepestY: arc.actualDeepestY ? arc.actualDeepestY * pixelsPerInch : undefined
+        actualDeepestY: arc.actualDeepestY ? arc.actualDeepestY * pixelsPerInch : undefined,
       }
 
       // Define points for d3 curve
@@ -66,13 +66,11 @@ export default function CurvedScreensD3({ arcs = [], color = '#000', debug = fal
       }
 
       // Draw monitor body - darker background
-      const thickness = 0.5 * pixelsPerInch // 0.5 inches
       screenGroup
         .append('path')
         .attr('d', pathData)
         .attr('stroke', 'none')
-        .attr('fill', 'rgba(60, 60, 70, 0.3)')
-        .attr('transform', `translate(0, ${thickness / 2})`)
+        .attr('fill', 'rgba(60, 60, 70, 0.2)')
 
       // Draw screen front face
       screenGroup
@@ -161,7 +159,7 @@ export default function CurvedScreensD3({ arcs = [], color = '#000', debug = fal
           .text(`Screen ${i + 1}`)
       }
     })
-  }, [arcs, color, debug])
+  }, [arcs, color, debug, pixelsPerInch])
 
   return <g ref={svgRef}></g>
 }

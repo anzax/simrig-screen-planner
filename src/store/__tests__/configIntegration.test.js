@@ -5,50 +5,48 @@ import { useScreenCalculations } from '../../hooks/useScreenCalculations'
 
 // Mock the useScreenCalculations hook
 vi.mock('../../hooks/useScreenCalculations', () => ({
-  useScreenCalculations: vi
-    .fn()
-    .mockImplementation(
-      (
-        // These parameters are used internally in the mock
-        // eslint-disable-next-line no-unused-vars
-        diagIn,
-        // eslint-disable-next-line no-unused-vars
-        ratio,
-        // eslint-disable-next-line no-unused-vars
-        distCm,
-        // eslint-disable-next-line no-unused-vars
-        bezelMm,
-        // eslint-disable-next-line no-unused-vars
-        setupType,
-        // eslint-disable-next-line no-unused-vars
-        angleMode,
-        // eslint-disable-next-line no-unused-vars
-        manualAngle,
-        // eslint-disable-next-line no-unused-vars
-        inputMode,
-        // eslint-disable-next-line no-unused-vars
-        screenWidth,
-        // eslint-disable-next-line no-unused-vars
-        screenHeight,
-        // eslint-disable-next-line no-unused-vars
-        isCurved,
-        // eslint-disable-next-line no-unused-vars
-        curveRadius
-      ) => {
-        // Return simplified mock data for testing
-        return {
-          data: {
-            sideAngleDeg: 45,
-            hFOVdeg: 120,
-            vFOVdeg: 45,
-            cm: { totalWidth: 150 },
-          },
-          view: {
-            /* mock view data */
-          },
-        }
+  useScreenCalculations: vi.fn().mockImplementation(
+    (
+      // These parameters are used internally in the mock
+      // eslint-disable-next-line no-unused-vars
+      diagIn,
+      // eslint-disable-next-line no-unused-vars
+      ratio,
+      // eslint-disable-next-line no-unused-vars
+      distCm,
+      // eslint-disable-next-line no-unused-vars
+      bezelMm,
+      // eslint-disable-next-line no-unused-vars
+      setupType,
+      // eslint-disable-next-line no-unused-vars
+      angleMode,
+      // eslint-disable-next-line no-unused-vars
+      manualAngle,
+      // eslint-disable-next-line no-unused-vars
+      inputMode,
+      // eslint-disable-next-line no-unused-vars
+      screenWidth,
+      // eslint-disable-next-line no-unused-vars
+      screenHeight,
+      // eslint-disable-next-line no-unused-vars
+      isCurved,
+      // eslint-disable-next-line no-unused-vars
+      curveRadius
+    ) => {
+      // Return simplified mock data for testing
+      return {
+        data: {
+          sideAngleDeg: 45,
+          hFOVdeg: 120,
+          vFOVdeg: 45,
+          cm: { totalWidth: 150 },
+        },
+        view: {
+          /* mock view data */
+        },
       }
-    ),
+    }
+  ),
 }))
 
 describe('Config Store Integration', () => {

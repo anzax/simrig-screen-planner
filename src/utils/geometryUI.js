@@ -1,4 +1,4 @@
-import { cm2in } from './conversions'
+// No conversions needed in this file
 
 /* ------------------------------------------------------------------
  *  Bézier helper for curved-panel SVG preview
@@ -78,7 +78,7 @@ export function generateCurvedScreenArcs(
   return svgArcs
 }
 
-export function calculateSvgLayout(geomData, rigConstants) {
+export function calculateSvgLayout(geomData) {
   // Convert to centered coordinate system
   const centerX = 0
   const centerY = 0
@@ -86,39 +86,24 @@ export function calculateSvgLayout(geomData, rigConstants) {
   const { pivotL, pivotR, uL, uR, svgArcs } = geomData
 
   // Convert all coordinates to be relative to center (0,0)
-  const relativePivotL = { 
-    x: pivotL.x - centerX, 
-    y: pivotL.y - centerY 
+  const relativePivotL = {
+    x: pivotL.x - centerX,
+    y: pivotL.y - centerY,
   }
 
-  const relativePivotR = { 
-    x: pivotR.x - centerX, 
-    y: pivotR.y - centerY 
+  const relativePivotR = {
+    x: pivotR.x - centerX,
+    y: pivotR.y - centerY,
   }
 
-  const endL = { 
-    x: relativePivotL.x + uL.x, 
-    y: relativePivotL.y + uL.y 
+  const endL = {
+    x: relativePivotL.x + uL.x,
+    y: relativePivotL.y + uL.y,
   }
 
-  const endR = { 
-    x: relativePivotR.x + uR.x, 
-    y: relativePivotR.y + uR.y 
-  }
-
-  // Calculate rig position relative to center
-  const rigW = cm2in(rigConstants.RIG_W_CM)
-  const rigL = cm2in(rigConstants.RIG_L_CM)
-
-  // Head is always at center in new coordinate system
-  const head = {
-    r: rigConstants.headRadius || 15
-  }
-
-  // Rig dimensions
-  const rig = {
-    w: rigW,
-    h: rigL
+  const endR = {
+    x: relativePivotR.x + uR.x,
+    y: relativePivotR.y + uR.y,
   }
 
   // Process SVG arcs for curved screens
@@ -139,8 +124,10 @@ export function calculateSvgLayout(geomData, rigConstants) {
           }
         } else {
           // For standard arcs, convert to relative coordinates
-          const startX = (arc.startX || arc.centerX + arc.radius * Math.cos(arc.startAngle)) - centerX
-          const startY = (arc.startY || arc.centerY + arc.radius * Math.sin(arc.startAngle)) - centerY
+          const startX =
+            (arc.startX || arc.centerX + arc.radius * Math.cos(arc.startAngle)) - centerX
+          const startY =
+            (arc.startY || arc.centerY + arc.radius * Math.sin(arc.startAngle)) - centerY
           const endX = (arc.endX || arc.centerX + arc.radius * Math.cos(arc.endAngle)) - centerX
           const endY = (arc.endY || arc.centerY + arc.radius * Math.sin(arc.endAngle)) - centerY
           const centerX_rel = arc.centerX - centerX
@@ -200,17 +187,17 @@ export function calculateSvgLayout(geomData, rigConstants) {
   // Calculate total width for viewport scaling
   const points = [
     { x: 0, y: 0 }, // Center point
-    relativePivotL, relativePivotR, endL, endR,
-    ...screenEdges
+    relativePivotL,
+    relativePivotR,
+    endL,
+    endR,
+    ...screenEdges,
   ]
 
   // Add arc points if they exist
   if (arcs.length > 0) {
     arcs.forEach(arc => {
-      points.push(
-        { x: arc.startX, y: arc.startY },
-        { x: arc.endX, y: arc.endY }
-      )
+      points.push({ x: arc.startX, y: arc.startY }, { x: arc.endX, y: arc.endY })
       if (arc.type === 'bezier') {
         points.push({ x: arc.controlX, y: arc.controlY })
       }
@@ -223,11 +210,9 @@ export function calculateSvgLayout(geomData, rigConstants) {
   const totalWidth = Math.abs(maxX - minX) * 1.2 // Add 20% margin
 
   return {
-    head,
-    rig,
     lines,
     screenEdges,
     arcs,
-    totalWidth
+    totalWidth,
   }
 }
