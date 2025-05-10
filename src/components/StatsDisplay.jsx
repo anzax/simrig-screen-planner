@@ -1,52 +1,18 @@
 import React from 'react'
-import { useSettingsStore, useUIStore } from '../store/settingsStore'
 
 export default function StatsDisplay({
-  data,
-  secondConfig,
-  onAddConfig,
-  activeConfig,
-  setActiveConfig,
+  mainData,
+  comparisonData,
+  mainConfig,
+  comparisonConfig,
+  onAddComparisonConfig,
+  activeConfigId,
+  setActiveConfigId,
   isAnimating = false,
-  removeSecondConfig = () => {},
+  removeComparisonConfig = () => {},
 }) {
-  const hasSecondConfig = secondConfig !== undefined
-
-  // Get current configuration from the store
-  const mainConfig = {
-    screen: useSettingsStore(state => state.screen),
-    layout: useSettingsStore(state => state.layout),
-    curvature: useSettingsStore(state => state.curvature),
-    distance: useSettingsStore(state => state.distance),
-    inputMode: useUIStore(state => state.inputMode),
-  }
-
-  // For demo, create a second config (in real app, this would be a separate store)
-  const secondConfigFull = hasSecondConfig
-    ? {
-        // This includes both the calculation results and the configuration parameters
-        ...secondConfig,
-        screen: {
-          diagIn: 34,
-          ratio: '21:9',
-          bezelMm: 5,
-          screenWidth: 800,
-          screenHeight: 350,
-        },
-        layout: {
-          setupType: 'single',
-          manualAngle: 45,
-        },
-        curvature: {
-          isCurved: true,
-          curveRadius: 1000,
-        },
-        distance: {
-          distCm: 70,
-        },
-        inputMode: 'diagonal',
-      }
-    : null
+  // Check if we have a comparison configuration
+  const hasComparisonConfig = comparisonConfig !== null;
 
   // Function to render the configuration card
   const renderConfigCard = (config, data, type = 'main') => {
@@ -60,7 +26,8 @@ export default function StatsDisplay({
       )
 
     // Extract configuration details
-    const { screen = {}, layout = {}, curvature = {}, distance = {}, inputMode } = config
+    const { screen = {}, layout = {}, curvature = {}, distance = {}, ui = {} } = config
+    const { inputMode = 'diagonal' } = ui
 
     const { diagIn = 0, ratio = '16:9', screenWidth = 0, screenHeight = 0 } = screen
 
@@ -68,7 +35,7 @@ export default function StatsDisplay({
     const { isCurved = false, curveRadius = 0 } = curvature
     const { distCm = 0 } = distance
 
-    // Format screen size
+    // Format screen size - conditional based on input mode
     const sizeDisplay =
       inputMode === 'diagonal' ? `${diagIn}″ ${ratio}` : `${screenWidth}×${screenHeight}mm`
 
@@ -85,7 +52,7 @@ export default function StatsDisplay({
                 className="ml-2 text-gray-400 hover:text-red-500 focus:outline-none"
                 onClick={e => {
                   e.stopPropagation() // Prevent triggering card click
-                  removeSecondConfig()
+                  removeComparisonConfig()
                 }}
                 aria-label="Remove comparison configuration"
               >
@@ -170,32 +137,32 @@ export default function StatsDisplay({
       <div
         className={`bg-white rounded-lg shadow-sm border p-4 transition-all duration-300 h-full
           ${
-            activeConfig === 'main'
+            activeConfigId === 'main'
               ? 'border-gray-600 shadow-md ' +
-                (isAnimating && activeConfig === 'main' ? 'animate-highlight' : '')
+                (isAnimating && activeConfigId === 'main' ? 'animate-highlight' : '')
               : 'border-gray-200 hover:border-gray-600 transition-colors cursor-pointer'
           }`}
-        onClick={() => hasSecondConfig && setActiveConfig('main')}
+        onClick={() => hasComparisonConfig && setActiveConfigId('main')}
       >
-        {renderConfigCard(mainConfig, data, 'main')}
+        {renderConfigCard(mainConfig, mainData, 'main')}
       </div>
 
-      {/* Second Configuration Card */}
+      {/* Comparison Configuration Card */}
       <div
         className={`rounded-lg shadow-sm border p-4 transition-all duration-300 h-full
           ${
-            !hasSecondConfig
+            !hasComparisonConfig
               ? 'bg-white border-blue-200 hover:border-blue-500 transition-colors cursor-pointer'
               : 'bg-blue-50 ' +
-                (activeConfig === 'second'
+                (activeConfigId === 'comparison'
                   ? 'border-blue-600 shadow-md ' +
-                    (isAnimating && activeConfig === 'second' ? 'animate-highlight' : '')
+                    (isAnimating && activeConfigId === 'comparison' ? 'animate-highlight' : '')
                   : 'border-gray-200 hover:border-blue-500 transition-colors cursor-pointer')
           }`}
-        onClick={!hasSecondConfig ? onAddConfig : () => setActiveConfig('second')}
+        onClick={!hasComparisonConfig ? onAddComparisonConfig : () => setActiveConfigId('comparison')}
       >
-        {hasSecondConfig
-          ? renderConfigCard(secondConfigFull, secondConfig, 'comparison')
+        {hasComparisonConfig
+          ? renderConfigCard(comparisonConfig, comparisonData, 'comparison')
           : renderAddConfigCard()}
       </div>
     </div>

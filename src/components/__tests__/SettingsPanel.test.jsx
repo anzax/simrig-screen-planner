@@ -2,6 +2,7 @@ import { describe, it, expect, beforeEach, vi } from 'vitest'
 import { render, screen, fireEvent } from '@testing-library/react'
 import SettingsPanel from '../SettingsPanel'
 import { setLegacyTestState, getLegacyTestState } from '../../store/testAdapter'
+import { useConfigStore } from '../../store/configStore'
 
 // Mock the NumberInputWithSlider component to simplify testing
 vi.mock('../NumberInputWithSlider', () => ({
@@ -55,8 +56,10 @@ describe('SettingsPanel', () => {
   it('should update store when input mode is changed', () => {
     render(<SettingsPanel />)
 
-    // Initially in diagonal mode
-    expect(getLegacyTestState().inputMode).toBe('diagonal')
+    // Get initial state
+    const configStore = useConfigStore.getState()
+    const initialMode = configStore.configs.main.ui.inputMode
+    expect(initialMode).toBe('diagonal')
 
     // Click to change to manual mode
     // Use a more reliable way to find the button
@@ -65,7 +68,7 @@ describe('SettingsPanel', () => {
     fireEvent.click(manualButton)
 
     // Check that store was updated
-    expect(getLegacyTestState().inputMode).toBe('manual')
+    expect(useConfigStore.getState().configs.main.ui.inputMode).toBe('manual')
   })
 
   it('should update store when setup type is changed', () => {

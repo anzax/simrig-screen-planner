@@ -5,7 +5,7 @@ import { persist, devtools } from 'zustand/middleware'
 const STORE_VERSION = '2.0'
 
 // Default domain state structure
-const defaultDomainState = {
+export const defaultDomainState = {
   screen: {
     diagIn: 32,
     ratio: '16:9',
@@ -42,13 +42,38 @@ const defaultUIState = {
 export const useUIStore = create(
   devtools(
     persist(
-      set => ({
+      (set, get) => ({
         // UI state
         ...defaultUIState,
 
         // UI actions
-        setInputMode: value => set({ inputMode: value }),
-        setAngleMode: value => set({ angleMode: value }),
+        setInputMode: value => {
+          set({ inputMode: value })
+          
+          // Sync with configStore if available
+          if (typeof window !== 'undefined') {
+            try {
+              const { useConfigStore } = require('./configStore')
+              useConfigStore.getState().setInputMode(value)
+            } catch (e) {
+              // Silently fail if configStore not available
+            }
+          }
+        },
+        
+        setAngleMode: value => {
+          set({ angleMode: value })
+          
+          // Sync with configStore if available
+          if (typeof window !== 'undefined') {
+            try {
+              const { useConfigStore } = require('./configStore')
+              useConfigStore.getState().setAngleMode(value)
+            } catch (e) {
+              // Silently fail if configStore not available
+            }
+          }
+        },
       }),
       {
         name: 'triple-screen-ui-settings',

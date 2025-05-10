@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { useSettingsStore, useUIStore } from './store/settingsStore'
+import { useConfigStore } from './store/configStore'
 import { useScreenCalculations } from './hooks/useScreenCalculations'
 import SettingsPanel from './components/SettingsPanel'
 import StatsDisplay from './components/StatsDisplay'
@@ -7,62 +7,90 @@ import ScreenVisualizer from './components/ScreenVisualizer'
 import Footer from './components/Footer'
 
 export default function App() {
-  // State for configurations
-  const [hasSecondConfig, setHasSecondConfig] = useState(false)
-  const [activeConfig, setActiveConfig] = useState('main')
+  // Get configuration state from configStore
+  const activeConfigId = useConfigStore(state => state.activeConfigId)
+  const setActiveConfigId = useConfigStore(state => state.setActiveConfigId)
+  const hasComparisonConfig = useConfigStore(state => state.hasComparisonConfig())
+  const addComparisonConfig = useConfigStore(state => state.addComparisonConfig)
+  const removeComparisonConfig = useConfigStore(state => state.removeComparisonConfig)
+  
+  // Get configs for calculations and display
+  const mainConfig = useConfigStore(state => state.configs.main)
+  const comparisonConfig = useConfigStore(state => state.configs.comparison)
+  
+  // Get active configuration - no longer need separate UI state
+  const activeConfig = useConfigStore(state => {
+    const { configs, activeConfigId } = state;
+    return configs[activeConfigId] || configs.main;
+  });
+  
+  // Animation state for UI feedback
   const [isAnimating, setIsAnimating] = useState(false)
-
-  // Effect to handle animation when config changes
+  
+  // Debug effect to log state changes during add/remove
   useEffect(() => {
-    if (hasSecondConfig) {
+    console.log('Config change detected:', {
+      hasComparison: hasComparisonConfig,
+      activeConfigId,
+    });
+  }, [hasComparisonConfig, activeConfigId]);
+
+  // Handle animation when active config changes
+  useEffect(() => {
+    if (hasComparisonConfig) {
       setIsAnimating(true)
-      const timer = setTimeout(() => setIsAnimating(false), 1000) // Animation duration
+      const timer = setTimeout(() => setIsAnimating(false), 1000)
       return () => clearTimeout(timer)
     }
-  }, [activeConfig, hasSecondConfig])
+  }, [activeConfigId, hasComparisonConfig])
 
-  // Debug log for state changes
-  useEffect(() => {
-    console.log('App state:', { hasSecondConfig, activeConfig })
-  }, [hasSecondConfig, activeConfig])
-
-  // Clean state access with destructuring
-  const { screen, distance, layout, curvature } = useSettingsStore()
-  const { inputMode, angleMode } = useUIStore()
-
-  /* ---------- Calculations ---------- */
-  const { data, view } = useScreenCalculations(
-    screen.diagIn,
-    screen.ratio,
-    distance.distCm,
-    screen.bezelMm,
-    layout.setupType,
-    angleMode,
-    layout.manualAngle,
-    inputMode,
-    screen.screenWidth,
-    screen.screenHeight,
-    curvature.isCurved,
-    curvature.curveRadius
+  // Calculate main configuration
+  const { data: mainData, view: mainView } = useScreenCalculations(
+    mainConfig.screen.diagIn,
+    mainConfig.screen.ratio,
+    mainConfig.distance.distCm,
+    mainConfig.screen.bezelMm,
+    mainConfig.layout.setupType,
+    mainConfig.ui?.angleMode || 'auto',
+    mainConfig.layout.manualAngle,
+    mainConfig.ui?.inputMode || 'diagonal',
+    mainConfig.screen.screenWidth,
+    mainConfig.screen.screenHeight,
+    mainConfig.curvature.isCurved,
+    mainConfig.curvature.curveRadius
   )
-
-  /* ---------- UI ---------- */
-  // Handle adding the second configuration
-  const addSecondConfig = () => {
-    setHasSecondConfig(true)
-    setActiveConfig('second')
-
-    // In a real implementation, this would populate default values
-    // For this stub, we'll just simulate the state change
-    console.log('Added second config and switched active configuration to second')
+  
+  // Calculate comparison configuration if it exists
+  let comparisonData = null;
+  let comparisonView = null;
+  
+  if (comparisonConfig) {
+    try {
+      const result = useScreenCalculations(
+        comparisonConfig.screen.diagIn,
+        comparisonConfig.screen.ratio,
+        comparisonConfig.distance.distCm,
+        comparisonConfig.screen.bezelMm,
+        comparisonConfig.layout.setupType,
+        comparisonConfig.ui?.angleMode || 'auto',
+        comparisonConfig.layout.manualAngle,
+        comparisonConfig.ui?.inputMode || 'diagonal',
+        comparisonConfig.screen.screenWidth,
+        comparisonConfig.screen.screenHeight,
+        comparisonConfig.curvature.isCurved,
+        comparisonConfig.curvature.curveRadius
+      );
+      comparisonData = result.data;
+      comparisonView = result.view;
+    } catch (error) {
+      console.error('Error calculating comparison:', error);
+      comparisonData = null;
+      comparisonView = null;
+    }
   }
 
-  // Handle removing the second configuration
-  const removeSecondConfig = () => {
-    setHasSecondConfig(false)
-    setActiveConfig('main')
-    console.log('Removed second config and switched back to main configuration')
-  }
+  // Use the active config's view for visualization
+  const activeView = activeConfigId === 'main' ? mainView : (comparisonView || mainView)
 
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6">
@@ -78,33 +106,24 @@ export default function App() {
       </header>
 
       <SettingsPanel
-        hasSecondConfig={hasSecondConfig}
-        setHasSecondConfig={setHasSecondConfig}
-        activeConfig={activeConfig}
+        hasComparisonConfig={hasComparisonConfig}
+        activeConfigId={activeConfigId}
         isAnimating={isAnimating}
       />
 
       <StatsDisplay
-        data={data}
-        secondConfig={
-          hasSecondConfig
-            ? {
-                // Demo data for second config
-                sideAngleDeg: 45.0,
-                hFOVdeg: 160.5,
-                vFOVdeg: 28.7,
-                cm: { totalWidth: 167.3 },
-              }
-            : undefined
-        }
-        onAddConfig={addSecondConfig}
-        activeConfig={activeConfig}
-        setActiveConfig={setActiveConfig}
+        mainData={mainData}
+        comparisonData={comparisonData}
+        mainConfig={mainConfig}
+        comparisonConfig={comparisonConfig}
+        onAddComparisonConfig={addComparisonConfig}
+        activeConfigId={activeConfigId}
+        setActiveConfigId={setActiveConfigId}
         isAnimating={isAnimating}
-        removeSecondConfig={removeSecondConfig}
+        removeComparisonConfig={removeComparisonConfig}
       />
 
-      <ScreenVisualizer view={view} />
+      <ScreenVisualizer view={activeView} />
 
       <Footer />
     </div>
