@@ -4,7 +4,7 @@ import { VisualizerContext } from '../ScreenVisualizer'
 export default function FlatScreens({ lines = [], color = '#000' }) {
   const { viewport } = useContext(VisualizerContext)
   const pixelsPerInch = viewport?.pixelsPerInch || 10
-  const strokeWidth = 0.2 * pixelsPerInch // 0.2 inches converted to pixels
+  const strokeWidth = 0.3 * pixelsPerInch // 0.3 inches converted to pixels
 
   return (
     <>

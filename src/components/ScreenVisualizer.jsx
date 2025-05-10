@@ -41,7 +41,7 @@ export default function ScreenVisualizer({ view, comparisonView }) {
       <div
         className="bg-white rounded p-2 overflow-auto flex flex-col justify-center"
         style={{
-          height: '70vh',
+          height: '50vh',
           width: '100%',
           maxWidth: '100%',
         }}

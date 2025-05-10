@@ -77,7 +77,7 @@ export default function CurvedScreensD3({ arcs = [], color = '#000', debug = fal
         .append('path')
         .attr('d', pathData)
         .attr('stroke', color)
-        .attr('stroke-width', 0.2 * pixelsPerInch) // 0.2 inches
+        .attr('stroke-width', 0.3 * pixelsPerInch) // 0.3 inches
         .attr('stroke-linecap', 'butt')
         .attr('fill', 'rgba(230, 240, 250, 0.2)')
 

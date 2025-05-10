@@ -32,8 +32,8 @@ export default function RigAndHead() {
         y={-rigHeight * 0.93}
         width={rigWidth}
         height={rigHeight}
-        fill="#000"
-        fillOpacity={0.2}
+        fill="#6574A3FF"
+        fillOpacity={0.1}
       />
       <circle
         cx={0}
