@@ -1,4 +1,9 @@
 // No conversions needed in this file
+import {
+  calculateCurvedScreenGeometry,
+  createBezierArc,
+  generateCurvedScreenArcs as generateArcs,
+} from './curvedScreenGeometry'
 
 /* ------------------------------------------------------------------
  *  Bézier helper for curved-panel SVG preview
@@ -9,48 +14,22 @@ export function curvedScreenBezier(
   sagittaIn,
   yawDeg = 0,
   mirror = false,
-  pivotX = 0
+  pivotX = 0,
+  apexShiftMultiplier = 1.0
 ) {
-  const half = chordW / 2
-  let p0 = { x: -half, y: centerY }
-  // Pull the midpoint *toward* the viewer (y closer to 0 -> less negative)
-  let p1 = { x: 0, y: centerY - sagittaIn }
-  let p2 = { x: half, y: centerY }
+  // Calculate the geometry
+  const geometry = calculateCurvedScreenGeometry(
+    chordW,
+    centerY,
+    sagittaIn,
+    yawDeg,
+    mirror,
+    pivotX,
+    apexShiftMultiplier
+  )
 
-  // rotate points by yaw around pivotX, centerY
-  // Negative sign flips rotation so side panels bow toward the user
-  const ang = (-yawDeg * Math.PI) / 180
-  const cos = Math.cos(ang)
-  const sin = Math.sin(ang)
-  const rot = ({ x, y }) => {
-    const relX = x - pivotX
-    const relY = y - centerY // subtract pivotY as well
-    return {
-      x: pivotX + cos * relX - sin * relY,
-      y: centerY + sin * relX + cos * relY,
-    }
-  }
-
-  p0 = rot(p0)
-  p1 = rot(p1)
-  p2 = rot(p2)
-
-  if (mirror) {
-    p0.x = 2 * pivotX - p0.x
-    p1.x = 2 * pivotX - p1.x
-    p2.x = 2 * pivotX - p2.x
-  }
-
-  return {
-    type: 'bezier',
-    startX: p0.x,
-    startY: p0.y,
-    controlX: p1.x,
-    controlY: p1.y,
-    endX: p2.x,
-    endY: p2.y,
-    path: `M ${p0.x} ${p0.y} Q ${p1.x} ${p1.y} ${p2.x} ${p2.y}`,
-  }
+  // Create and return the Bezier arc
+  return createBezierArc(geometry)
 }
 
 /**
@@ -62,20 +41,19 @@ export function generateCurvedScreenArcs(
   depth,
   sideAngleDeg,
   setupType,
-  pivotDistance
+  pivotDistance,
+  apexShiftMultiplier = 2.75
 ) {
-  const svgArcs = []
-
-  if (setupType === 'single') {
-    svgArcs.push(curvedScreenBezier(screenW, centerY, depth, 0, false, 0))
-  } else {
-    // triple
-    svgArcs.push(curvedScreenBezier(screenW, centerY, depth, 0, false, 0)) // centre
-    svgArcs.push(curvedScreenBezier(screenW, centerY, depth, sideAngleDeg, true, pivotDistance)) // right
-    svgArcs.push(curvedScreenBezier(screenW, centerY, depth, -sideAngleDeg, true, -pivotDistance)) // left
-  }
-
-  return svgArcs
+  // Use the function from curvedScreenGeometry.js
+  return generateArcs(
+    screenW,
+    centerY,
+    depth,
+    sideAngleDeg,
+    setupType,
+    pivotDistance,
+    apexShiftMultiplier
+  )
 }
 
 export function calculateSvgLayout(geomData) {
@@ -111,7 +89,7 @@ export function calculateSvgLayout(geomData) {
     ? svgArcs.map(arc => {
         if (arc.type === 'bezier') {
           // For Bézier curves, convert to relative coordinates
-          return {
+          const result = {
             type: 'bezier',
             path: `M ${arc.startX - centerX} ${arc.startY - centerY} Q ${arc.controlX - centerX} ${arc.controlY - centerY} ${arc.endX - centerX} ${arc.endY - centerY}`,
             startX: arc.startX - centerX,
@@ -121,7 +99,20 @@ export function calculateSvgLayout(geomData) {
             controlX: arc.controlX - centerX,
             controlY: arc.controlY - centerY,
             actualDeepestY: arc.actualDeepestY ? arc.actualDeepestY - centerY : undefined,
+            actualDeepestPoint: arc.actualDeepestPoint
+              ? [arc.actualDeepestPoint[0] - centerX, arc.actualDeepestPoint[1] - centerY]
+              : undefined,
           }
+
+          // Preserve idealPoints if they exist, adjusting for the center offset
+          if (arc.idealPoints) {
+            result.idealPoints = arc.idealPoints.map(point => [
+              point[0] - centerX,
+              point[1] - centerY,
+            ])
+          }
+
+          return result
         } else {
           // For standard arcs, convert to relative coordinates
           const startX =
@@ -149,6 +140,9 @@ export function calculateSvgLayout(geomData) {
             endX: endX,
             endY: endY,
             actualDeepestY: arc.actualDeepestY ? arc.actualDeepestY - centerY : undefined,
+            actualDeepestPoint: arc.actualDeepestPoint
+              ? [arc.actualDeepestPoint[0] - centerX, arc.actualDeepestPoint[1] - centerY]
+              : undefined,
           }
         }
       })

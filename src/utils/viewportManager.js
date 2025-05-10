@@ -25,20 +25,10 @@ export function calculateViewportConfig(mainView, comparisonView) {
     const arcs = Array.isArray(view.arcs) ? view.arcs : []
     arcs.forEach(arc => {
       // For curved screens, consider control points and actual deepest point
-      maxY = Math.max(
-        maxY,
-        arc.startY || 0,
-        arc.endY || 0,
-        arc.controlY || 0,
-        arc.actualDeepestY || 0
-      )
-      minY = Math.min(
-        minY,
-        arc.startY || 0,
-        arc.endY || 0,
-        arc.controlY || 0,
-        arc.actualDeepestY || 0
-      )
+      // Only use actual points (start, end, actualDeepest) for viewport calculations
+      // Exclude controlY (shifted apex) as it affects scaling incorrectly
+      maxY = Math.max(maxY, arc.startY || 0, arc.endY || 0, arc.actualDeepestY || 0)
+      minY = Math.min(minY, arc.startY || 0, arc.endY || 0, arc.actualDeepestY || 0)
     })
   })
 

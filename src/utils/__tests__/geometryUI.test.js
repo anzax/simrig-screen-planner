@@ -77,6 +77,19 @@ describe('calculateSvgLayout', () => {
         expect(arc).toHaveProperty('type', 'bezier')
         expect(arc).toHaveProperty('controlX')
         expect(arc).toHaveProperty('controlY')
+
+        // Check for idealPoints property
+        expect(arc).toHaveProperty('idealPoints')
+        expect(Array.isArray(arc.idealPoints)).toBe(true)
+        expect(arc.idealPoints.length).toBe(2) // Should have 2 points (25% and 75%)
+
+        // Each idealPoint should be an array of two numbers [x, y]
+        arc.idealPoints.forEach(point => {
+          expect(Array.isArray(point)).toBe(true)
+          expect(point.length).toBe(2)
+          expect(typeof point[0]).toBe('number')
+          expect(typeof point[1]).toBe('number')
+        })
       }
     })
   })
