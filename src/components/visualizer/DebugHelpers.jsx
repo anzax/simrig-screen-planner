@@ -1,8 +1,12 @@
-import React from 'react'
+import React, { useContext } from 'react'
+import { VisualizerContext } from '../ScreenVisualizer'
 
 export default function DebugHelpers({ view, debug = false }) {
   // If debug is off, or view is undefined, return null
   if (!debug || !view) return null
+
+  const { viewport } = useContext(VisualizerContext)
+  const pixelsPerInch = viewport?.pixelsPerInch || 10
 
   const { arcs = [] } = view
   // If not curved or no arcs, return null
@@ -26,21 +30,29 @@ export default function DebugHelpers({ view, debug = false }) {
         const centerX = parseFloat(pathParts[6]) || 0
         const centerY = parseFloat(pathParts[7]) || 0
 
+        // Convert these coordinates to pixels (assuming they're in inches)
+        const startXPx = startX * pixelsPerInch
+        const startYPx = startY * pixelsPerInch
+        const endXPx = endX * pixelsPerInch
+        const endYPx = endY * pixelsPerInch
+        const centerXPx = centerX * pixelsPerInch
+        const centerYPx = centerY * pixelsPerInch
+
         return (
           <React.Fragment key={`debug-${i}`}>
             {/* Chord line */}
             <line
-              x1={startX}
-              y1={startY}
-              x2={endX}
-              y2={endY}
+              x1={startXPx}
+              y1={startYPx}
+              x2={endXPx}
+              y2={endYPx}
               stroke="blue"
-              strokeWidth={1}
-              strokeDasharray="5,5"
+              strokeWidth={0.1 * pixelsPerInch} // 0.1 inches
+              strokeDasharray={`${0.5 * pixelsPerInch},${0.5 * pixelsPerInch}`} // 0.5 inches
             />
 
             {/* Arc center */}
-            <circle cx={centerX} cy={centerY} r={4} fill="red" />
+            <circle cx={centerXPx} cy={centerYPx} r={0.4 * pixelsPerInch} fill="red" /> {/* 0.4 inches */}
           </React.Fragment>
         )
       })}
