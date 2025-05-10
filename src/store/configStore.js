@@ -64,7 +64,7 @@ export const useConfigStore = create(
         },
 
         // Actions
-        setActiveConfigId: (configId) => {
+        setActiveConfigId: configId => {
           const { configs } = get()
           if (configs[configId]) {
             set({ activeConfigId: configId })
@@ -73,30 +73,41 @@ export const useConfigStore = create(
 
         addComparisonConfig: () => {
           try {
-            // Create a comparison config with some differences to highlight the comparison
-            const { configs } = get()
-            const baseConfig = clone(configs.main)
-            
-            // Make some interesting differences to highlight comparison
-            const comparisonConfig = {
-              ...baseConfig,
+            // Always use a standard triple 32" flat setup for comparison
+            const standardConfig = {
               screen: {
-                ...baseConfig.screen,
-                diagIn: 40, // Fixed value to make tests predictable
-                ratio: baseConfig.screen.ratio === '16:9' ? '21:9' : '16:9', // Different ratio
+                diagIn: 32,
+                ratio: '16:9',
+                bezelMm: 0,
+                screenWidth: 700,
+                screenHeight: 400,
+              },
+              distance: {
+                distCm: 60,
+              },
+              layout: {
+                setupType: 'triple',
+                manualAngle: 60,
               },
               curvature: {
-                ...baseConfig.curvature,
-                isCurved: true, // Always true for comparison
+                isCurved: false,
+                curveRadius: 1000,
               },
-              ui: { ...baseConfig.ui } // Clone UI settings
+              ui: {
+                inputMode: 'diagonal',
+                angleMode: 'auto',
+              },
+              version: STORE_VERSION,
             }
-            
+
+            // Get current configurations
+            const { configs } = get()
+
             set({
-              configs: { ...configs, comparison: comparisonConfig },
+              configs: { ...configs, comparison: standardConfig },
               activeConfigId: 'comparison',
             })
-            console.log('Added comparison config')
+            console.log('Added standard triple 32" flat comparison config')
           } catch (error) {
             console.error('Error adding comparison:', error)
           }
@@ -105,14 +116,17 @@ export const useConfigStore = create(
         removeComparisonConfig: () => {
           try {
             set(state => {
-              console.log('Removing comparison config');
+              console.log('Removing comparison config')
+              // Ensure we're returning a clean state with comparison set to null
+              // This helps zustand-persist properly update localStorage
               return {
+                ...state,
                 configs: { ...state.configs, comparison: null },
                 activeConfigId: 'main',
-              };
-            });
+              }
+            })
           } catch (error) {
-            console.error('Error removing comparison:', error);
+            console.error('Error removing comparison:', error)
           }
         },
 
@@ -127,9 +141,9 @@ export const useConfigStore = create(
                 screen: {
                   ...configs[activeConfigId].screen,
                   [property]: value,
-                }
-              }
-            }
+                },
+              },
+            },
           })
         },
 
@@ -143,9 +157,9 @@ export const useConfigStore = create(
                 distance: {
                   ...configs[activeConfigId].distance,
                   [property]: value,
-                }
-              }
-            }
+                },
+              },
+            },
           })
         },
 
@@ -159,9 +173,9 @@ export const useConfigStore = create(
                 layout: {
                   ...configs[activeConfigId].layout,
                   [property]: value,
-                }
-              }
-            }
+                },
+              },
+            },
           })
         },
 
@@ -175,15 +189,15 @@ export const useConfigStore = create(
                 curvature: {
                   ...configs[activeConfigId].curvature,
                   [property]: value,
-                }
-              }
-            }
+                },
+              },
+            },
           })
         },
 
         // UI property setters
         setUIProperty: (property, value) => {
-          const { configs, activeConfigId } = get();
+          const { configs, activeConfigId } = get()
           set({
             configs: {
               ...configs,
@@ -195,22 +209,22 @@ export const useConfigStore = create(
                 },
               },
             },
-          });
+          })
         },
 
         // Specific setter functions for common properties
-        setDiagIn: (value) => get().setScreenProperty('diagIn', value),
-        setRatio: (value) => get().setScreenProperty('ratio', value),
-        setBezelMm: (value) => get().setScreenProperty('bezelMm', value),
-        setScreenWidth: (value) => get().setScreenProperty('screenWidth', value),
-        setScreenHeight: (value) => get().setScreenProperty('screenHeight', value),
-        setDistCm: (value) => get().setDistanceProperty('distCm', value),
-        setSetupType: (value) => get().setLayoutProperty('setupType', value),
-        setManualAngle: (value) => get().setLayoutProperty('manualAngle', value),
-        setIsCurved: (value) => get().setCurvatureProperty('isCurved', value),
-        setCurveRadius: (value) => get().setCurvatureProperty('curveRadius', value),
-        setInputMode: (value) => get().setUIProperty('inputMode', value),
-        setAngleMode: (value) => get().setUIProperty('angleMode', value),
+        setDiagIn: value => get().setScreenProperty('diagIn', value),
+        setRatio: value => get().setScreenProperty('ratio', value),
+        setBezelMm: value => get().setScreenProperty('bezelMm', value),
+        setScreenWidth: value => get().setScreenProperty('screenWidth', value),
+        setScreenHeight: value => get().setScreenProperty('screenHeight', value),
+        setDistCm: value => get().setDistanceProperty('distCm', value),
+        setSetupType: value => get().setLayoutProperty('setupType', value),
+        setManualAngle: value => get().setLayoutProperty('manualAngle', value),
+        setIsCurved: value => get().setCurvatureProperty('isCurved', value),
+        setCurveRadius: value => get().setCurvatureProperty('curveRadius', value),
+        setInputMode: value => get().setUIProperty('inputMode', value),
+        setAngleMode: value => get().setUIProperty('angleMode', value),
       }),
       {
         name: 'simrig-screen-configs',

@@ -1,22 +1,30 @@
 import React from 'react'
 
 export default function DebugHelpers({ view, debug = false }) {
-  if (!debug) return null
+  // If debug is off, or view is undefined, return null
+  if (!debug || !view) return null
 
-  const { arcs } = view
-  const isCurved = arcs && arcs.length > 0
-
-  if (!isCurved) return null
+  const { arcs = [] } = view
+  // If not curved or no arcs, return null
+  if (!arcs || arcs.length === 0) return null
 
   return (
     <>
       {/* Show chord lines for center screen */}
       {arcs.map((arc, i) => {
-        // Calculate start and end points of the arc
-        const startX = arc.path.split(' ')[1]
-        const startY = arc.path.split(' ')[2]
-        const endX = arc.path.split(' ')[arc.path.split(' ').length - 2]
-        const endY = arc.path.split(' ')[arc.path.split(' ').length - 1]
+        // Safety checks for arc and path
+        if (!arc || !arc.path) return null
+
+        const pathParts = arc.path?.split(' ') || []
+        if (pathParts.length < 8) return null
+
+        // Safely parse coordinates with fallbacks
+        const startX = parseFloat(pathParts[1]) || 0
+        const startY = parseFloat(pathParts[2]) || 0
+        const endX = parseFloat(pathParts[pathParts.length - 2]) || 0
+        const endY = parseFloat(pathParts[pathParts.length - 1]) || 0
+        const centerX = parseFloat(pathParts[6]) || 0
+        const centerY = parseFloat(pathParts[7]) || 0
 
         return (
           <React.Fragment key={`debug-${i}`}>
@@ -32,7 +40,7 @@ export default function DebugHelpers({ view, debug = false }) {
             />
 
             {/* Arc center */}
-            <circle cx={arc.path.split(' ')[6]} cy={arc.path.split(' ')[7]} r={4} fill="red" />
+            <circle cx={centerX} cy={centerY} r={4} fill="red" />
           </React.Fragment>
         )
       })}

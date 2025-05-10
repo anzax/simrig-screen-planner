@@ -12,41 +12,41 @@ export default function SettingsPanel({
 }) {
   // Get the active configuration directly
   const activeConfig = useConfigStore(state => {
-    const configs = state.configs;
-    return configs[activeConfigId] || configs.main;
-  });
+    const configs = state.configs
+    return configs[activeConfigId] || configs.main
+  })
 
   // Destructure active configuration properties
-  const { screen, distance, layout, curvature, ui = {} } = activeConfig;
-  const { diagIn, ratio, bezelMm, screenWidth, screenHeight } = screen;
-  const { distCm } = distance;
-  const { setupType, manualAngle } = layout;
-  const { isCurved, curveRadius } = curvature;
-  const { inputMode = 'diagonal', angleMode = 'auto' } = ui;
+  const { screen, distance, layout, curvature, ui = {} } = activeConfig
+  const { diagIn, ratio, bezelMm, screenWidth, screenHeight } = screen
+  const { distCm } = distance
+  const { setupType, manualAngle } = layout
+  const { isCurved, curveRadius } = curvature
+  const { inputMode = 'diagonal', angleMode = 'auto' } = ui
 
   // Get config action functions
-  const setInputMode = useConfigStore(state => state.setInputMode);
-  const setAngleMode = useConfigStore(state => state.setAngleMode);
-  const setDiagIn = useConfigStore(state => state.setDiagIn);
-  const setRatio = useConfigStore(state => state.setRatio);
-  const setDistCm = useConfigStore(state => state.setDistCm);
-  const setBezelMm = useConfigStore(state => state.setBezelMm);
-  const setSetupType = useConfigStore(state => state.setSetupType);
-  const setManualAngle = useConfigStore(state => state.setManualAngle);
-  const setScreenWidth = useConfigStore(state => state.setScreenWidth);
-  const setScreenHeight = useConfigStore(state => state.setScreenHeight);
-  const setIsCurved = useConfigStore(state => state.setIsCurved);
-  const setCurveRadius = useConfigStore(state => state.setCurveRadius);
+  const setInputMode = useConfigStore(state => state.setInputMode)
+  const setAngleMode = useConfigStore(state => state.setAngleMode)
+  const setDiagIn = useConfigStore(state => state.setDiagIn)
+  const setRatio = useConfigStore(state => state.setRatio)
+  const setDistCm = useConfigStore(state => state.setDistCm)
+  const setBezelMm = useConfigStore(state => state.setBezelMm)
+  const setSetupType = useConfigStore(state => state.setSetupType)
+  const setManualAngle = useConfigStore(state => state.setManualAngle)
+  const setScreenWidth = useConfigStore(state => state.setScreenWidth)
+  const setScreenHeight = useConfigStore(state => state.setScreenHeight)
+  const setIsCurved = useConfigStore(state => state.setIsCurved)
+  const setCurveRadius = useConfigStore(state => state.setCurveRadius)
 
   // Calculate the angle using the utility function
   const calculatedAngle = calculateSideAngle(
     { ...screen, curvature: { isCurved, curveRadius }, inputMode },
     distance
-  );
+  )
 
   // Determine styling based on active config
-  const borderColor = activeConfigId === 'comparison' ? 'border-blue-600' : 'border-gray-600';
-  const bgColorClass = activeConfigId === 'comparison' ? 'bg-blue-100' : 'bg-white';
+  const borderColor = activeConfigId === 'comparison' ? 'border-blue-600' : 'border-gray-600'
+  const bgColorClass = activeConfigId === 'comparison' ? 'bg-blue-100' : 'bg-white'
 
   return (
     <div

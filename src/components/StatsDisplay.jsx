@@ -12,18 +12,24 @@ export default function StatsDisplay({
   removeComparisonConfig = () => {},
 }) {
   // Check if we have a comparison configuration
-  const hasComparisonConfig = comparisonConfig !== null;
+  const hasComparisonConfig = comparisonConfig !== null
 
   // Function to render the configuration card
   const renderConfigCard = (config, data, type = 'main') => {
-    if (!data)
-      return (
-        <div className="flex items-center justify-center py-4">
-          <div className="text-center">
-            <div className="text-base font-medium">Default values will appear here</div>
-          </div>
-        </div>
-      )
+    // For new comparison configs that don't have calculations yet, show informative data instead
+    if (!data) {
+      // Create info data based on the config itself, useful for the first render
+      const infoData = {
+        sideAngleDeg:
+          config?.layout?.setupType === 'triple' ? config?.layout?.manualAngle || 60 : 0,
+        hFOVdeg: 0,
+        vFOVdeg: 0,
+        cm: { totalWidth: 0 },
+      }
+
+      // Use the info data instead
+      data = infoData
+    }
 
     // Extract configuration details
     const { screen = {}, layout = {}, curvature = {}, distance = {}, ui = {} } = config
@@ -126,7 +132,7 @@ export default function StatsDisplay({
     <div className="flex flex-col items-center justify-center h-full">
       <div className="text-xl font-semibold text-blue-600 py-4">Add a Comparison</div>
       <div className="text-sm text-blue-500 mb-2 text-center">
-        Create a side-by-side comparison of different configurations
+        Compare with standard triple 32" flat setup
       </div>
     </div>
   )
@@ -159,7 +165,9 @@ export default function StatsDisplay({
                     (isAnimating && activeConfigId === 'comparison' ? 'animate-highlight' : '')
                   : 'border-gray-200 hover:border-blue-500 transition-colors cursor-pointer')
           }`}
-        onClick={!hasComparisonConfig ? onAddComparisonConfig : () => setActiveConfigId('comparison')}
+        onClick={
+          !hasComparisonConfig ? onAddComparisonConfig : () => setActiveConfigId('comparison')
+        }
       >
         {hasComparisonConfig
           ? renderConfigCard(comparisonConfig, comparisonData, 'comparison')

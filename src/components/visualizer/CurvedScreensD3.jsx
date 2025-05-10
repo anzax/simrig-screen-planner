@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react'
 import * as d3 from 'd3'
 
-export default function CurvedScreensD3({ arcs, color = '#000', debug = false }) {
+export default function CurvedScreensD3({ arcs = [], color = '#000', debug = false }) {
   const svgRef = useRef(null)
 
   useEffect(() => {

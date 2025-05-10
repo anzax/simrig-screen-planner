@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { useSettingsStore, useUIStore } from '../settingsStore'
+import { useSettingsStore } from '../settingsStore'
 import { useConfigStore } from '../configStore'
 import { setLegacyTestState, getLegacyTestState } from '../testAdapter'
 
@@ -41,24 +41,24 @@ describe('Settings Store', () => {
   })
 
   it('should update state when actions are called', () => {
-    const settingsStore = useSettingsStore.getState();
-    const configStore = useConfigStore.getState();
+    const settingsStore = useSettingsStore.getState()
+    const configStore = useConfigStore.getState()
 
     // Test updating diagonal size through configStore instead
-    configStore.setDiagIn(27);
-    expect(getLegacyTestState().diagIn).toBe(27);
+    configStore.setDiagIn(27)
+    expect(getLegacyTestState().diagIn).toBe(27)
 
     // Test updating aspect ratio
-    configStore.setRatio('21:9');
-    expect(getLegacyTestState().ratio).toBe('21:9');
+    configStore.setRatio('21:9')
+    expect(getLegacyTestState().ratio).toBe('21:9')
 
     // Test updating setup type
-    configStore.setSetupType('single');
-    expect(getLegacyTestState().setupType).toBe('single');
+    configStore.setSetupType('single')
+    expect(getLegacyTestState().setupType).toBe('single')
 
     // Test toggling curved screen
-    configStore.setIsCurved(true);
-    expect(getLegacyTestState().isCurved).toBe(true);
+    configStore.setIsCurved(true)
+    expect(getLegacyTestState().isCurved).toBe(true)
   })
 
   it('should handle related state changes correctly', () => {
@@ -72,15 +72,15 @@ describe('Settings Store', () => {
           ui: {
             ...state.configs.main.ui,
             inputMode: 'manual',
-            angleMode: 'manual'
-          }
-        }
-      }
-    }));
-    
+            angleMode: 'manual',
+          },
+        },
+      },
+    }))
+
     // Verify it was updated
-    const configState = useConfigStore.getState();
-    expect(configState.configs.main.ui.inputMode).toBe('manual');
-    expect(configState.configs.main.ui.angleMode).toBe('manual');
+    const configState = useConfigStore.getState()
+    expect(configState.configs.main.ui.inputMode).toBe('manual')
+    expect(configState.configs.main.ui.angleMode).toBe('manual')
   })
 })

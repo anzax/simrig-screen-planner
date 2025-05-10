@@ -4,7 +4,19 @@ import Screens from './visualizer/Screens'
 import FOVLines from './visualizer/FOVLines' // Import the new component
 
 export default function ScreenVisualizer({ view, comparisonView }) {
-  // Debug mode state - can be toggled for development/testing
+  // Create a safe default view for initial rendering or error cases
+  const defaultView = {
+    widthPx: 800,
+    heightPx: 400,
+    rig: { x: 400, y: 350, w: 40, h: 40 }, // Add width and height
+    head: { x: 400, y: 350, r: 15 }, // Using SVG circle properties (x, y, r) not eyeX, eyeY
+    screenEdges: [],
+    lines: [], // Add empty lines array for FlatScreens
+    arcs: [], // Add empty arcs array for CurvedScreensD3
+  }
+
+  // Safely use the view or fallback to defaults
+  const safeView = view || defaultView
   const [debug, setDebug] = useState(false)
   const [showFOV, setShowFOV] = useState(true) // State to toggle FOV lines
 
@@ -20,15 +32,15 @@ export default function ScreenVisualizer({ view, comparisonView }) {
         maxWidth: '100vw',
       }}
     >
-      <svg width={view.widthPx} height={view.heightPx}>
+      <svg width={safeView.widthPx} height={safeView.heightPx}>
         {/* Render the rig and head */}
-        <RigAndHead rig={view.rig} head={view.head} />
+        <RigAndHead rig={safeView.rig} head={safeView.head} />
 
         {/* Render FOV lines if enabled */}
-        {showFOV && <FOVLines head={view.head} screenEdges={view.screenEdges} />}
+        {showFOV && <FOVLines head={safeView.head} screenEdges={safeView.screenEdges} />}
 
         {/* Render the primary setup screens */}
-        <Screens view={view} color="#000" debug={debug} />
+        <Screens view={safeView} color="#000" debug={debug} />
 
         {/* Render the comparison setup screens if provided */}
         {comparisonView && (

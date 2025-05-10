@@ -28,66 +28,7 @@ export const defaultDomainState = {
   version: STORE_VERSION,
 }
 
-// Default UI state structure
-const defaultUIState = {
-  inputMode: 'diagonal',
-  angleMode: 'auto',
-  // Version tracking
-  version: STORE_VERSION,
-}
-
-/**
- * UI-specific store for presentation state
- */
-export const useUIStore = create(
-  devtools(
-    persist(
-      (set, get) => ({
-        // UI state
-        ...defaultUIState,
-
-        // UI actions
-        setInputMode: value => {
-          set({ inputMode: value })
-          
-          // Sync with configStore if available
-          if (typeof window !== 'undefined') {
-            try {
-              const { useConfigStore } = require('./configStore')
-              useConfigStore.getState().setInputMode(value)
-            } catch (e) {
-              // Silently fail if configStore not available
-            }
-          }
-        },
-        
-        setAngleMode: value => {
-          set({ angleMode: value })
-          
-          // Sync with configStore if available
-          if (typeof window !== 'undefined') {
-            try {
-              const { useConfigStore } = require('./configStore')
-              useConfigStore.getState().setAngleMode(value)
-            } catch (e) {
-              // Silently fail if configStore not available
-            }
-          }
-        },
-      }),
-      {
-        name: 'triple-screen-ui-settings',
-        onRehydrateStorage: state => {
-          // Reset to defaults if version mismatch
-          if (!state || state.version !== STORE_VERSION) {
-            return defaultUIState
-          }
-          return state
-        },
-      }
-    )
-  )
-)
+// Note: UI state is now maintained in configStore.js per-configuration
 
 /**
  * Main domain data store for screen configuration

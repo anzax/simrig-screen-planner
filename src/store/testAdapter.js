@@ -1,5 +1,5 @@
 // testAdapter.js - FOR TESTS ONLY
-import { useSettingsStore, useUIStore } from './settingsStore'
+import { useSettingsStore } from './settingsStore'
 import { useConfigStore } from './configStore'
 
 /**
@@ -66,14 +66,7 @@ export function setLegacyTestState(flatState) {
     version: '1.0',
   })
 
-  // Set UI state if provided
-  if (flatState.inputMode || flatState.angleMode) {
-    useUIStore.setState({
-      inputMode: flatState.inputMode ?? 'diagonal',
-      angleMode: flatState.angleMode ?? 'auto',
-      version: '2.0',
-    })
-  }
+  // UI state is now set directly in configStore, no separate UI store needed
 }
 
 /**
@@ -82,8 +75,12 @@ export function setLegacyTestState(flatState) {
 export function getLegacyTestState() {
   // Get state from both stores
   const { screen, distance, layout, curvature } = useSettingsStore.getState()
-  const { inputMode, angleMode } = useUIStore.getState()
   const configState = useConfigStore.getState()
+  // Get UI state from configStore instead
+  const { inputMode, angleMode } = configState.configs.main.ui || {
+    inputMode: 'diagonal',
+    angleMode: 'auto',
+  }
 
   // Return the state from the configStore for tests
   const mainConfig = configState.configs.main
