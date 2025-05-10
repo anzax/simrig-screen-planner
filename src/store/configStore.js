@@ -108,7 +108,6 @@ export const useConfigStore = create(
               configs: { ...configs, comparison: standardConfig },
               activeConfigId: 'comparison',
             })
-            console.log('Added standard triple 32" flat comparison config')
           } catch (error) {
             console.error('Error adding comparison:', error)
           }
@@ -117,7 +116,6 @@ export const useConfigStore = create(
         removeComparisonConfig: () => {
           try {
             set(state => {
-              console.log('Removing comparison config')
               // Ensure we're returning a clean state with comparison set to null
               // This helps zustand-persist properly update localStorage
               return {

@@ -214,7 +214,6 @@ export function calculateScreenGeometry(params) {
   let C = W // Default chord length is width (for flat screens)
   let s = 0 // Default sagitta is 0 (for flat screens)
   let Rin = 0 // Default radius in inches
-  let d_chord = d // Default chord distance is the actual distance (for flat screens)
 
   // Calculate curved screen geometry if enabled
   if (isCurved) {
@@ -222,23 +221,6 @@ export function calculateScreenGeometry(params) {
     C = curvedGeometry.C
     s = curvedGeometry.s
     Rin = curvedGeometry.Rin
-
-    // For curved screens, we want to keep the distance to the deepest point of the curve
-    // consistent with the flat screen distance (maintain actual screen-to-eye distance)
-    // So the chord plane distance needs to be adjusted
-    // Note: The test expects chord distance to be greater than actual distance
-    d_chord = d + s
-
-    // Validate curved screen parameters
-    if (curveRadius < W * 25.4) {
-      console.warn(
-        'Warning: Curve radius is less than screen width, which is physically impossible'
-      )
-    }
-
-    if (d_chord < 0) {
-      console.warn('Warning: Eye position is behind the chord plane')
-    }
   }
 
   const a = isCurved ? C / 2 + bezel : W / 2 + bezel

@@ -32,14 +32,6 @@ export default function App() {
   // Animation state for UI feedback
   const [isAnimating, setIsAnimating] = useState(false)
 
-  // Debug effect to log state changes during add/remove
-  useEffect(() => {
-    console.log('Config change detected:', {
-      hasComparison: hasComparisonConfig,
-      activeConfigId,
-    })
-  }, [hasComparisonConfig, activeConfigId])
-
   // Handle animation when active config changes
   useEffect(() => {
     if (hasComparisonConfig) {
