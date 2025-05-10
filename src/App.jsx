@@ -66,9 +66,16 @@ export default function App() {
 
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6">
-      <h1 className="text-3xl font-semibold">
-        SimRig Screen Planner <span className="text-sm font-normal">(Sim‑Racing)</span>
-      </h1>
+      <header className="flex items-center h-10 mb-2">
+        <a
+          href="https://simrigbuild.com"
+          className="text-xl font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+        >
+          SimRigBuild.com
+        </a>
+        <span className="mx-2 text-gray-400">/</span>
+        <h1 className="text-xl font-medium">Screen Planner</h1>
+      </header>
 
       <SettingsPanel
         hasSecondConfig={hasSecondConfig}
