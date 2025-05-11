@@ -1,44 +1,99 @@
-import React, { useState } from 'react'
+import React, { useState, createContext } from 'react'
 import RigAndHead from './visualizer/RigAndHead'
 import Screens from './visualizer/Screens'
+import FOVLines from './visualizer/FOVLines'
+import ReferenceGrid from './visualizer/ReferenceGrid'
+import { calculateViewportConfig } from '../utils/viewportManager'
+
+// Create a context to share data with all child components
+export const VisualizerContext = createContext({})
 
 export default function ScreenVisualizer({ view, comparisonView }) {
-  // Debug mode state - can be toggled for development/testing
+  // Create a safe default view for initial rendering or error cases
+  const defaultView = {
+    widthPx: 800,
+    heightPx: 400,
+    screenEdges: [],
+    lines: [],
+    arcs: [],
+    totalWidth: 800,
+  }
+
+  // Safely use the view or fallback to defaults
+  const safeView = view || defaultView
+  const safeComparisonView = comparisonView || null
   const [debug, setDebug] = useState(false)
+  const [showFOV, setShowFOV] = useState(true)
+
+  // Calculate viewport configuration
+  const viewport = calculateViewportConfig(safeView, safeComparisonView)
 
   return (
-    <div
-      className="bg-white rounded p-2 overflow-auto flex flex-col justify-center"
-      style={{
-        maxHeight: '70vh',
-        position: 'relative',
-        left: '50%',
-        transform: 'translateX(-50%)',
-        width: 'fit-content',
-        maxWidth: '100vw',
+    <VisualizerContext.Provider
+      value={{
+        viewport,
+        view: safeView,
+        comparisonView: safeComparisonView,
+        debug,
+        showFOV,
       }}
     >
-      <svg width={view.widthPx} height={view.heightPx}>
-        {/* Render the rig and head */}
-        <RigAndHead rig={view.rig} head={view.head} />
-
-        {/* Render the primary setup screens */}
-        <Screens view={view} color="#000" debug={debug} />
-
-        {/* Render the comparison setup screens if provided */}
-        {comparisonView && <Screens view={comparisonView} color="#3B82F6" debug={debug} />}
-      </svg>
-
-      {/* Debug toggle button - only shown in development mode */}
-      {!import.meta.env.PROD && (
-        <button
-          className="mt-2 px-2 py-1 text-xs bg-gray-200 hover:bg-gray-300 rounded debug-toggle mx-auto"
-          style={{ width: '120px' }}
-          onClick={() => setDebug(!debug)}
+      <div
+        className="bg-white rounded p-2 overflow-auto flex flex-col justify-center"
+        style={{
+          height: '50vh',
+          width: '100%',
+          maxWidth: '100%',
+        }}
+      >
+        <svg
+          width="100%"
+          height="100%"
+          viewBox={`0 0 ${viewport.width} ${viewport.height}`}
+          preserveAspectRatio="xMidYMid meet"
         >
-          {debug ? 'Hide Debug Info' : 'Show Debug Info'}
-        </button>
-      )}
-    </div>
+          {/* Create main coordinate system - using translation only, no scaling */}
+          <g transform={`translate(${viewport.centerX},${viewport.centerY})`}>
+            {/* Base layer - grid or reference lines if needed */}
+            <ReferenceGrid />
+
+            {/* Main setup */}
+            <g className="main-setup">
+              <RigAndHead />
+              <FOVLines />
+              <Screens />
+            </g>
+
+            {/* Comparison setup */}
+            {safeComparisonView && (
+              <g className="comparison-setup" style={{ opacity: 1.0 }}>
+                <FOVLines isComparison={true} />
+                <Screens isComparison={true} />
+              </g>
+            )}
+          </g>
+        </svg>
+
+        {/* Controls */}
+        <div className="flex justify-center gap-2 mt-2">
+          {!import.meta.env.PROD && (
+            <button
+              className="px-2 py-1 text-xs bg-gray-200 hover:bg-gray-300 rounded debug-toggle"
+              style={{ width: '120px' }}
+              onClick={() => setDebug(!debug)}
+            >
+              {debug ? 'Hide Debug Info' : 'Show Debug Info'}
+            </button>
+          )}
+          <button
+            className="px-2 py-1 text-xs bg-gray-200 hover:bg-gray-300 rounded fov-toggle"
+            style={{ width: '120px' }}
+            onClick={() => setShowFOV(!showFOV)}
+          >
+            {showFOV ? 'Hide FOV Lines' : 'Show FOV Lines'}
+          </button>
+        </div>
+      </div>
+    </VisualizerContext.Provider>
   )
 }

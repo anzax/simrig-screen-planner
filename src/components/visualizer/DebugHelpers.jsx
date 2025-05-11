@@ -1,38 +1,61 @@
-import React from 'react'
+import React, { useContext } from 'react'
+import { VisualizerContext } from '../ScreenVisualizer'
 
-export default function DebugHelpers({ view, debug = false }) {
-  if (!debug) return null
+export default function DebugHelpers({ isComparison = false }) {
+  const { viewport, view, comparisonView, debug } = useContext(VisualizerContext)
 
-  const { arcs } = view
-  const isCurved = arcs && arcs.length > 0
+  // Get the appropriate view based on isComparison flag
+  const currentView = isComparison ? comparisonView : view
 
-  if (!isCurved) return null
+  // If debug is off, or view is undefined, return null
+  if (!debug || !currentView) return null
+  const pixelsPerInch = viewport?.pixelsPerInch || 10
+
+  const { arcs = [] } = currentView
+  // If not curved or no arcs, return null
+  if (!arcs || arcs.length === 0) return null
 
   return (
     <>
       {/* Show chord lines for center screen */}
       {arcs.map((arc, i) => {
-        // Calculate start and end points of the arc
-        const startX = arc.path.split(' ')[1]
-        const startY = arc.path.split(' ')[2]
-        const endX = arc.path.split(' ')[arc.path.split(' ').length - 2]
-        const endY = arc.path.split(' ')[arc.path.split(' ').length - 1]
+        // Safety checks for arc and path
+        if (!arc || !arc.path) return null
+
+        const pathParts = arc.path?.split(' ') || []
+        if (pathParts.length < 8) return null
+
+        // Safely parse coordinates with fallbacks
+        const startX = parseFloat(pathParts[1]) || 0
+        const startY = parseFloat(pathParts[2]) || 0
+        const endX = parseFloat(pathParts[pathParts.length - 2]) || 0
+        const endY = parseFloat(pathParts[pathParts.length - 1]) || 0
+        const centerX = parseFloat(pathParts[6]) || 0
+        const centerY = parseFloat(pathParts[7]) || 0
+
+        // Convert these coordinates to pixels (assuming they're in inches)
+        const startXPx = startX * pixelsPerInch
+        const startYPx = startY * pixelsPerInch
+        const endXPx = endX * pixelsPerInch
+        const endYPx = endY * pixelsPerInch
+        const centerXPx = centerX * pixelsPerInch
+        const centerYPx = centerY * pixelsPerInch
 
         return (
           <React.Fragment key={`debug-${i}`}>
             {/* Chord line */}
             <line
-              x1={startX}
-              y1={startY}
-              x2={endX}
-              y2={endY}
+              x1={startXPx}
+              y1={startYPx}
+              x2={endXPx}
+              y2={endYPx}
               stroke="blue"
-              strokeWidth={1}
-              strokeDasharray="5,5"
+              strokeWidth={0.1 * pixelsPerInch} // 0.1 inches
+              strokeDasharray={`${0.5 * pixelsPerInch},${0.5 * pixelsPerInch}`} // 0.5 inches
             />
-
             {/* Arc center */}
-            <circle cx={arc.path.split(' ')[6]} cy={arc.path.split(' ')[7]} r={4} fill="red" />
+            <circle cx={centerXPx} cy={centerYPx} r={0.4 * pixelsPerInch} fill="red" />{' '}
+            {/* 0.4 inches */}
           </React.Fragment>
         )
       })}

@@ -10,15 +10,15 @@ export default function Footer() {
           while maintaining proper perspective.
         </p>
         <p>
-          <strong>Support arm angle</strong> provides the physical mounting angle for your side
+          <strong>Side Screen Angle</strong> provides the physical mounting angle for your side
           monitors.
           <strong> Horizontal FOV</strong> and <strong>Vertical FOV</strong> values can be used for
           in-game camera settings, critical for proper depth perception and spatial awareness.
         </p>
         <p>
-          <strong>Total width</strong> shows the straight-line distance between outer edges of your
+          <strong>Total Width</strong> shows the straight-line distance between outer edges of your
           side screens. Remember to allow extra space for monitor depth, arms and stand placement.
-          The visualization represents a standard sim rig (60×150cm) with head position 10cm from
+          The visualization represents a standard sim rig (60×150cm) with head position ~10cm from
           rear edge.
         </p>
         <p>

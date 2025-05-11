@@ -1,5 +1,7 @@
 import { describe, it, expect, beforeEach } from 'vitest'
-import { useSettingsStore, useUIStore } from '../settingsStore'
+// eslint-disable-next-line no-unused-vars
+import { useSettingsStore } from '../settingsStore'
+import { useConfigStore } from '../configStore'
 import { setLegacyTestState, getLegacyTestState } from '../testAdapter'
 
 describe('Settings Store', () => {
@@ -40,9 +42,10 @@ describe('Settings Store', () => {
   })
 
   it('should update state when actions are called', () => {
-    const { setDiagIn, setRatio, setSetupType, setIsCurved } = useSettingsStore.getState()
+    // Get configStore directly from the module
+    const { setDiagIn, setRatio, setSetupType, setIsCurved } = useConfigStore.getState()
 
-    // Test updating diagonal size
+    // Test updating diagonal size through configStore instead
     setDiagIn(27)
     expect(getLegacyTestState().diagIn).toBe(27)
 
@@ -60,14 +63,25 @@ describe('Settings Store', () => {
   })
 
   it('should handle related state changes correctly', () => {
-    const { setInputMode, setAngleMode } = useUIStore.getState()
+    // Set UI state directly in the configStore
+    useConfigStore.setState(state => ({
+      ...state,
+      configs: {
+        ...state.configs,
+        main: {
+          ...state.configs.main,
+          ui: {
+            ...state.configs.main.ui,
+            inputMode: 'manual',
+            angleMode: 'manual',
+          },
+        },
+      },
+    }))
 
-    // Test changing input mode
-    setInputMode('manual')
-    expect(getLegacyTestState().inputMode).toBe('manual')
-
-    // Test changing angle mode
-    setAngleMode('manual')
-    expect(getLegacyTestState().angleMode).toBe('manual')
+    // Verify it was updated
+    const configState = useConfigStore.getState()
+    expect(configState.configs.main.ui.inputMode).toBe('manual')
+    expect(configState.configs.main.ui.angleMode).toBe('manual')
   })
 })

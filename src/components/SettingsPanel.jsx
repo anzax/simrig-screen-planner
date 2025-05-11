@@ -2,31 +2,43 @@ import React from 'react'
 import NumberInputWithSlider from './ui/NumberInputWithSlider.jsx'
 import NumberInput from './ui/NumberInput.jsx'
 import MultiToggle from './ui/MultiToggle.jsx'
-import { useSettingsStore, useUIStore } from '../store/settingsStore'
+import { useConfigStore } from '../store/configStore'
 import { calculateSideAngle } from '../utils/geometryCore'
 
-export default function SettingsPanel() {
-  // Get screen properties directly from the store
-  const { screen, distance, layout, curvature } = useSettingsStore()
+export default function SettingsPanel({
+  // hasComparisonConfig is needed for future functionality
+  // eslint-disable-next-line no-unused-vars
+  hasComparisonConfig = false,
+  activeConfigId = 'main',
+  isAnimating = false,
+}) {
+  // Get the active configuration directly
+  const activeConfig = useConfigStore(state => {
+    const configs = state.configs
+    return configs[activeConfigId] || configs.main
+  })
+
+  // Destructure active configuration properties
+  const { screen, distance, layout, curvature, ui = {} } = activeConfig
   const { diagIn, ratio, bezelMm, screenWidth, screenHeight } = screen
   const { distCm } = distance
   const { setupType, manualAngle } = layout
   const { isCurved, curveRadius } = curvature
+  const { inputMode = 'diagonal', angleMode = 'auto' } = ui
 
-  // Get UI state and actions from the UI store
-  const { inputMode, angleMode, setInputMode, setAngleMode } = useUIStore()
-
-  // Get domain actions from the settings store
-  const setDiagIn = useSettingsStore(state => state.setDiagIn)
-  const setRatio = useSettingsStore(state => state.setRatio)
-  const setDistCm = useSettingsStore(state => state.setDistCm)
-  const setBezelMm = useSettingsStore(state => state.setBezelMm)
-  const setSetupType = useSettingsStore(state => state.setSetupType)
-  const setManualAngle = useSettingsStore(state => state.setManualAngle)
-  const setScreenWidth = useSettingsStore(state => state.setScreenWidth)
-  const setScreenHeight = useSettingsStore(state => state.setScreenHeight)
-  const setIsCurved = useSettingsStore(state => state.setIsCurved)
-  const setCurveRadius = useSettingsStore(state => state.setCurveRadius)
+  // Get config action functions
+  const setInputMode = useConfigStore(state => state.setInputMode)
+  const setAngleMode = useConfigStore(state => state.setAngleMode)
+  const setDiagIn = useConfigStore(state => state.setDiagIn)
+  const setRatio = useConfigStore(state => state.setRatio)
+  const setDistCm = useConfigStore(state => state.setDistCm)
+  const setBezelMm = useConfigStore(state => state.setBezelMm)
+  const setSetupType = useConfigStore(state => state.setSetupType)
+  const setManualAngle = useConfigStore(state => state.setManualAngle)
+  const setScreenWidth = useConfigStore(state => state.setScreenWidth)
+  const setScreenHeight = useConfigStore(state => state.setScreenHeight)
+  const setIsCurved = useConfigStore(state => state.setIsCurved)
+  const setCurveRadius = useConfigStore(state => state.setCurveRadius)
 
   // Calculate the angle using the utility function
   const calculatedAngle = calculateSideAngle(
@@ -34,8 +46,14 @@ export default function SettingsPanel() {
     distance
   )
 
+  // Determine styling based on active config
+  const borderColor = activeConfigId === 'comparison' ? 'border-blue-600' : 'border-gray-600'
+  const bgColorClass = activeConfigId === 'comparison' ? 'bg-blue-100' : 'bg-white'
+
   return (
-    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
+    <div
+      className={`${bgColorClass} rounded-lg shadow-sm border ${borderColor} p-4 transition-all duration-300 ${isAnimating ? 'animate-highlight' : ''}`}
+    >
       {/* Three-column layout container */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Column 1: Screen Size with toggle and relevant controls */}

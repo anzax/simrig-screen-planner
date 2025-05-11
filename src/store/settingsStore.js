@@ -5,7 +5,7 @@ import { persist, devtools } from 'zustand/middleware'
 const STORE_VERSION = '2.0'
 
 // Default domain state structure
-const defaultDomainState = {
+export const defaultDomainState = {
   screen: {
     diagIn: 32,
     ratio: '16:9',
@@ -28,41 +28,7 @@ const defaultDomainState = {
   version: STORE_VERSION,
 }
 
-// Default UI state structure
-const defaultUIState = {
-  inputMode: 'diagonal',
-  angleMode: 'auto',
-  // Version tracking
-  version: STORE_VERSION,
-}
-
-/**
- * UI-specific store for presentation state
- */
-export const useUIStore = create(
-  devtools(
-    persist(
-      set => ({
-        // UI state
-        ...defaultUIState,
-
-        // UI actions
-        setInputMode: value => set({ inputMode: value }),
-        setAngleMode: value => set({ angleMode: value }),
-      }),
-      {
-        name: 'triple-screen-ui-settings',
-        onRehydrateStorage: state => {
-          // Reset to defaults if version mismatch
-          if (!state || state.version !== STORE_VERSION) {
-            return defaultUIState
-          }
-          return state
-        },
-      }
-    )
-  )
-)
+// Note: UI state is now maintained in configStore.js per-configuration
 
 /**
  * Main domain data store for screen configuration
