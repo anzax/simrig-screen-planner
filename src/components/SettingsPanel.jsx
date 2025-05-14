@@ -195,7 +195,7 @@ export default function SettingsPanel({
           <div className="mb-3">
             <NumberInputWithSlider
               label="Eye Distance, cm"
-              min={50}
+              min={40}
               max={150}
               value={distCm}
               onChange={setDistCm}
@@ -223,7 +223,7 @@ export default function SettingsPanel({
               <NumberInputWithSlider
                 label="Curve Radius, mm (eg. 1800R)"
                 min={800}
-                max={1800}
+                max={2300}
                 step={100}
                 value={curveRadius}
                 onChange={setCurveRadius}
