@@ -1,8 +1,11 @@
 import React from 'react'
 import { useConfigStore } from '../store/configStore'
 import { useCalculationStore } from '../store/calculationStore'
+import { useAnimation } from '../store/uiContext.jsx'
 
-export default function StatsDisplay({ isAnimating = false }) {
+export default function StatsDisplay() {
+  // Get animation state from context
+  const { isAnimating } = useAnimation()
   // Get data directly from stores - using individual selectors to avoid infinite loop
   const activeConfigId = useConfigStore(state => state.activeConfigId)
   const setActiveConfigId = useConfigStore(state => state.setActiveConfigId)
