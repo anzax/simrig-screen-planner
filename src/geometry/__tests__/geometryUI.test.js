@@ -1,7 +1,7 @@
-// src/utils/__tests__/geometryUI.test.js
+// src/geometry/__tests__/geometryUI.test.js
 import { describe, it, expect, beforeEach } from 'vitest'
-import { calculateSvgLayout } from '../geometryUI'
-import { calculateScreenGeometry } from '../geometryCore'
+import { calculateSvgLayout } from '../visualization'
+import { calculateScreenGeometry } from '../core'
 import { RIG_CONSTANTS } from '../constants'
 
 describe('calculateSvgLayout', () => {

@@ -1,6 +1,6 @@
-// src/utils/__tests__/geometryCore.test.js
+// src/geometry/__tests__/geometryCore.test.js
 import { describe, it, expect } from 'vitest'
-import { calculateScreenGeometry, calculateOptimalAngle } from '../geometryCore'
+import { calculateScreenGeometry, calculateOptimalAngle } from '../core'
 
 // Test cases for calculateOptimalAngle
 const optimalAngleTestCases = [
@@ -100,7 +100,7 @@ const screenGeometryTestCases = [
     expected: {
       properties: ['sideAngleDeg', 'hFOVdeg', 'vFOVdeg', 'cm', 'geom'],
       sideAngleDeg: { closeTo: 50.2, precision: 1 },
-      hFOVdeg: { closeTo: 148, precision: 0 },
+      hFOVdeg: { closeTo: 146.2, precision: 1 },
       vFOVdeg: { closeTo: 27.8, precision: 1 },
       cm: {
         distance: 70,

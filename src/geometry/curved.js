@@ -9,6 +9,7 @@
  * @param {number} yawDeg - Yaw angle in degrees (for side screens)
  * @param {boolean} mirror - Whether to mirror the screen (for side screens)
  * @param {number} pivotX - X-coordinate of the pivot point (for side screens)
+ * @param {number} apexShiftMultiplier - Multiplier to adjust the curve apex position (1.0 = true circle)
  * @returns {Object} - Object containing the geometry of the curved screen
  */
 export function calculateCurvedScreenGeometry(
@@ -191,6 +192,7 @@ export function createBezierArc(geometry) {
  * @param {number} sideAngleDeg - Angle of the side screens in degrees
  * @param {string} setupType - Type of setup ('single' or 'triple')
  * @param {number} pivotDistance - Distance between the pivot points
+ * @param {number} apexShiftMultiplier - Multiplier to adjust the curve apex position (1.0 = true circle)
  * @returns {Array} - Array of SVG arcs
  */
 export function generateCurvedScreenArcs(

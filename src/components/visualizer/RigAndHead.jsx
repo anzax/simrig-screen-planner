@@ -1,7 +1,6 @@
 import React, { useContext } from 'react'
 import { VisualizerContext } from '../ScreenVisualizer'
-import { RIG_CONSTANTS } from '../../utils/constants'
-import { cm2in } from '../../utils/conversions'
+import { RIG_CONSTANTS, cm2in } from '../../geometry'
 
 export default function RigAndHead() {
   const { viewport } = useContext(VisualizerContext)

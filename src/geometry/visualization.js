@@ -1,9 +1,9 @@
-// No conversions needed in this file
+// Visualization-related geometry functions
 import {
   calculateCurvedScreenGeometry,
   createBezierArc,
   generateCurvedScreenArcs as generateArcs,
-} from './curvedScreenGeometry'
+} from './curved'
 
 /* ------------------------------------------------------------------
  *  Bézier helper for curved-panel SVG preview
@@ -44,7 +44,7 @@ export function generateCurvedScreenArcs(
   pivotDistance,
   apexShiftMultiplier = 2.75
 ) {
-  // Use the function from curvedScreenGeometry.js
+  // Use the function from curved.js
   return generateArcs(
     screenW,
     centerY,

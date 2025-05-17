@@ -3,15 +3,15 @@ import NumberInputWithSlider from './ui/NumberInputWithSlider.jsx'
 import NumberInput from './ui/NumberInput.jsx'
 import MultiToggle from './ui/MultiToggle.jsx'
 import { useConfigStore } from '../store/configStore'
-import { calculateSideAngle } from '../utils/geometryCore'
+import { calculateSideAngle } from '../geometry/core'
+import { useAnimation } from '../store/uiContext.jsx'
 
-export default function SettingsPanel({
-  // hasComparisonConfig is needed for future functionality
-  // eslint-disable-next-line no-unused-vars
-  hasComparisonConfig = false,
-  activeConfigId = 'main',
-  isAnimating = false,
-}) {
+export default function SettingsPanel() {
+  // Get animation state from context
+  const { isAnimating } = useAnimation()
+  // Get data directly from the store
+  const activeConfigId = useConfigStore(state => state.activeConfigId)
+
   // Get the active configuration directly
   const activeConfig = useConfigStore(state => {
     const configs = state.configs
