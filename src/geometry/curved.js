@@ -1,6 +1,110 @@
 // Curved screen geometry calculations
 // This module contains functions for calculating the geometry of curved screens
 
+// Helper functions for curved screen geometry
+/**
+ * Convert degrees to radians.
+ * @param {number} deg
+ * @returns {number}
+ */
+function degToRad(deg) {
+  return (deg * Math.PI) / 180
+}
+
+/**
+ * Get base Bezier points and deepest point for chord and sagitta.
+ * @param {number} halfWidth
+ * @param {number} centerY
+ * @param {number} sagitta
+ * @param {number} apexShift
+ * @returns {{p0:{x:number,y:number},p1:{x:number,y:number},p2:{x:number,y:number},actualDeepestPoint:{x:number,y:number}}}
+ */
+function getBasePoints(halfWidth, centerY, sagitta, apexShift) {
+  const p0 = { x: -halfWidth, y: centerY }
+  const p1 = { x: 0, y: centerY - sagitta * apexShift }
+  const p2 = { x: halfWidth, y: centerY }
+  const actualDeepestPoint = { x: 0, y: centerY - sagitta }
+  return { p0, p1, p2, actualDeepestPoint }
+}
+
+/**
+ * Compute circle radius from half chord and sagitta.
+ * @param {number} halfWidth
+ * @param {number} sagitta
+ * @returns {number}
+ */
+function computeRadius(halfWidth, sagitta) {
+  return (halfWidth * halfWidth + sagitta * sagitta) / (2 * sagitta)
+}
+
+/**
+ * Compute original circle center given centerY, radius, and sagitta.
+ * @param {number} centerY
+ * @param {number} radius
+ * @param {number} sagitta
+ * @returns {{x:number,y:number}}
+ */
+function computeOriginalCircleCenter(centerY, radius, sagitta) {
+  return { x: 0, y: centerY + radius - sagitta }
+}
+
+/**
+ * Compute start and end angles for arc between two points relative to center.
+ * @param {{x:number,y:number}} pStart
+ * @param {{x:number,y:number}} pEnd
+ * @param {{x:number,y:number}} center
+ * @returns {{startAngle:number,endAngle:number}}
+ */
+function computeArcAngles(pStart, pEnd, center) {
+  const startAngle = Math.atan2(pStart.y - center.y, pStart.x - center.x)
+  const endAngle = Math.atan2(pEnd.y - center.y, pEnd.x - center.x)
+  return { startAngle, endAngle }
+}
+
+/**
+ * Compute point on circle at given angle.
+ * @param {{x:number,y:number}} center
+ * @param {number} radius
+ * @param {number} angle
+ * @returns {{x:number,y:number}}
+ */
+function computePointOnCircle(center, radius, angle) {
+  return {
+    x: center.x + radius * Math.cos(angle),
+    y: center.y + radius * Math.sin(angle),
+  }
+}
+
+/**
+ * Create a rotation function for a given yaw angle and pivot.
+ * @param {number} yawDeg
+ * @param {number} pivotX
+ * @param {number} pivotY
+ * @returns {function({x:number,y:number}):{x:number,y:number}}
+ */
+function createRotation(yawDeg, pivotX, pivotY) {
+  const ang = degToRad(-yawDeg)
+  const cos = Math.cos(ang)
+  const sin = Math.sin(ang)
+  return function (point) {
+    const relX = point.x - pivotX
+    const relY = point.y - pivotY
+    return {
+      x: pivotX + cos * relX - sin * relY,
+      y: pivotY + sin * relX + cos * relY,
+    }
+  }
+}
+
+/**
+ * Mirror a point across vertical line at pivotX.
+ * @param {{x:number,y:number}} point
+ * @param {number} pivotX
+ * @returns {{x:number,y:number}}
+ */
+function mirrorPoint(point, pivotX) {
+  return { x: 2 * pivotX - point.x, y: point.y }
+}
 /**
  * Calculates the geometry of a curved screen using a circular arc
  * @param {number} chordW - Width of the chord (screen width)
@@ -21,107 +125,55 @@ export function calculateCurvedScreenGeometry(
   pivotX = 0,
   apexShiftMultiplier = 1.0
 ) {
+  // Compute half-width for chord
   const half = chordW / 2
-  let p0 = { x: -half, y: centerY }
-
-  // Store the actual deepest point for debugging (without multiplier)
-  let actualDeepestPoint = { x: 0, y: centerY - sagittaIn }
-
-  // Pull the midpoint *toward* the viewer (y closer to 0 -> less negative)
-  // Apply the apex shift multiplier to pull the curve apex closer to the correct arc apex
-  let p1 = { x: 0, y: centerY - sagittaIn * apexShiftMultiplier }
-  let p2 = { x: half, y: centerY }
-
-  // Calculate ideal points on the true circle BEFORE rotation and mirroring
-  // For a circular arc, we need to determine the center and radius
-  // The center is at (pivotX, centerY + r) where r is the radius
-  // The radius can be calculated from the chord width and sagitta
-  const radius = (half * half + sagittaIn * sagittaIn) / (2 * sagittaIn)
-
-  // For the original circle (before rotation/mirroring), center is at (0, centerY + radius - sagittaIn)
-  const originalCircleCenterX = 0
-  const originalCircleCenterY = centerY + radius - sagittaIn
-
-  // Calculate start and end angles for the original circle
-  const originalStartAngle = Math.atan2(p0.y - originalCircleCenterY, p0.x - originalCircleCenterX)
-  const originalEndAngle = Math.atan2(p2.y - originalCircleCenterY, p2.x - originalCircleCenterX)
-
-  // Calculate angles for points at 25% and 75% along the original arc
-  const originalA1 = originalStartAngle + 0.25 * (originalEndAngle - originalStartAngle)
-  const originalA2 = originalStartAngle + 0.75 * (originalEndAngle - originalStartAngle)
-
-  // Calculate ideal points on the original circle
-  let idealPoint1 = {
-    x: originalCircleCenterX + radius * Math.cos(originalA1),
-    y: originalCircleCenterY + radius * Math.sin(originalA1),
-  }
-
-  let idealPoint2 = {
-    x: originalCircleCenterX + radius * Math.cos(originalA2),
-    y: originalCircleCenterY + radius * Math.sin(originalA2),
-  }
-
-  // rotate points by yaw around pivotX, centerY
-  // Negative sign flips rotation so side panels bow toward the user
-  const ang = (-yawDeg * Math.PI) / 180
-  const cos = Math.cos(ang)
-  const sin = Math.sin(ang)
-  const rot = ({ x, y }) => {
-    const relX = x - pivotX
-    const relY = y - centerY // subtract pivotY as well
-    return {
-      x: pivotX + cos * relX - sin * relY,
-      y: centerY + sin * relX + cos * relY,
-    }
-  }
-
-  // Rotate the Bezier points
+  // Compute base Bezier and deepest points
+  let { p0, p1, p2, actualDeepestPoint } = getBasePoints(
+    half,
+    centerY,
+    sagittaIn,
+    apexShiftMultiplier
+  )
+  // Compute radius and original circle center
+  const radius = computeRadius(half, sagittaIn)
+  const originalCenter = computeOriginalCircleCenter(centerY, radius, sagittaIn)
+  // Compute original arc angles
+  const { startAngle: originalStartAngle, endAngle: originalEndAngle } = computeArcAngles(
+    p0,
+    p2,
+    originalCenter
+  )
+  // Compute ideal points at 25% and 75% along original arc
+  const a1 = originalStartAngle + 0.25 * (originalEndAngle - originalStartAngle)
+  const a2 = originalStartAngle + 0.75 * (originalEndAngle - originalStartAngle)
+  let idealPoint1 = computePointOnCircle(originalCenter, radius, a1)
+  let idealPoint2 = computePointOnCircle(originalCenter, radius, a2)
+  // Create rotation and apply
+  const rot = createRotation(yawDeg, pivotX, centerY)
   p0 = rot(p0)
   p1 = rot(p1)
   p2 = rot(p2)
-
-  // Rotate the ideal points
   idealPoint1 = rot(idealPoint1)
   idealPoint2 = rot(idealPoint2)
-
-  // Rotate the actual deepest point
-  actualDeepestPoint = rot(actualDeepestPoint)
-
+  let rotatedDeepest = rot(actualDeepestPoint)
   // Mirror if needed
   if (mirror) {
-    p0.x = 2 * pivotX - p0.x
-    p1.x = 2 * pivotX - p1.x
-    p2.x = 2 * pivotX - p2.x
-
-    // Mirror the ideal points too
-    idealPoint1.x = 2 * pivotX - idealPoint1.x
-    idealPoint2.x = 2 * pivotX - idealPoint2.x
-
-    // Mirror the actual deepest point
-    actualDeepestPoint.x = 2 * pivotX - actualDeepestPoint.x
+    p0 = mirrorPoint(p0, pivotX)
+    p1 = mirrorPoint(p1, pivotX)
+    p2 = mirrorPoint(p2, pivotX)
+    idealPoint1 = mirrorPoint(idealPoint1, pivotX)
+    idealPoint2 = mirrorPoint(idealPoint2, pivotX)
+    rotatedDeepest = mirrorPoint(rotatedDeepest, pivotX)
   }
-
-  // Create the circle center point
-  let circleCenter = {
-    x: originalCircleCenterX,
-    y: originalCircleCenterY,
-  }
-
-  // Rotate the circle center
-  circleCenter = rot(circleCenter)
-
-  // Mirror the circle center if needed
+  // Transform circle center
+  let circleCenter = rot(originalCenter)
   if (mirror) {
-    circleCenter.x = 2 * pivotX - circleCenter.x
+    circleCenter = mirrorPoint(circleCenter, pivotX)
   }
-
-  // Use the rotated and mirrored circle center
   const circleCenterX = circleCenter.x
   const circleCenterY = circleCenter.y
-
-  // Calculate the final start and end angles based on the rotated/mirrored points
-  const startAngle = Math.atan2(p0.y - circleCenterY, p0.x - circleCenterX)
-  const endAngle = Math.atan2(p2.y - circleCenterY, p2.x - circleCenterX)
+  // Compute final start and end angles
+  const { startAngle, endAngle } = computeArcAngles(p0, p2, circleCenter)
 
   return {
     // Bezier curve points
@@ -142,8 +194,8 @@ export function calculateCurvedScreenGeometry(
       [idealPoint2.x, idealPoint2.y],
     ],
 
-    // Actual deepest point (for debugging)
-    actualDeepestPoint: [actualDeepestPoint.x, actualDeepestPoint.y],
+    // Actual deepest point (post-rotation/mirroring) for debugging
+    actualDeepestPoint: [rotatedDeepest.x, rotatedDeepest.y],
 
     // Additional metadata
     isRotated: yawDeg !== 0,
