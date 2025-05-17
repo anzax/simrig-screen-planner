@@ -7,22 +7,12 @@ import ScreenVisualizer from './components/ScreenVisualizer'
 import Footer from './components/Footer'
 
 export default function App() {
-  // Get configuration state from configStore
-  const activeConfigId = useConfigStore(state => state.activeConfigId)
-  const setActiveConfigId = useConfigStore(state => state.setActiveConfigId)
-  const hasComparisonConfig = useConfigStore(state => state.hasComparisonConfig())
-  const addComparisonConfig = useConfigStore(state => state.addComparisonConfig)
-  const removeComparisonConfig = useConfigStore(state => state.removeComparisonConfig)
-
-  // Get configs for display
-  const mainConfig = useConfigStore(state => state.configs.main)
-  const comparisonConfig = useConfigStore(state => state.configs.comparison)
-
-  // Get calculated results from calculationStore
-  const { mainData, mainView, comparisonData, comparisonView } = useCalculationStore()
-
   // UI state for animation
   const [isAnimating, setIsAnimating] = useState(false)
+
+  // Get minimal state needed for animation
+  const activeConfigId = useConfigStore(state => state.activeConfigId)
+  const hasComparisonConfig = useConfigStore(state => state.hasComparisonConfig())
 
   // Initialize calculation store on first render and clean up on unmount
   useEffect(() => {
@@ -44,7 +34,7 @@ export default function App() {
       const timer = setTimeout(() => setIsAnimating(false), 1000)
       return () => clearTimeout(timer)
     }
-  }, [activeConfigId, hasComparisonConfig, setIsAnimating])
+  }, [activeConfigId, hasComparisonConfig])
 
   return (
     <div className="p-6 max-w-5xl mx-auto space-y-6">
@@ -59,28 +49,11 @@ export default function App() {
         <h1 className="text-xl font-medium">Screen Planner</h1>
       </header>
 
-      <SettingsPanel
-        hasComparisonConfig={hasComparisonConfig}
-        activeConfigId={activeConfigId}
-        isAnimating={isAnimating}
-      />
+      <SettingsPanel isAnimating={isAnimating} />
 
-      <StatsDisplay
-        mainData={mainData}
-        comparisonData={comparisonData}
-        mainConfig={mainConfig}
-        comparisonConfig={comparisonConfig}
-        onAddComparisonConfig={addComparisonConfig}
-        activeConfigId={activeConfigId}
-        setActiveConfigId={setActiveConfigId}
-        isAnimating={isAnimating}
-        removeComparisonConfig={removeComparisonConfig}
-      />
+      <StatsDisplay isAnimating={isAnimating} />
 
-      <ScreenVisualizer
-        view={mainView}
-        comparisonView={hasComparisonConfig ? comparisonView : null}
-      />
+      <ScreenVisualizer />
 
       <Footer />
     </div>
