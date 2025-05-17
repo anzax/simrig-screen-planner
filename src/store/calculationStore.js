@@ -1,7 +1,6 @@
 // src/store/calculationStore.js
 import { create } from 'zustand'
-import { calculateScreenGeometry } from '../geometry/core'
-import { calculateSvgLayout } from '../geometry/visualization'
+import { calculateScreenGeometry, calculateSvgLayout } from '../geometry'
 import { useConfigStore } from './configStore'
 import { RIG_CONSTANTS } from '../geometry/constants'
 
@@ -100,14 +99,13 @@ export const useCalculationStore = create((set, get) => ({
   // Subscribe to config store changes to auto-recalculate
   setupSubscriptions: () => {
     // This should be called once when the app initializes
-    const unsubscribe = useConfigStore.subscribe(
+    return useConfigStore.subscribe(
       () => {
         get().recalculateAll()
       },
       // Only run when these specific properties change
       state => [state.configs.main, state.configs.comparison, state.activeConfigId]
     )
-    return unsubscribe // Return unsubscribe function for cleanup
   },
 }))
 

@@ -341,14 +341,12 @@ export function calculateScreenGeometry(params) {
   // Initialize curved screen variables
   let C = W // Default chord length is width (for flat screens)
   let s = 0 // Default sagitta is 0 (for flat screens)
-  let Rin = 0 // Default radius in inches
 
   // Calculate curved screen geometry if enabled
   if (isCurved) {
     const curvedGeometry = calculateCurvedGeometry(W, curveRadius)
     C = curvedGeometry.C
     s = curvedGeometry.s
-    Rin = curvedGeometry.Rin
   }
 
   const a = isCurved ? C / 2 + bezel : W / 2 + bezel
@@ -375,10 +373,9 @@ export function calculateScreenGeometry(params) {
   if (isCurved) {
     const centerY = -d_eff // chord plane
     const screenW = W_eff + 2 * bezel // chord width + bezels on both sides
-    const depth = s // sagitta
 
     // Use the UI module to generate SVG arcs
-    svgArcs = generateCurvedScreenArcs(screenW, centerY, depth, sideAngleDeg, setupType, a)
+    svgArcs = generateCurvedScreenArcs(screenW, centerY, s, sideAngleDeg, setupType, a)
   }
 
   // Calculate total width for footprint reporting
