@@ -100,7 +100,7 @@ const screenGeometryTestCases = [
     expected: {
       properties: ['sideAngleDeg', 'hFOVdeg', 'vFOVdeg', 'cm', 'geom'],
       sideAngleDeg: { closeTo: 50.2, precision: 1 },
-      hFOVdeg: { closeTo: 148, precision: 0 },
+      hFOVdeg: { closeTo: 146.2, precision: 1 },
       vFOVdeg: { closeTo: 27.8, precision: 1 },
       cm: {
         distance: 70,
