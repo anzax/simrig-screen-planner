@@ -3,8 +3,8 @@ import { useCalculationStore, initializeCalculationStore } from '../calculationS
 import { useConfigStore } from '../configStore'
 
 // Mock the geometry calculation functions
-vi.mock('../../geometry/core', () => ({
-  calculateScreenGeometry: vi.fn().mockImplementation(() => ({
+vi.mock('../../geometry/calculations', () => ({
+  calculateStats: vi.fn().mockImplementation(() => ({
     sideAngleDeg: 45,
     hFOVdeg: 120,
     vFOVdeg: 45,
@@ -16,7 +16,7 @@ vi.mock('../../geometry/core', () => ({
 }))
 
 vi.mock('../../geometry/visualization', () => ({
-  calculateSvgLayout: vi.fn().mockImplementation(() => ({
+  createVisualizationData: vi.fn().mockImplementation(() => ({
     widthPx: 800,
     heightPx: 400,
     screenEdges: [],

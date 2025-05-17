@@ -3,7 +3,7 @@ import NumberInputWithSlider from './ui/NumberInputWithSlider.jsx'
 import NumberInput from './ui/NumberInput.jsx'
 import MultiToggle from './ui/MultiToggle.jsx'
 import { useConfigStore } from '../store/configStore'
-import { calculateSideAngle } from '../geometry/core'
+import { calculateSideAngle } from '../geometry/calculations'
 import { useAnimation } from '../store/uiContext.jsx'
 
 export default function SettingsPanel() {

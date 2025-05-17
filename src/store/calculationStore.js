@@ -1,8 +1,9 @@
 // src/store/calculationStore.js
 import { create } from 'zustand'
-import { calculateScreenGeometry, calculateSvgLayout } from '../geometry'
 import { useConfigStore } from './configStore'
 import { RIG_CONSTANTS } from '../geometry/constants'
+import { calculateStats } from '../geometry/calculations'
+import { createVisualizationData } from '../geometry/visualization'
 
 // Default objects for fallback cases
 const defaultGeometryData = {
@@ -38,35 +39,13 @@ export const useCalculationStore = create((set, get) => ({
         return { data: defaultGeometryData, view: defaultSvgView }
       }
 
-      // Extract configuration with default fallbacks
-      const {
-        screen: { diagIn, ratio, bezelMm, screenWidth, screenHeight },
-        distance: { distCm },
-        layout: { setupType, manualAngle },
-        curvature: { isCurved, curveRadius },
-        ui,
-      } = config
+      // Step 1: Calculate statistics
+      const stats = calculateStats(config)
 
-      // Calculate geometry data
-      const data = calculateScreenGeometry({
-        diagIn,
-        ratio,
-        distCm,
-        bezelMm,
-        setupType,
-        angleMode: ui?.angleMode || 'auto',
-        manualAngle,
-        inputMode: ui?.inputMode || 'diagonal',
-        screenWidth,
-        screenHeight,
-        isCurved,
-        curveRadius,
-      })
+      // Step 2: Generate visualization data
+      const view = createVisualizationData(config, stats)
 
-      // Calculate SVG layout for visualization
-      const view = calculateSvgLayout(data.geom, RIG_CONSTANTS)
-
-      return { data, view }
+      return { data: stats, view }
     } catch (error) {
       console.error('Calculation error:', error)
       return { data: defaultGeometryData, view: defaultSvgView }
