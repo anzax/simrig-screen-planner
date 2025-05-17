@@ -48,6 +48,22 @@ export function calculateScreenDimensionsFromManual(screenWidth, screenHeight) {
 }
 
 /**
+ * Calculate effective screen dimensions from manual input,
+ * subtracting bezel thickness to get the actual display area.
+ * @param {number} screenWidth - Total screen width in mm (including bezels)
+ * @param {number} screenHeight - Total screen height in mm (including bezels)
+ * @param {number} bezelMm - Bezel width in mm
+ * @returns {Object} Screen dimensions in inches {W, H}
+ */
+export function calculateEffectiveScreenDimensionsFromManual(screenWidth, screenHeight, bezelMm) {
+  const widthMm = screenWidth - bezelMm * 2
+  const heightMm = screenHeight - bezelMm * 2
+  const W = widthMm / 25.4
+  const H = heightMm / 25.4
+  return { W, H }
+}
+
+/**
  * Calculate normalized values for angle calculation
  * @param {number} W - Screen width in inches
  * @param {number} d - Viewing distance in inches

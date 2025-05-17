@@ -5,6 +5,7 @@ import { calculateCurvedGeometry } from './curved'
 import {
   calculateEffectiveScreenDimensions,
   calculateScreenDimensionsFromManual,
+  calculateEffectiveScreenDimensionsFromManual,
   calculateNormalizedValues,
   calculateOptimalViewingAngle,
   calculateAutoSideAngle,
@@ -51,8 +52,8 @@ function calculateAngle(params) {
       const dimensions = calculateEffectiveScreenDimensions(diagIn, ratio, bezelMm)
       W = dimensions.W
     } else {
-      const dimensions = calculateScreenDimensionsFromManual(screenWidth, screenHeight)
-      W = dimensions.W
+      const eff = calculateEffectiveScreenDimensionsFromManual(screenWidth, screenHeight, bezelMm)
+      W = eff.W
     }
 
     // Initialize curved screen variables
@@ -137,16 +138,37 @@ export function calculateScreenGeometry(params) {
   const d = cm2in(distCm)
   const bezel = cm2in(bezelMm / 10)
 
-  // Calculate screen dimensions
-  let W, H
+  // Calculate screen dimensions (user-provided full dims and effective dims for FOV)
+  let W, H, W_for_fov, H_for_fov
   if (inputMode === 'diagonal') {
-    const dimensions = calculateEffectiveScreenDimensions(diagIn, ratio, bezelMm)
-    W = dimensions.W
-    H = dimensions.H
+    // For diagonal input:
+    // - For single screen: don't add bezels for FOV calculation
+    // - For triple screen: add bezels for both FOV and visualization
+    // - Always add bezels for visualization
+    const dimensionsWithBezel = calculateEffectiveScreenDimensions(diagIn, ratio, bezelMm)
+    W = dimensionsWithBezel.W
+    H = dimensionsWithBezel.H
+
+    if (setupType === 'single') {
+      // For single screen, don't add bezels for FOV calculation
+      const dimensionsWithoutBezel = calculateEffectiveScreenDimensions(diagIn, ratio, 0)
+      W_for_fov = dimensionsWithoutBezel.W
+      H_for_fov = dimensionsWithoutBezel.H
+    } else {
+      // For triple screen, use dimensions with bezels for FOV
+      W_for_fov = W
+      H_for_fov = H
+    }
   } else {
-    const dimensions = calculateScreenDimensionsFromManual(screenWidth, screenHeight)
-    W = dimensions.W
-    H = dimensions.H
+    // For manual input:
+    // - Always subtract bezels for FOV calculation
+    // - Always use full dimensions for visualization
+    const full = calculateScreenDimensionsFromManual(screenWidth, screenHeight)
+    const eff = calculateEffectiveScreenDimensionsFromManual(screenWidth, screenHeight, bezelMm)
+    W = full.W
+    H = full.H
+    W_for_fov = eff.W
+    H_for_fov = eff.H
   }
 
   // Initialize curved screen variables
@@ -164,16 +186,16 @@ export function calculateScreenGeometry(params) {
   const a = isCurved ? C / 2 + bezel : W / 2 + bezel
 
   // Get normalized values for angle calculation
-  const { W_eff, d_eff } = calculateNormalizedValues(W, d, isCurved, C, s)
+  const { W_eff, d_eff } = calculateNormalizedValues(W_for_fov, d, isCurved, C, s)
 
   // Calculate side screen angle
   const sideAngleDeg = determineSideAngle(setupType, angleMode, manualAngle, a, W_eff, d_eff)
 
-  // Calculate horizontal FOV
+  // Calculate horizontal FOV (with bezel-adjusted display area for manual mode)
   const hFOVdeg = calculateHorizontalFOV(setupType, W_eff, d_eff, bezel, sideAngleDeg, a)
 
   // Calculate vertical FOV
-  const vFOVdeg = calculateVerticalFOV(H, d)
+  const vFOVdeg = calculateVerticalFOV(H_for_fov, d)
 
   // Calculate placement vectors for UI
   const { pivotL, pivotR, uL, uR } = calculatePlacementVectors(setupType, W_eff, d, sideAngleDeg, a)

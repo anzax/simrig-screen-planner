@@ -109,14 +109,33 @@ export default function SettingsPanel() {
             <div className="space-y-3">
               {/* Info Message */}
               <div className="bg-blue-50 border border-blue-200 rounded-lg py-1.5 px-2 text-xs text-blue-700">
-                Measure screen dimensions including bezels
+                Measure total screen dimensions
               </div>
 
-              {/* Width */}
-              <NumberInput label="Width, mm" value={screenWidth} onChange={setScreenWidth} />
+              {/* Width and Height in a single row */}
+              <div className="flex space-x-2">
+                <NumberInput
+                  label="Width, mm"
+                  value={screenWidth}
+                  onChange={setScreenWidth}
+                  className="flex-1"
+                />
+                <NumberInput
+                  label="Height, mm"
+                  value={screenHeight}
+                  onChange={setScreenHeight}
+                  className="flex-1"
+                />
+              </div>
 
-              {/* Height */}
-              <NumberInput label="Height, mm" value={screenHeight} onChange={setScreenHeight} />
+              {/* Bezel thickness */}
+              <NumberInputWithSlider
+                label="Bezel width, mm"
+                min={0}
+                max={50}
+                value={bezelMm}
+                onChange={setBezelMm}
+              />
             </div>
           )}
         </div>
