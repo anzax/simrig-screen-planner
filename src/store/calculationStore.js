@@ -1,9 +1,9 @@
 // src/store/calculationStore.js
 import { create } from 'zustand'
-import { calculateScreenGeometry } from '../utils/geometryCore'
-import { calculateSvgLayout } from '../utils/geometryUI'
+import { calculateScreenGeometry } from '../geometry/core'
+import { calculateSvgLayout } from '../geometry/visualization'
 import { useConfigStore } from './configStore'
-import { RIG_CONSTANTS } from '../utils/constants'
+import { RIG_CONSTANTS } from '../geometry/constants'
 
 // Default objects for fallback cases
 const defaultGeometryData = {

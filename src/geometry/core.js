@@ -1,6 +1,6 @@
-import { cm2in, in2cm } from './conversions'
+import { cm2in, in2cm } from './conversion'
 import { ASPECT_RATIOS } from './constants'
-import { generateCurvedScreenArcs } from './geometryUI'
+import { generateCurvedScreenArcs } from './visualization'
 
 /** ------------------------------------------------------------------
  *  Geometry helpers – keep the main function readable
@@ -63,50 +63,48 @@ function calculateNormalizedValues(W, d, isCurved, C, s) {
 }
 
 /**
- * Core angle calculation function that can be used by both optimal angle and side angle calculations
+ * Helper function to get aspect ratio multiplier
  */
-function calculateAngle(params) {
-  const {
-    diagIn,
-    ratio,
-    distCm,
-    bezelMm,
-    inputMode = 'diagonal',
-    screenWidth,
-    screenHeight,
-    isCurved = false,
-    curveRadius = 1000,
-    useAutoSideAngle = false,
-  } = params
-
-  // Default return value for invalid inputs
-  if ((!diagIn && inputMode === 'diagonal') || !ratio || !distCm) return 60
-
-  // For optimal angle calculation (not using autoSideAngle)
-  if (!useAutoSideAngle) {
-    // Calculate the angle using the aspect ratio and diagonal
-    const calculatedAngle = parseFloat(
-      (
-        (Math.atan(
-          ((diagIn + (bezelMm * 2) / 25.4) *
-            (ratio === '16:9'
-              ? 16 / Math.hypot(16, 9)
-              : ratio === '21:9'
-                ? 21 / Math.hypot(21, 9)
-                : 32 / Math.hypot(32, 9))) /
-            2 /
-            (distCm / 2.54)
-        ) *
-          180) /
-        Math.PI
-      ).toFixed(1)
-    )
-
-    // Cap the angle at 90 degrees as it does not have practical sense to go beyond
-    return Math.min(calculatedAngle, 90)
+function getAspectRatioMultiplier(ratio) {
+  switch (ratio) {
+    case '16:9':
+      return 16 / Math.hypot(16, 9)
+    case '21:9':
+      return 21 / Math.hypot(21, 9)
+    default: // 32:9
+      return 32 / Math.hypot(32, 9)
   }
+}
 
-  // For side angle calculation (using autoSideAngle)
+/**
+ * Calculate optimal viewing angle based on screen diagonal and distance
+ */
+function calculateOptimalViewingAngle(diagIn, ratio, distCm, bezelMm) {
+  const aspectRatioMultiplier = getAspectRatioMultiplier(ratio)
+  const effectiveDiagIn = diagIn + (bezelMm * 2) / 25.4
+  const halfWidthIn = (effectiveDiagIn * aspectRatioMultiplier) / 2
+  const distanceIn = distCm / 2.54
+
+  const radians = Math.atan(halfWidthIn / distanceIn)
+  const degrees = (radians * 180) / Math.PI
+
+  return parseFloat(degrees.toFixed(1))
+}
+
+/**
+ * Calculate side angle for curved or flat screens
+ */
+function calculateSideScreenAngle(
+  diagIn,
+  ratio,
+  distCm,
+  bezelMm,
+  inputMode,
+  screenWidth,
+  screenHeight,
+  isCurved,
+  curveRadius
+) {
   // Convert to inches
   const d = cm2in(distCm)
   const bezel = cm2in(bezelMm / 10)
@@ -139,10 +137,50 @@ function calculateAngle(params) {
   const { W_eff, d_eff } = calculateNormalizedValues(W, d, isCurved, C, s)
 
   // Calculate the angle using autoSideAngle
-  const sideAngleDeg = autoSideAngle(a, W_eff, d_eff)
+  return autoSideAngle(a, W_eff, d_eff)
+}
+
+/**
+ * Core angle calculation function that can be used by both optimal angle and side angle calculations
+ */
+function calculateAngle(params) {
+  const {
+    diagIn,
+    ratio,
+    distCm,
+    bezelMm,
+    inputMode = 'diagonal',
+    screenWidth,
+    screenHeight,
+    isCurved = false,
+    curveRadius = 1000,
+    useAutoSideAngle = false,
+  } = params
+
+  // Default return value for invalid inputs
+  if ((!diagIn && inputMode === 'diagonal') || !ratio || !distCm) return 60
+
+  let angle
+  if (!useAutoSideAngle) {
+    // Calculate the optimal viewing angle
+    angle = calculateOptimalViewingAngle(diagIn, ratio, distCm, bezelMm)
+  } else {
+    // Calculate the side screen angle
+    angle = calculateSideScreenAngle(
+      diagIn,
+      ratio,
+      distCm,
+      bezelMm,
+      inputMode,
+      screenWidth,
+      screenHeight,
+      isCurved,
+      curveRadius
+    )
+  }
 
   // Cap at 90 degrees as it does not have practical sense to go beyond
-  return Math.min(sideAngleDeg, 90)
+  return Math.min(angle, 90)
 }
 
 // Calculate the optimal angle based on screen dimensions and viewing distance
@@ -179,6 +217,96 @@ export function calculateSideAngle(screen, distance) {
     curveRadius,
     useAutoSideAngle: true,
   })
+}
+
+/**
+ * Calculate the side angle based on setup type and angle mode
+ */
+function determineSideAngle(setupType, angleMode, manualAngle, a, W_eff, d_eff) {
+  if (setupType !== 'triple') {
+    return 0
+  }
+
+  if (angleMode === 'auto') {
+    // Calculate the auto angle
+    const calculatedAngle = autoSideAngle(a, W_eff, d_eff)
+    // Cap at 90 degrees as it does not have practical sense to go beyond
+    return Math.min(calculatedAngle, 90)
+  } else {
+    return manualAngle
+  }
+}
+
+/**
+ * Calculate horizontal FOV for the setup
+ */
+function calculateHorizontalFOV(setupType, W_eff, d_eff, bezel, sideAngleDeg, a) {
+  const hSingleDeg = panelFOVdeg(W_eff, d_eff) // one panel
+  const bDeg = bezelFOVdeg(bezel, d_eff)
+
+  if (setupType === 'single') {
+    return hSingleDeg // bezels ignored for single
+  }
+
+  // Vector-based span between eye -> outer edge of each side panel
+  const ang = (sideAngleDeg * Math.PI) / 180
+  const edgeR = { x: a + W_eff * Math.cos(ang), y: -d_eff + W_eff * Math.sin(ang) }
+  const edgeL = { x: -a - W_eff * Math.cos(ang), y: -d_eff + W_eff * Math.sin(ang) }
+
+  const angleR = Math.atan2(edgeR.y, edgeR.x) * DEG
+  const angleL = Math.atan2(edgeL.y, edgeL.x) * DEG
+  const to360 = deg => (deg + 360) % 360
+
+  // Signed shortest difference from R->L (-180 ... +180)
+  let delta = (to360(angleL) - to360(angleR) + 360) % 360
+  if (delta > 180) delta -= 360 // now in -180...180
+  const spanSmall = Math.abs(delta) // the small arc (<=180)
+
+  // Take the arc whose midpoint faces the screens (y < 0 => sin < 0)
+  const midDeg = (to360(angleR) + delta / 2 + 360) % 360
+  const span =
+    Math.sin(midDeg / DEG) < 0 // DEG = 180/Math.PI
+      ? spanSmall // midpoint in front => small arc
+      : 360 - spanSmall // midpoint behind => large arc (wraps around head)
+
+  return span + bDeg * 2
+}
+
+/**
+ * Calculate placement vectors for UI
+ */
+function calculatePlacementVectors(setupType, W_eff, d, sideAngleDeg, a) {
+  if (setupType === 'single') {
+    return {
+      pivotL: { x: -W_eff / 2, y: -d },
+      pivotR: { x: W_eff / 2, y: -d },
+      uL: { x: 0, y: 0 },
+      uR: { x: 0, y: 0 },
+    }
+  } else {
+    // triple
+    const ang = (sideAngleDeg * Math.PI) / 180
+    const uR = { x: W_eff * Math.cos(ang), y: W_eff * Math.sin(ang) }
+    const uL = { x: -uR.x, y: uR.y }
+    const pivotR = { x: a, y: -d }
+    const pivotL = { x: -a, y: -d }
+
+    return { pivotL, pivotR, uL, uR }
+  }
+}
+
+/**
+ * Calculate total width for footprint reporting
+ */
+function calculateTotalWidth(setupType, W_eff, pivotL, pivotR, uL, uR) {
+  if (setupType === 'single') {
+    return in2cm(W_eff)
+  } else {
+    // For triple setup, calculate the width between the outer edges of the side screens
+    const rightEdgeX = pivotR.x + uR.x
+    const leftEdgeX = pivotL.x + uL.x
+    return in2cm(rightEdgeX - leftEdgeX)
+  }
 }
 
 export function calculateScreenGeometry(params) {
@@ -228,78 +356,22 @@ export function calculateScreenGeometry(params) {
   // Get normalized values for angle calculation
   const { W_eff, d_eff } = calculateNormalizedValues(W, d, isCurved, C, s)
 
-  // side screen angle
-  let sideAngleDeg = 0
-  if (setupType === 'triple') {
-    if (angleMode === 'auto') {
-      // Calculate the auto angle
-      sideAngleDeg = autoSideAngle(a, W_eff, d_eff)
-      // Cap at 90 degrees as it does not have practical sense to go beyond
-      sideAngleDeg = Math.min(sideAngleDeg, 90)
-    } else {
-      sideAngleDeg = manualAngle
-    }
-  }
+  // Calculate side screen angle
+  const sideAngleDeg = determineSideAngle(setupType, angleMode, manualAngle, a, W_eff, d_eff)
 
-  // horizontal FOV (including bezels)
-  let hFOVdeg, vFOVdeg, totalWidthCm
-  let pivotR, pivotL, uR, uL
-  // Array to store SVG arcs for curved screens
+  // Calculate horizontal FOV
+  const hFOVdeg = calculateHorizontalFOV(setupType, W_eff, d_eff, bezel, sideAngleDeg, a)
+
+  // Calculate vertical FOV (uses eye-to-centre distance only, curvature does not matter)
+  const vFOVdeg = panelFOVdeg(H, d)
+
+  // Calculate placement vectors for UI
+  const { pivotL, pivotR, uL, uR } = calculatePlacementVectors(setupType, W_eff, d, sideAngleDeg, a)
+
+  // Initialize SVG arcs array
   let svgArcs = []
 
-  // --- Unified FOV calculation (honours manual side angles) ----------
-  {
-    const hSingleDeg = panelFOVdeg(W_eff, d_eff) // one panel
-    const bDeg = bezelFOVdeg(bezel, d_eff)
-
-    if (setupType === 'single') {
-      hFOVdeg = hSingleDeg // bezels ignored for single
-    } else {
-      // Vector-based span between eye -> outer edge of each side panel
-      const ang = (sideAngleDeg * Math.PI) / 180
-      const edgeR = { x: a + W_eff * Math.cos(ang), y: -d_eff + W_eff * Math.sin(ang) }
-      const edgeL = { x: -a - W_eff * Math.cos(ang), y: -d_eff + W_eff * Math.sin(ang) }
-
-      const angleR = Math.atan2(edgeR.y, edgeR.x) * DEG
-      const angleL = Math.atan2(edgeL.y, edgeL.x) * DEG
-      const to360 = deg => (deg + 360) % 360
-
-      // Signed shortest difference from R->L (-180 ... +180)
-      let delta = (to360(angleL) - to360(angleR) + 360) % 360
-      if (delta > 180) delta -= 360 // now in -180...180
-      const spanSmall = Math.abs(delta) // the small arc (<=180)
-
-      // Take the arc whose midpoint faces the screens (y < 0 => sin < 0)
-      const midDeg = (to360(angleR) + delta / 2 + 360) % 360
-      const span =
-        Math.sin(midDeg / DEG) < 0 // DEG = 180/Math.PI
-          ? spanSmall // midpoint in front => small arc
-          : 360 - spanSmall // midpoint behind => large arc (wraps around head)
-
-      hFOVdeg = span + bDeg * 2
-    }
-
-    // vertical FOV uses eye-to-centre distance only (curvature does not matter)
-    vFOVdeg = panelFOVdeg(H, d)
-  }
-
-  /* ------------------------------------------------------------------
-   *  Minimal placement vectors for UI (prevents undefined errors)
-   * -----------------------------------------------------------------*/
-  if (setupType === 'single') {
-    pivotL = { x: -W_eff / 2, y: -d }
-    pivotR = { x: W_eff / 2, y: -d }
-    uL = { x: 0, y: 0 }
-    uR = { x: 0, y: 0 }
-  } else {
-    // triple
-    const ang = (sideAngleDeg * Math.PI) / 180
-    uR = { x: W_eff * Math.cos(ang), y: W_eff * Math.sin(ang) }
-    uL = { x: -uR.x, y: uR.y }
-    pivotR = { x: a, y: -d }
-    pivotL = { x: -a, y: -d }
-  }
-  // --- Curved-panel SVG paths ------------------------------------
+  // Generate SVG arcs for curved screens
   if (isCurved) {
     const centerY = -d_eff // chord plane
     const screenW = W_eff + 2 * bezel // chord width + bezels on both sides
@@ -308,18 +380,10 @@ export function calculateScreenGeometry(params) {
     // Use the UI module to generate SVG arcs
     svgArcs = generateCurvedScreenArcs(screenW, centerY, depth, sideAngleDeg, setupType, a)
   }
-  // compute total width for footprint reporting
-  if (setupType === 'single') {
-    totalWidthCm = in2cm(W_eff)
-  } else {
-    // For triple setup, calculate the width between the outer edges of the side screens
-    // Calculate the x-coordinate of the right edge of the right screen
-    const rightEdgeX = pivotR.x + uR.x
-    // Calculate the x-coordinate of the left edge of the left screen
-    const leftEdgeX = pivotL.x + uL.x
-    // Total width is the distance between these two points
-    totalWidthCm = in2cm(rightEdgeX - leftEdgeX)
-  }
+
+  // Calculate total width for footprint reporting
+  const totalWidthCm = calculateTotalWidth(setupType, W_eff, pivotL, pivotR, uL, uR)
+
   return {
     sideAngleDeg,
     hFOVdeg,

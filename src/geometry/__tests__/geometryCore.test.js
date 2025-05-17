@@ -1,6 +1,6 @@
-// src/utils/__tests__/geometryCore.test.js
+// src/geometry/__tests__/geometryCore.test.js
 import { describe, it, expect } from 'vitest'
-import { calculateScreenGeometry, calculateOptimalAngle } from '../geometryCore'
+import { calculateScreenGeometry, calculateOptimalAngle } from '../core'
 
 // Test cases for calculateOptimalAngle
 const optimalAngleTestCases = [

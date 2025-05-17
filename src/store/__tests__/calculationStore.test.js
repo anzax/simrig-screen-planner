@@ -3,7 +3,7 @@ import { useCalculationStore, initializeCalculationStore } from '../calculationS
 import { useConfigStore } from '../configStore'
 
 // Mock the geometry calculation functions
-vi.mock('../../utils/geometryCore', () => ({
+vi.mock('../../geometry/core', () => ({
   calculateScreenGeometry: vi.fn().mockImplementation(() => ({
     sideAngleDeg: 45,
     hFOVdeg: 120,
@@ -15,7 +15,7 @@ vi.mock('../../utils/geometryCore', () => ({
   })),
 }))
 
-vi.mock('../../utils/geometryUI', () => ({
+vi.mock('../../geometry/visualization', () => ({
   calculateSvgLayout: vi.fn().mockImplementation(() => ({
     widthPx: 800,
     heightPx: 400,
@@ -25,9 +25,14 @@ vi.mock('../../utils/geometryUI', () => ({
   })),
 }))
 
-// Mock the RIG_CONSTANTS
+// Mock the RIG_CONSTANTS and ASPECT_RATIOS
 vi.mock('../../utils/constants', () => ({
   RIG_CONSTANTS: {},
+  ASPECT_RATIOS: {
+    '16:9': { w: 16, h: 9 },
+    '21:9': { w: 21, h: 9 },
+    '32:9': { w: 32, h: 9 },
+  },
 }))
 
 describe('Calculation Store', () => {
