@@ -1,10 +1,10 @@
 import { cm2in } from './conversion'
 import { generateCurvedScreenArcs } from './visualization'
 import { clamp } from './math'
+import { calculateCurvedGeometry } from './curved'
 import {
   calculateEffectiveScreenDimensions,
   calculateScreenDimensionsFromManual,
-  calculateCurvedGeometry,
   calculateNormalizedValues,
   calculateOptimalViewingAngle,
   calculateAutoSideAngle,

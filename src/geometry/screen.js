@@ -48,28 +48,6 @@ export function calculateScreenDimensionsFromManual(screenWidth, screenHeight) {
 }
 
 /**
- * Calculate curved screen geometry
- * @param {number} W - Screen width in inches
- * @param {number} curveRadius - Curve radius in mm
- * @returns {Object} Curved screen geometry {C, s, Rin}
- */
-export function calculateCurvedGeometry(W, curveRadius) {
-  // Convert radius from mm to inches
-  const Rin = curveRadius / 25.4
-
-  // Calculate central angle (theta = arc length / radius)
-  const theta = W / Rin
-
-  // Calculate chord length (C = 2R * sin(theta/2))
-  const C = 2 * Rin * Math.sin(theta / 2)
-
-  // Calculate sagitta (s = R * (1 - cos(theta/2)))
-  const s = Rin * (1 - Math.cos(theta / 2))
-
-  return { C, s, Rin }
-}
-
-/**
  * Calculate normalized values for angle calculation
  * @param {number} W - Screen width in inches
  * @param {number} d - Viewing distance in inches

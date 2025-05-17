@@ -106,6 +106,19 @@ function mirrorPoint(point, pivotX) {
   return { x: 2 * pivotX - point.x, y: point.y }
 }
 /**
+ * Calculate curved screen geometry (chord length, sagitta, radius)
+ * @param {number} W - Screen width in inches
+ * @param {number} curveRadius - Curve radius in mm
+ * @returns {{C:number, s:number, Rin:number}}
+ */
+export function calculateCurvedGeometry(W, curveRadius) {
+  const Rin = curveRadius / 25.4
+  const theta = W / Rin
+  const C = 2 * Rin * Math.sin(theta / 2)
+  const s = Rin * (1 - Math.cos(theta / 2))
+  return { C, s, Rin }
+}
+/**
  * Calculates the geometry of a curved screen using a circular arc
  * @param {number} chordW - Width of the chord (screen width)
  * @param {number} centerY - Y-coordinate of the center of the chord

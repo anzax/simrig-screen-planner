@@ -1,10 +1,10 @@
 // src/geometry/__tests__/screen.test.js
 import { describe, it, expect } from 'vitest'
+import { calculateCurvedGeometry } from '../curved'
 import {
   calculateScreenDimensions,
   calculateEffectiveScreenDimensions,
   calculateScreenDimensionsFromManual,
-  calculateCurvedGeometry,
   calculateNormalizedValues,
   calculateOptimalViewingAngle,
   calculateAutoSideAngle,
