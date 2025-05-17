@@ -1,4 +1,4 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useConfigStore } from './store/configStore'
 import { useCalculationStore, initializeCalculationStore } from './store/calculationStore'
 import SettingsPanel from './components/SettingsPanel'
@@ -19,8 +19,10 @@ export default function App() {
   const comparisonConfig = useConfigStore(state => state.configs.comparison)
 
   // Get calculated results from calculationStore
-  const { mainData, mainView, comparisonData, comparisonView, isAnimating, setIsAnimating } =
-    useCalculationStore()
+  const { mainData, mainView, comparisonData, comparisonView } = useCalculationStore()
+
+  // UI state for animation
+  const [isAnimating, setIsAnimating] = useState(false)
 
   // Initialize calculation store on first render and clean up on unmount
   useEffect(() => {

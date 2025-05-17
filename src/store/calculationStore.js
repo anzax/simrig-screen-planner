@@ -30,10 +30,6 @@ export const useCalculationStore = create((set, get) => ({
   mainView: defaultSvgView,
   comparisonData: null,
   comparisonView: null,
-  isAnimating: false,
-
-  // Animation controls
-  setIsAnimating: value => set({ isAnimating: value }),
 
   // Main calculation function
   calculateConfig: config => {

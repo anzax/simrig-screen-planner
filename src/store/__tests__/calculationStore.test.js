@@ -71,7 +71,6 @@ describe('Calculation Store', () => {
       mainView: null,
       comparisonData: null,
       comparisonView: null,
-      isAnimating: false,
     })
 
     // Clear mocks
@@ -265,19 +264,5 @@ describe('Calculation Store', () => {
     expect(updatedState.mainView.widthPx).toBe(800)
   })
 
-  it('should update animation state', () => {
-    // Directly set the state to test the setter function
-    useCalculationStore.setState({ isAnimating: false })
-
-    // Get the store and call the setter
-    const calculationStore = useCalculationStore.getState()
-    calculationStore.setIsAnimating(true)
-
-    // Check that the state was updated
-    expect(useCalculationStore.getState().isAnimating).toBe(true)
-
-    // Set it back to false
-    calculationStore.setIsAnimating(false)
-    expect(useCalculationStore.getState().isAnimating).toBe(false)
-  })
+  // Animation state test removed - animation state is now managed in App.jsx
 })
