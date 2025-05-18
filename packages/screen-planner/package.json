@@ -1,0 +1,60 @@
+{
+  "name": "@simrigbuild/screen-planner",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "license": "Apache-2.0",
+  "author": "Andrii Zakhariuk <andrii@simrigbuild.com>",
+  "description": "Triple-screen configuration calculator for sim racing setups",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/anzax/simrig-screen-planner.git"
+  },
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "lint": "eslint .",
+    "preview": "vite preview",
+    "predeploy": "pnpm build",
+    "deploy": "gh-pages -d dist",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "clean": "rm -rf dist coverage"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.1.4",
+    "d3": "^7.9.0",
+    "gh-pages": "^6.3.0",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0",
+    "tailwindcss": "^4.1.4",
+    "zustand": "^5.0.4"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.22.0",
+    "@testing-library/jest-dom": "^6.6.3",
+    "@testing-library/react": "^16.3.0",
+    "@types/react": "^19.0.10",
+    "@types/react-dom": "^19.0.4",
+    "@vitejs/plugin-react": "^4.3.4",
+    "eslint": "^9.22.0",
+    "eslint-config-prettier": "^10.1.2",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "eslint-plugin-react-refresh": "^0.4.19",
+    "globals": "^16.0.0",
+    "jsdom": "^26.1.0",
+    "prettier": "^3.5.3",
+    "vite": "^6.3.1",
+    "vitest": "^3.1.2"
+  },
+  "keywords": [
+    "sim racing",
+    "triple screen",
+    "monitor setup",
+    "fov calculator",
+    "racing simulator"
+  ]
+}

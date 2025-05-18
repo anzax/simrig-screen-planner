@@ -1,19 +1,30 @@
 # Project Guidelines
 
+**Application location: `packages/screen-planner`**
+
 ## Tech Stack
 
 - React 19, Vite 6.3, Zustand 5.0
 - Tailwind CSS 4.1.4
 - Vitest, ESLint, Prettier
 
+## Development Workflow
+
+- **Setup**: `pnpm install`
+- **Development**: `pnpm dev`
+- **Production**: `pnpm build`
+- **Quality Assurance**:
+  - Tests: `pnpm test`
+  - Linting: `pnpm lint`
+  - Pre-submission check: `pnpm test && pnpm lint`
+
 ## Code Standards
 
-- **Quality Checks**: Run `npm run test && npm run lint` before submitting changes
 - **Code Hygiene**: Remove dead code, unused variables, imports, and leftover comments
-- **Maintainability**: Keep code clean, follow existing styles and patterns
+- **Maintainability**: Follow existing styles and patterns
 - **Compatibility**: Backward compatibility only required when specified or critical
 
-## Testing Approach
+## Testing Strategy
 
 - **Focus Areas**:
   - Critical path functionality over full coverage
@@ -23,13 +34,13 @@
   - Core calculation functions
   - State management logic
   - Critical user interactions
-- **Requirements**: Unit tests not mandatory for all components
+- **Note**: Unit tests not mandatory for all components
 
-## Environment & Agent Guidance
+## Environment Notes
 
-- All commands are executed from the project root directory.
-- Node.js and all npm packages are already installed.
-- The project is a git repository. Use `git diff`, `git log`, or other read-only git commands to investigate code history as needed.
-- Do not perform git commits, create branches, or modify the git state unless directly instructed.
-- Use npm (`npm run lint`, `npm run test`) for code quality and testing.
-- Only reference file contents or code snippets if relevant to the current request.
+- All commands execute from project root
+- Node.js and dependencies are pre-installed
+- Git repository access:
+  - Use read-only commands (`git diff`, `git log`) to explore code history
+  - Don't modify git state unless instructed
+- Reference code snippets only when relevant to current task
