@@ -1,6 +1,6 @@
 import {
-  calculateEffectiveScreenDimensions,
-  calculateEffectiveScreenDimensionsFromManual,
+  calculateScreenDimensionsFromDiagonal,
+  calculateScreenDimensionsFromManual,
   calculateNormalizedValues,
   determineSideAngle,
   calculateHorizontalFOV,
@@ -10,7 +10,7 @@ import {
   calculateOptimalViewingAngle,
   calculateAutoSideAngle,
 } from './screen'
-import { cm2in, in2cm } from './conversion'
+import { cm2in } from './conversion'
 import { calculateCurvedGeometry } from './curved'
 import { clamp } from './math'
 
@@ -47,11 +47,11 @@ function calculateAngle(params) {
     // Calculate screen dimensions
     let W
     if (inputMode === 'diagonal') {
-      const dimensions = calculateEffectiveScreenDimensions(diagIn, ratio, bezelMm)
-      W = dimensions.W
+      const { panel } = calculateScreenDimensionsFromDiagonal(diagIn, ratio, bezelMm)
+      W = panel.W
     } else {
-      const eff = calculateEffectiveScreenDimensionsFromManual(screenWidth, screenHeight, bezelMm)
-      W = eff.W
+      const { panel } = calculateScreenDimensionsFromManual(screenWidth, screenHeight, bezelMm)
+      W = panel.W
     }
 
     // Initialize curved screen variables
@@ -133,55 +133,63 @@ export function calculateStats(config) {
   const angleMode = ui?.angleMode || 'auto'
   const inputMode = ui?.inputMode || 'diagonal'
 
-  // Calculate screen dimensions
-  let dimensions
+  // Calculate screen dimensions (panel-only and physical footprint)
+  let dims
   if (inputMode === 'diagonal') {
-    dimensions = calculateEffectiveScreenDimensions(diagIn, ratio, bezelMm)
+    dims = calculateScreenDimensionsFromDiagonal(diagIn, ratio, bezelMm)
   } else {
-    dimensions = calculateEffectiveScreenDimensionsFromManual(screenWidth, screenHeight, bezelMm)
+    dims = calculateScreenDimensionsFromManual(screenWidth, screenHeight, bezelMm)
   }
+  const { panel, physical } = dims
 
-  // Convert to inches
+  // Convert to inches for distance and bezel
   const d = cm2in(distCm)
   const bezel = cm2in(bezelMm / 10)
 
   // Initialize curved screen variables
-  let C = dimensions.W // Default chord length is width (for flat screens)
+  let C = panel.W // Default chord length is width (for flat screens)
   let s = 0 // Default sagitta is 0 (for flat screens)
 
   // Calculate curved screen geometry if enabled
   if (isCurved) {
-    const curvedGeometry = calculateCurvedGeometry(dimensions.W, curveRadius)
+    const curvedGeometry = calculateCurvedGeometry(panel.W, curveRadius)
     C = curvedGeometry.C
     s = curvedGeometry.s
   }
 
   // Calculate the distance between screens
-  const a = isCurved ? C / 2 + bezel : dimensions.W / 2 + bezel
+  const a = isCurved ? C / 2 + bezel : panel.W / 2 + bezel
 
   // Get normalized values for angle calculation
-  const { W_eff, d_eff } = calculateNormalizedValues(dimensions.W, d, isCurved, C, s)
+  const { W_eff, d_eff } = calculateNormalizedValues(panel.W, d, isCurved, C, s)
 
   // Calculate side screen angle
   const sideAngleDeg = determineSideAngle(setupType, angleMode, manualAngle, a, W_eff, d_eff)
 
   // Calculate FOV values
   const hFOVdeg = calculateHorizontalFOV(setupType, W_eff, d_eff, bezel, sideAngleDeg, a)
-  const vFOVdeg = calculateVerticalFOV(dimensions.H, d)
+  const vFOVdeg = calculateVerticalFOV(panel.H, d)
 
   // Calculate placement vectors for visualization
   const vectors = calculatePlacementVectors(setupType, W_eff, d, sideAngleDeg, a)
 
-  // Calculate total width
-  const totalWidth = in2cm(
-    calculateTotalWidth(setupType, W_eff, vectors.pivotL, vectors.pivotR, vectors.uL, vectors.uR)
+  // Calculate total width (in cm) using calculateTotalWidth, which already converts inches→cm
+  const totalWidth = calculateTotalWidth(
+    setupType,
+    W_eff,
+    vectors.pivotL,
+    vectors.pivotR,
+    vectors.uL,
+    vectors.uR
   )
 
-  // Return all stats needed for display
+  // Return all stats needed for display, including panel vs physical dims
   return {
     sideAngleDeg,
     hFOVdeg,
     vFOVdeg,
+    panel: { W: panel.W, H: panel.H },
+    physical: { W: physical.W, H: physical.H },
     cm: {
       distance: distCm,
       bezel: bezelMm,

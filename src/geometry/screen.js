@@ -28,39 +28,39 @@ export function calculateScreenDimensions(diagIn, ratio) {
  * @param {number} bezelMm - Bezel width in mm
  * @returns {Object} Effective screen dimensions in inches {W, H}
  */
-export function calculateEffectiveScreenDimensions(diagIn, ratio, bezelMm) {
-  const bezelInches = (bezelMm * 2) / 25.4
-  const effectiveDiagIn = diagIn + bezelInches
-  return calculateScreenDimensions(effectiveDiagIn, ratio)
-}
-
 /**
- * Calculate screen dimensions from manual width and height
- * @param {number} screenWidth - Screen width in mm
- * @param {number} screenHeight - Screen height in mm
- * @returns {Object} Screen dimensions in inches {W, H}
- */
-export function calculateScreenDimensionsFromManual(screenWidth, screenHeight) {
-  // Convert mm to inches
-  const W = screenWidth / 25.4
-  const H = screenHeight / 25.4
-  return { W, H }
-}
-
-/**
- * Calculate effective screen dimensions from manual input,
- * subtracting bezel thickness to get the actual display area.
- * @param {number} screenWidth - Total screen width in mm (including bezels)
- * @param {number} screenHeight - Total screen height in mm (including bezels)
+ * Returns both the active-panel and total-physical footprint dimensions (in inches)
+ * from a diagonal input including bezel thickness.
+ * @param {number} diagIn - Screen diagonal in inches (panel only)
+ * @param {string} ratio - Aspect ratio key ('16:9', '21:9', '32:9')
  * @param {number} bezelMm - Bezel width in mm
- * @returns {Object} Screen dimensions in inches {W, H}
+ * @returns {{panel: {W: number, H: number}, physical: {W: number, H: number}}}
  */
-export function calculateEffectiveScreenDimensionsFromManual(screenWidth, screenHeight, bezelMm) {
-  const widthMm = screenWidth - bezelMm * 2
-  const heightMm = screenHeight - bezelMm * 2
-  const W = widthMm / 25.4
-  const H = heightMm / 25.4
-  return { W, H }
+export function calculateScreenDimensionsFromDiagonal(diagIn, ratio, bezelMm) {
+  const panel = calculateScreenDimensions(diagIn, ratio)
+  const bezelInches = (bezelMm * 2) / 25.4
+  const physical = calculateScreenDimensions(diagIn + bezelInches, ratio)
+  return { panel, physical }
+}
+
+/**
+ * Returns both the active-panel and total-physical footprint dimensions (in inches)
+ * from manual width/height input including bezel thickness.
+ * @param {number} screenWidthMm - Total screen width in mm (including bezels)
+ * @param {number} screenHeightMm - Total screen height in mm (including bezels)
+ * @param {number} bezelMm - Bezel width in mm
+ * @returns {{panel: {W: number, H: number}, physical: {W: number, H: number}}}
+ */
+export function calculateScreenDimensionsFromManual(screenWidthMm, screenHeightMm, bezelMm) {
+  const physical = {
+    W: screenWidthMm / 25.4,
+    H: screenHeightMm / 25.4,
+  }
+  const panel = {
+    W: (screenWidthMm - bezelMm * 2) / 25.4,
+    H: (screenHeightMm - bezelMm * 2) / 25.4,
+  }
+  return { panel, physical }
 }
 
 /**
@@ -87,8 +87,9 @@ export function calculateNormalizedValues(W, d, isCurved, C, s) {
  * @returns {number} Optimal viewing angle in degrees
  */
 export function calculateOptimalViewingAngle(diagIn, ratio, distCm, bezelMm) {
-  // Calculate effective screen dimensions
-  const { W } = calculateEffectiveScreenDimensions(diagIn, ratio, bezelMm)
+  // Get panel width from diagonal input (excludes bezel in panel dims)
+  const { panel } = calculateScreenDimensionsFromDiagonal(diagIn, ratio, bezelMm)
+  const W = panel.W
 
   // Convert distance to inches
   const distanceIn = cm2in(distCm)
@@ -203,21 +204,20 @@ export function calculateVerticalFOV(H, d) {
 export function calculatePlacementVectors(setupType, W_eff, d, sideAngleDeg, a) {
   if (setupType === 'single') {
     return {
-      pivotL: { x: -W_eff / 2, y: -d },
-      pivotR: { x: W_eff / 2, y: -d },
+      pivotL: { x: -a, y: -d },
+      pivotR: { x: a, y: -d },
       uL: { x: 0, y: 0 },
       uR: { x: 0, y: 0 },
     }
-  } else {
-    // triple
-    const ang = (sideAngleDeg * Math.PI) / 180
-    const uR = { x: W_eff * Math.cos(ang), y: W_eff * Math.sin(ang) }
-    const uL = { x: -uR.x, y: uR.y }
-    const pivotR = { x: a, y: -d }
-    const pivotL = { x: -a, y: -d }
-
-    return { pivotL, pivotR, uL, uR }
   }
+  // triple monitors
+  const ang = (sideAngleDeg * Math.PI) / 180
+  const uR = { x: W_eff * Math.cos(ang), y: W_eff * Math.sin(ang) }
+  const uL = { x: -uR.x, y: uR.y }
+  const pivotR = { x: a, y: -d }
+  const pivotL = { x: -a, y: -d }
+
+  return { pivotL, pivotR, uL, uR }
 }
 
 /**
@@ -232,13 +232,21 @@ export function calculatePlacementVectors(setupType, W_eff, d, sideAngleDeg, a) 
  */
 export function calculateTotalWidth(setupType, W_eff, pivotL, pivotR, uL, uR) {
   if (setupType === 'single') {
-    return in2cm(W_eff)
-  } else {
-    // For triple setup, calculate the width between the outer edges of the side screens
-    const rightEdgeX = pivotR.x + uR.x
-    const leftEdgeX = pivotL.x + uL.x
-    return in2cm(rightEdgeX - leftEdgeX)
+    // Single monitor: physical width = panel width + two bezels
+    const bezel = pivotR.x - W_eff / 2
+    const physicalW = W_eff + 2 * bezel
+    return in2cm(physicalW)
   }
+  // Triple monitors: footprint = active span + outer bezels of side screens
+  const rightEdgeX = pivotR.x + uR.x
+  const leftEdgeX = pivotL.x + uL.x
+  const activeSpan = rightEdgeX - leftEdgeX
+  // Derive bezel thickness from pivot position
+  const bezel = pivotR.x - W_eff / 2
+  // Compute horizontal projection of bezel at side angle
+  const angleRad = Math.acos(uR.x / W_eff)
+  const bezelProj = bezel * Math.cos(angleRad)
+  return in2cm(activeSpan + 2 * bezelProj)
 }
 
 /**

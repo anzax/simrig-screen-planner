@@ -26,18 +26,17 @@ export default function StatsDisplay() {
   // Function to render the configuration card
   const renderConfigCard = (config, data, type = 'main') => {
     // For new comparison configs that don't have calculations yet, show informative data instead
-    if (!data) {
-      // Create info data based on the config itself, useful for the first render
-      const infoData = {
+    if (!data || !data.panel || !data.physical) {
+      // Create placeholder data for initial render
+      data = {
         sideAngleDeg:
           config?.layout?.setupType === 'triple' ? config?.layout?.manualAngle || 60 : 0,
         hFOVdeg: 0,
         vFOVdeg: 0,
         cm: { totalWidth: 0 },
+        panel: { W: 0, H: 0 },
+        physical: { W: 0, H: 0 },
       }
-
-      // Use the info data instead
-      data = infoData
     }
 
     // Extract configuration details
@@ -51,8 +50,15 @@ export default function StatsDisplay() {
     const { distCm = 0 } = distance
 
     // Format screen size - conditional based on input mode
+    // Compute panel vs physical dimensions in mm
+    const panelWmm = (data.panel.W * 25.4).toFixed(0)
+    const panelHmm = (data.panel.H * 25.4).toFixed(0)
+    const physWmm = (data.physical.W * 25.4).toFixed(0)
+    const physHmm = (data.physical.H * 25.4).toFixed(0)
     const sizeDisplay =
-      inputMode === 'diagonal' ? `${diagIn}″ ${ratio}` : `${screenWidth}×${screenHeight}mm`
+      inputMode === 'diagonal'
+        ? `${diagIn}″ ${ratio} (panel) / ${physWmm}×${physHmm}mm (total)`
+        : `${panelWmm}×${panelHmm}mm (panel) / ${screenWidth}×${screenHeight}mm (total)`
 
     return (
       <div className="flex flex-col h-full">

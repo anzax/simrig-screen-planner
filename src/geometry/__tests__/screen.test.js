@@ -3,7 +3,7 @@ import { describe, it, expect } from 'vitest'
 import { calculateCurvedGeometry } from '../curved'
 import {
   calculateScreenDimensions,
-  calculateEffectiveScreenDimensions,
+  calculateScreenDimensionsFromDiagonal,
   calculateScreenDimensionsFromManual,
   calculateNormalizedValues,
   calculateOptimalViewingAngle,
@@ -33,26 +33,26 @@ describe('Screen dimension calculations', () => {
     expect(superUltrawide.H).toBeCloseTo(13.3, 1)
   })
 
-  it('calculates effective screen dimensions accounting for bezel', () => {
+  it('calculates panel and physical dimensions from diagonal and bezel', () => {
     // 27" 16:9 monitor with 10mm bezel
-    const dimensions = calculateEffectiveScreenDimensions(27, '16:9', 10)
+    const { physical } = calculateScreenDimensionsFromDiagonal(27, '16:9', 10)
 
-    // Effective diagonal should be larger than the actual diagonal
-    const effectiveDiag = Math.hypot(dimensions.W, dimensions.H)
+    // Physical diagonal should be larger than the actual diagonal
+    const effectiveDiag = Math.hypot(physical.W, physical.H)
     expect(effectiveDiag).toBeGreaterThan(27)
 
     // Test with different bezel sizes
-    const smallBezel = calculateEffectiveScreenDimensions(27, '16:9', 5)
-    const largeBezel = calculateEffectiveScreenDimensions(27, '16:9', 20)
+    const { physical: smallPhys } = calculateScreenDimensionsFromDiagonal(27, '16:9', 5)
+    const { physical: largePhys } = calculateScreenDimensionsFromDiagonal(27, '16:9', 20)
 
-    expect(largeBezel.W).toBeGreaterThan(smallBezel.W)
-    expect(largeBezel.H).toBeGreaterThan(smallBezel.H)
+    expect(largePhys.W).toBeGreaterThan(smallPhys.W)
+    expect(largePhys.H).toBeGreaterThan(smallPhys.H)
   })
 
   it('calculates screen dimensions from manual width and height', () => {
-    const dimensions = calculateScreenDimensionsFromManual(600, 340)
-    expect(dimensions.W).toBeCloseTo(23.6, 1) // 600mm / 25.4
-    expect(dimensions.H).toBeCloseTo(13.4, 1) // 340mm / 25.4
+    const { panel } = calculateScreenDimensionsFromManual(600, 340, 0)
+    expect(panel.W).toBeCloseTo(23.6, 1) // 600mm / 25.4
+    expect(panel.H).toBeCloseTo(13.4, 1) // 340mm / 25.4
   })
 })
 
@@ -196,7 +196,9 @@ describe('FOV calculations', () => {
 
 describe('UI calculations', () => {
   it('calculates placement vectors for single setup', () => {
-    const vectors = calculatePlacementVectors('single', 24, 70, 0, 0)
+    const panelW = 24
+    const halfPanelW = panelW / 2
+    const vectors = calculatePlacementVectors('single', panelW, 70, 0, halfPanelW)
 
     // Check pivot points
     expect(vectors.pivotL.x).toBeLessThan(0)
@@ -229,7 +231,9 @@ describe('UI calculations', () => {
 
   it('calculates total width for footprint reporting', () => {
     // Single setup
-    const singleVectors = calculatePlacementVectors('single', 24, 70, 0, 0)
+    const panelW = 24
+    const halfPanelW = panelW / 2
+    const singleVectors = calculatePlacementVectors('single', panelW, 70, 0, halfPanelW)
     const singleWidth = calculateTotalWidth(
       'single',
       24,

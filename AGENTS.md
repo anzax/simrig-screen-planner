@@ -24,3 +24,12 @@
   - State management logic
   - Critical user interactions
 - **Requirements**: Unit tests not mandatory for all components
+
+## Environment & Agent Guidance
+
+- All commands are executed from the project root directory.
+- Node.js and all npm packages are already installed.
+- The project is a git repository. Use `git diff`, `git log`, or other read-only git commands to investigate code history as needed.
+- Do not perform git commits, create branches, or modify the git state unless directly instructed.
+- Use npm (`npm run lint`, `npm run test`) for code quality and testing.
+- Only reference file contents or code snippets if relevant to the current request.

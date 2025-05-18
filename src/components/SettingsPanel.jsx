@@ -108,8 +108,9 @@ export default function SettingsPanel() {
           ) : (
             <div className="space-y-3">
               {/* Info Message */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg py-1.5 px-2 text-xs text-blue-700">
-                Measure total screen dimensions
+              <div className="bg-blue-50 border border-blue-200 rounded-lg py-1.5 px-2 text-blue-700">
+                <p className="text-xs">Physical footprint (incl. bezels)</p>
+                <p className="text-xs italic">(Width × Height)</p>
               </div>
 
               {/* Width and Height in a single row */}
