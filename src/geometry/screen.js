@@ -223,18 +223,41 @@ export function calculatePlacementVectors(setupType, W_eff, d, sideAngleDeg, a) 
 /**
  * Calculate total width for footprint reporting
  * @param {string} setupType - Setup type ('single' or 'triple')
- * @param {number} W_eff - Effective width
+ * @param {number} W_eff - Effective width in inches
  * @param {Object} pivotL - Left pivot point {x, y}
  * @param {Object} pivotR - Right pivot point {x, y}
  * @param {Object} uL - Left direction vector {x, y}
  * @param {Object} uR - Right direction vector {x, y}
- * @returns {number} Total width in cm
+ * @param {boolean} [isCurved=false] - Whether the screen is curved
+ * @param {number} [curveRadiusMm=0] - Curve radius in millimeters
+ * @param {number} [bezelMm=0] - Bezel width in millimeters
+ * @returns {number} Total width in centimeters
  */
-export function calculateTotalWidth(setupType, W_eff, pivotL, pivotR, uL, uR) {
+export function calculateTotalWidth(
+  setupType,
+  W_eff,
+  pivotL,
+  pivotR,
+  uL,
+  uR,
+  isCurved = false,
+  curveRadiusMm = 0,
+  bezelMm = 0
+) {
   if (setupType === 'single') {
-    // Single monitor: physical width = panel width + two bezels
-    const bezel = pivotR.x - W_eff / 2
-    const physicalW = W_eff + 2 * bezel
+    // Single monitor: footprint width = panel chord + two bezels (flat) or curved outer chord
+    const bezelIn = bezelMm / 25.4
+    if (isCurved && curveRadiusMm > 0) {
+      // Compute outer chord with bezel offset
+      const Rin = curveRadiusMm / 25.4
+      const halfChord = W_eff / 2
+      const theta = 2 * Math.asin(halfChord / Rin)
+      const radiusOut = Rin + bezelIn
+      const physicalW = 2 * radiusOut * Math.sin(theta / 2)
+      return in2cm(physicalW)
+    }
+    // Flat single or fallback: panel width + two bezels
+    const physicalW = W_eff + 2 * bezelIn
     return in2cm(physicalW)
   }
   // Triple monitors: footprint = active span + outer bezels of side screens

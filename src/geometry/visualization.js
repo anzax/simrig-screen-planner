@@ -3,6 +3,7 @@ import {
   calculateCurvedScreenGeometry,
   createBezierArc,
   generateCurvedScreenArcs as generateArcs,
+  calculateCurvedGeometry,
 } from './curved'
 
 /**
@@ -42,11 +43,21 @@ export function createVisualizationData(config, stats) {
   // Generate screen representation
   if (isCurved) {
     // Generate SVG arcs for curved screens
-    const centerY = -d_eff // chord plane
-    const screenW = W_eff // effective width
-
+    let centerY = -d_eff // chord plane
+    let screenW = W_eff
+    let depth = s
+    if (setupType === 'single') {
+      const halfChord = screenW / 2
+      const bezel = a - halfChord
+      const { Rin } = calculateCurvedGeometry(screenW, config.curvature.curveRadius)
+      const theta = 2 * Math.asin(halfChord / Rin)
+      const radiusOut = Rin + bezel
+      screenW = 2 * radiusOut * Math.sin(theta / 2)
+      depth = radiusOut * (1 - Math.cos(theta / 2))
+      centerY += depth - s
+    }
     // Use the UI module to generate SVG arcs
-    visualData.arcs = generateCurvedScreenArcs(screenW, centerY, s, sideAngleDeg, setupType, a)
+    visualData.arcs = generateCurvedScreenArcs(screenW, centerY, depth, sideAngleDeg, setupType, a)
   } else {
     // For flat screens, use the placement vectors
     visualData.lines = [

@@ -174,13 +174,17 @@ export function calculateStats(config) {
   const vectors = calculatePlacementVectors(setupType, W_eff, d, sideAngleDeg, a)
 
   // Calculate total width (in cm) using calculateTotalWidth, which already converts inches→cm
+  // Calculate total width (in cm), adjust for curved single screens
   const totalWidth = calculateTotalWidth(
     setupType,
     W_eff,
     vectors.pivotL,
     vectors.pivotR,
     vectors.uL,
-    vectors.uR
+    vectors.uR,
+    isCurved,
+    curveRadius,
+    bezelMm
   )
 
   // Return all stats needed for display, including panel vs physical dims

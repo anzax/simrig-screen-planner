@@ -272,7 +272,6 @@ export function generateCurvedScreenArcs(
   const svgArcs = []
 
   if (setupType === 'single') {
-    // Calculate geometry for a single screen
     const geometry = calculateCurvedScreenGeometry(
       screenW,
       centerY,
