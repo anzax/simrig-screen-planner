@@ -20,7 +20,7 @@
   ],
   "scripts": {
     "dev": "vite",
-    "build": "vite build && tsc -p tsconfig.build.json",
+    "build": "vite build && tsc -p tsconfig.json",
     "test": "vitest run",
     "test:watch": "vitest",
     "lint": "eslint src",

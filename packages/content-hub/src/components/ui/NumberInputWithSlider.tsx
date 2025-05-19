@@ -1,4 +1,4 @@
-import type { FunctionalComponent } from 'preact'
+import type { ComponentType } from 'preact'
 import { useState, useEffect } from 'preact/hooks'
 
 interface NumberInputWithSliderProps {
@@ -25,7 +25,7 @@ interface NumberInputWithSliderProps {
  *
  * Mirrors the legacy React component but rewritten for Preact/TypeScript.
  */
-const NumberInputWithSlider: FunctionalComponent<NumberInputWithSliderProps> = ({
+const NumberInputWithSlider: ComponentType<NumberInputWithSliderProps> = ({
   label,
   min,
   max,

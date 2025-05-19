@@ -1,4 +1,4 @@
-import type { FunctionalComponent, ComponentChildren } from 'preact'
+import type { ComponentType, ComponentChildren } from 'preact'
 
 export interface MultiToggleOption {
   value: string
@@ -19,12 +19,7 @@ interface MultiToggleProps {
 /**
  * Multi-option toggle switch, rewritten from React to Preact/TS.
  */
-const MultiToggle: FunctionalComponent<MultiToggleProps> = ({
-  value,
-  options,
-  onChange,
-  label,
-}) => (
+const MultiToggle: ComponentType<MultiToggleProps> = ({ value, options, onChange, label }) => (
   <div>
     {label && <div class="text-xs text-gray-600 mb-0.5">{label}</div>}
     <div class="flex gap-1 p-1 bg-gray-100 rounded-lg">

@@ -18,6 +18,7 @@
     "@tailwindcss/vite": "^4.1.7",
     "astro": "^5.7.13",
     "preact": "^10.26.6",
-    "tailwindcss": "^4.1.7"
+    "tailwindcss": "^4.1.7",
+    "@simrigbuild/screen-planner-core": "^0.1.0"
   }
 }

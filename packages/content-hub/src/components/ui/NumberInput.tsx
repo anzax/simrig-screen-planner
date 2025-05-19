@@ -1,4 +1,4 @@
-import type { FunctionalComponent } from 'preact'
+import type { ComponentType } from 'preact'
 
 interface NumberInputProps {
   /** Optional label displayed above the input */
@@ -17,7 +17,7 @@ interface NumberInputProps {
  * Mirrors styling from the legacy React component but implemented
  * with Preact + TypeScript for the new architecture.
  */
-const NumberInput: FunctionalComponent<NumberInputProps> = ({
+const NumberInput: ComponentType<NumberInputProps> = ({
   label,
   value,
   onChange,
