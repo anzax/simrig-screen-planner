@@ -4,6 +4,7 @@
 
 ## Tech Stack
 
+- pnpm monorepo
 - React 19, Vite 6.3, Zustand 5.0
 - Tailwind CSS 4.1.4
 - Vitest, ESLint, Prettier

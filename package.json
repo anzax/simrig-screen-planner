@@ -1,16 +1,18 @@
 {
-  "name": "simrig-hub",
+  "name": "simrigbuild-hub",
   "private": true,
   "workspaces": [
     "packages/*"
   ],
   "scripts": {
-    "dev": "pnpm --filter screen-planner dev",
-    "build": "pnpm --filter screen-planner build",
+    "dev:app": "pnpm --filter screen-planner dev",
+    "dev:hub": "pnpm --filter content-hub dev",
+    "build": "pnpm -r build",
+    "build:app": "pnpm --filter screen-planner build",
+    "build:hub": "pnpm --filter content-hub build",
     "test": "pnpm --filter screen-planner test",
     "lint": "pnpm --filter screen-planner lint",
-    "format": "prettier --write .",
-    "format:check": "prettier --check ."
+    "format": "prettier --write ."
   },
   "devDependencies": {
     "prettier": "^3.5.3",
