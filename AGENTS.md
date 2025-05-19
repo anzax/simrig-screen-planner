@@ -1,24 +1,5 @@
 # Project Guidelines
 
-**Application location: `packages/screen-planner`**
-
-## Tech Stack
-
-- pnpm monorepo
-- React 19, Vite 6.3, Zustand 5.0
-- Tailwind CSS 4.1.4
-- Vitest, ESLint, Prettier
-
-## Development Workflow
-
-- **Setup**: `pnpm install`
-- **Development**: `pnpm dev`
-- **Production**: `pnpm build`
-- **Quality Assurance**:
-  - Tests: `pnpm test`
-  - Linting: `pnpm lint`
-  - Pre-submission check: `pnpm test && pnpm lint`
-
 ## Code Standards
 
 - **Code Hygiene**: Remove dead code, unused variables, imports, and leftover comments

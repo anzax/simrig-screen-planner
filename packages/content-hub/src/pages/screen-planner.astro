@@ -1,0 +1,119 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+import NumberInputWithSlider from '../components/ui/NumberInputWithSlider.tsx';
+import NumberInput from '../components/ui/NumberInput.tsx';
+import MultiToggle from '../components/ui/MultiToggle.tsx';
+import Card from '../components/ui/Card.tsx';
+---
+
+<BaseLayout title="Screen Planner">
+  <div class="p-6 max-w-5xl mx-auto space-y-6">
+    <header class="flex items-center h-10 mb-2">
+      <a href="https://simrigbuild.com" class="text-xl font-semibold text-blue-600 hover:text-blue-700 transition-colors">SimRigBuild.com</a>
+      <span class="mx-2 text-gray-400">/</span>
+      <h1 class="text-xl font-medium">Screen Planner</h1>
+    </header>
+
+    <section class="bg-white rounded-lg shadow-sm border p-4">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <h2 class="text-sm font-medium text-gray-700 mb-2">Screen Size</h2>
+          <MultiToggle
+            value="diagonal"
+            options={[{ value: 'diagonal', label: 'Diagonal' }, { value: 'manual', label: 'Width×Height' }]}
+            onChange={() => {}}
+          />
+          <div class="mt-3 space-y-3">
+            <NumberInputWithSlider label="Diagonal, in" min={17} max={77} value={32} onChange={() => {}} />
+            <MultiToggle
+              label="Aspect Ratio"
+              value="16:9"
+              options={[{ value: '16:9', label: '16:9' }, { value: '21:9', label: '21:9' }, { value: '32:9', label: '32:9' }]}
+              onChange={() => {}}
+            />
+            <NumberInputWithSlider label="Bezel width, mm" min={0} max={50} value={5} onChange={() => {}} />
+          </div>
+        </div>
+        <div>
+          <h2 class="text-sm font-medium text-gray-700 mb-2">Screen Layout</h2>
+          <MultiToggle
+            value="triple"
+            options={[{ value: 'single', label: 'Single' }, { value: 'triple', label: 'Triple' }]}
+            onChange={() => {}}
+          />
+          <div class="mt-3 space-y-3">
+            <MultiToggle
+              label="Side Screen Angle"
+              value="auto"
+              options={[{ value: 'auto', label: 'Auto' }, { value: 'manual', label: 'Manual' }]}
+              onChange={() => {}}
+            />
+            <NumberInputWithSlider label="Angle, degrees" min={30} max={90} value={60} onChange={() => {}} />
+          </div>
+        </div>
+        <div>
+          <h2 class="text-sm font-medium text-gray-700 mb-2">Viewing Distance</h2>
+          <NumberInputWithSlider label="Eye Distance, cm" min={40} max={150} value={70} onChange={() => {}} />
+          <div class="mt-4">
+            <h3 class="text-sm font-medium text-gray-700 mb-2">Screen Curvature</h3>
+            <MultiToggle
+              value="flat"
+              options={[{ value: 'flat', label: 'Flat' }, { value: 'curved', label: 'Curved' }]}
+              onChange={() => {}}
+            />
+            <NumberInputWithSlider label="Curve Radius, mm" min={800} max={2300} step={100} value={1800} onChange={() => {}} />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+      <div class="bg-white rounded-lg shadow-sm border p-4 cursor-pointer hover:border-gray-600 transition-all duration-300">
+        <div class="text-center mb-2">
+          <span class="inline-block text-sm font-medium bg-gray-100 text-gray-600 px-3 py-1 rounded-full">Main Setup</span>
+        </div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
+          <Card v="90°" l="H-FOV" tooltip="Horizontal field-of-view" />
+          <Card v="60°" l="V-FOV" tooltip="Vertical field-of-view" />
+          <Card v="72°" l="Side Angle" tooltip="Recommended monitor angle" />
+          <Card v="150 cm" l="Total Width" tooltip="Overall monitor span" />
+        </div>
+      </div>
+      <div class="bg-white rounded-lg shadow-sm border-dashed border-2 border-gray-300 p-4 flex items-center justify-center text-blue-600 font-medium cursor-pointer hover:border-blue-500 transition-colors">
+        + Add Comparison
+      </div>
+    </section>
+
+    <section class="bg-white rounded-lg shadow-sm border p-4 h-64 flex items-center justify-center text-gray-500">
+      Visualization coming soon...
+    </section>
+
+    <footer class="bg-gray-50 p-4 rounded text-sm text-gray-700 space-y-2">
+      <p>
+        Configure your exact setup parameters to calculate optimal triple-screen positioning.
+        The planner determines angles for equidistant viewing across all screens, maximizing
+        immersion while maintaining proper perspective.
+      </p>
+      <p>
+        <strong>Side Screen Angle</strong> provides the physical mounting angle for your side
+        monitors. <strong>Horizontal FOV</strong> and <strong>Vertical FOV</strong> values can be
+        used for in-game camera settings, critical for proper depth perception and spatial
+        awareness.
+      </p>
+      <p>
+        <strong>Total Width</strong> shows the straight-line distance between outer edges of your
+        side screens. Remember to allow extra space for monitor depth, arms, and stand placement.
+        The visualization represents a standard sim rig (60×150 cm) with head position ~10 cm from
+        rear edge.
+      </p>
+      <p>
+        <strong>Note:</strong> All calculations are mathematical estimates and may require
+        fine-tuning based on your specific hardware, mounting solutions, and personal preference.
+      </p>
+      <div class="text-center text-sm text-gray-500 pt-4 space-x-4">
+        <a href="https://github.com/anzax/simrig-screen-planner" class="underline hover:text-blue-600" target="_blank" rel="noopener noreferrer">View on GitHub</a>
+        <a href="https://github.com/anzax/simrig-screen-planner/issues" class="underline hover:text-blue-600" target="_blank" rel="noopener noreferrer">Open an issue</a>
+      </div>
+    </footer>
+  </div>
+</BaseLayout>
