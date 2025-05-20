@@ -19,21 +19,22 @@ const {
 
 	<body class="min-h-full flex flex-col bg-gray-50 text-gray-900 antialiased">
 		<!-- Site Header -->
-		<header class="bg-gray-900 text-white">
-			<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-				<a href="/" class="text-lg font-semibold tracking-wide">SimRigBuild</a>
-
-				<nav class="space-x-6 text-sm">
-					<a href="/" class="hover:text-indigo-300 transition-colors">Home</a>
-					<a
-						href="/screen-planner"
-						class="hover:text-indigo-300 transition-colors"
-						>Screen Planner</a
-					>
-					<!-- Add further links as needed -->
-				</nav>
-			</div>
-		</header>
+<header class="bg-white border-b">
+        <div class="max-w-6xl mx-auto px-4 py-4 flex items-center">
+                <a
+                        href="https://simrigbuild.com"
+                        class="text-lg font-semibold text-blue-600 hover:text-blue-700 transition-colors"
+                >
+                        SimRigBuild.com
+                </a>
+                {title !== 'SimRigBuild' && (
+                        <>
+                                <span class="mx-2 text-gray-400">/</span>
+                                <h1 class="text-lg font-medium">{title}</h1>
+                        </>
+                )}
+        </div>
+</header>
 
 		<!-- Main Content -->
 		<main class="flex-1 p-6 max-w-5xl mx-auto space-y-6">
