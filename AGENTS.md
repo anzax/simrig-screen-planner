@@ -1,5 +1,22 @@
 # Project Guidelines
 
+## Agent Documentation
+
+- **`.agents` Directory**: Contains context files for coding agents:
+  - Project overviews and architecture
+  - Changelogs and version history
+  - Migration guides and ADRs (Architecture Decision Records)
+  - Implementation strategies
+- **Documentation Status**: All provided documentations and ADRs are not set in stone - agents should feel free to propose alternatives where reasonable
+- **Version Awareness**: Pay attention to dates and timestamps in file names or inside content to understand the evolution of decisions
+
+## Documentation Index
+
+- **Project Overview**: [00-project-overview.md](/.agents/00-project-overview.md) - Current state as of May 19, 2025
+- **Project History**: [10-changelog.md](/.agents/10-changelog.md) - Development timeline
+- **Migration Guide**: [2025-05-18-migration-guide.md](/.agents/2025-05-18-migration-guide.md) - Monorepo restructuring
+- **Implementation Strategy**: [2025-05-19-screen-planner-in-astro.md](/.agents/2025-05-19-screen-planner-in-astro.md) - UI approach
+
 ## Code Standards
 
 - **Code Hygiene**: Remove dead code, unused variables, imports, and leftover comments
@@ -22,7 +39,3 @@
 
 - All commands execute from project root
 - Node.js and dependencies are pre-installed
-- Git repository access:
-  - Use read-only commands (`git diff`, `git log`) to explore code history
-  - Don't modify git state unless instructed
-- Reference code snippets only when relevant to current task
