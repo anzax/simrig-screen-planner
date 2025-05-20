@@ -1,5 +1,6 @@
 {
   "name": "@simrigbuild/screen-planner-core",
+  "private": true,
   "version": "0.1.0",
   "type": "module",
   "description": "Core utilities and components for the SimRig Screen Planner",
