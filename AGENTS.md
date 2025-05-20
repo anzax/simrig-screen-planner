@@ -23,13 +23,14 @@
 - **Maintainability**: Follow existing styles and patterns
 - **Compatibility**: Backward compatibility only required when specified or critical
 
-## Testing Strategy
+## Testing and Submission Checklist
 
-- **Focus Areas**:
+- **Test, Lint, Format**: Before submitting any code, always run all tests, linters, and code formatters to ensure code quality and consistency.
+- **Focus Areas for Testing**:
   - Critical path functionality over full coverage
   - Core business logic and user-facing features
   - Basic smoke tests for all new features
-- **Priorities**:
+- **Testing Priorities**:
   - Core calculation functions
   - State management logic
   - Critical user interactions
