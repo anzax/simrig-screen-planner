@@ -13,7 +13,7 @@ const StatsDisplay: ComponentType<StatsDisplayProps> = ({ results }) => {
   const res = results.value
   return (
     <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div class="bg-white rounded-lg shadow-sm border p-4">
+      <div class="bg-white rounded-lg shadow-sm border border-gray-600 p-4">
         <div class="text-center mb-2">
           <span class="inline-block text-sm font-medium bg-gray-100 text-gray-600 px-3 py-1 rounded-full">
             Main Setup
@@ -34,7 +34,7 @@ const StatsDisplay: ComponentType<StatsDisplayProps> = ({ results }) => {
           />
         </div>
       </div>
-      <div class="bg-white rounded-lg shadow-sm border-dashed border-2 border-gray-300 p-4 flex items-center justify-center text-blue-600 font-medium cursor-pointer hover:border-blue-500 transition-colors">
+      <div class="bg-white rounded-lg shadow-sm border border-blue-200 p-4 flex items-center justify-center text-blue-600 font-medium cursor-pointer hover:border-blue-500 transition-colors">
         + Add Comparison
       </div>
     </section>
