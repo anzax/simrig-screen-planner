@@ -6,7 +6,7 @@ const {
 } = Astro.props;
 ---
 
-<html lang="en" class="h-full">
+<html lang="en">
 	<head>
 		<meta charset="utf-8" />
 		<meta name="viewport" content="width=device-width" />
@@ -17,11 +17,11 @@ const {
 		<!-- Tailwind base styles are injected by Astro/Vite pipeline -->
 	</head>
 
-	<body class="min-h-full flex flex-col bg-gray-50 text-gray-900 antialiased">
-		<!-- Site Header -->
-<header class="bg-white border-b">
-        <div class="max-w-6xl mx-auto px-4 py-4 flex items-center">
-                <a
+        <body class="text-gray-900 antialiased">
+                <div class="p-6 max-w-5xl mx-auto space-y-6">
+                <!-- Site Header -->
+<header class="flex items-center h-10 mb-2">
+        <a
                         href="https://simrigbuild.com"
                         class="text-lg font-semibold text-blue-600 hover:text-blue-700 transition-colors"
                 >
@@ -33,26 +33,26 @@ const {
                                 <h1 class="text-lg font-medium">{title}</h1>
                         </>
                 )}
-        </div>
 </header>
 
-		<!-- Main Content -->
-		<main class="flex-1 p-6 max-w-5xl mx-auto space-y-6">
-			<slot />
-		</main>
+                <!-- Main Content -->
+                <main class="space-y-6">
+                        <slot />
+                </main>
 
-		<!-- Site Footer -->
-		<footer class="bg-gray-100 text-xs text-gray-500">
-			<div class="max-w-6xl mx-auto px-4 py-6 flex flex-col sm:flex-row justify-between">
-				<p>
-					© {new Date().getFullYear()} <a href="/" class="hover:underline">SimRigBuild</a
-					>. All rights reserved.
-				</p>
-				<p class="mt-2 sm:mt-0">
-					Built with <a href="https://astro.build" target="_blank" class="underline">Astro</a
-					> & <a href="https://tailwindcss.com" target="_blank" class="underline">Tailwind CSS</a>
-				</p>
-			</div>
-		</footer>
-	</body>
+                <!-- Site Footer -->
+                <footer class="bg-gray-100 text-xs text-gray-500">
+                        <div class="px-4 py-6 flex flex-col sm:flex-row justify-between">
+                                <p>
+                                        © {new Date().getFullYear()} <a href="/" class="hover:underline">SimRigBuild</a
+                                        >. All rights reserved.
+                                </p>
+                                <p class="mt-2 sm:mt-0">
+                                        Built with <a href="https://astro.build" target="_blank" class="underline">Astro</a
+                                        > & <a href="https://tailwindcss.com" target="_blank" class="underline">Tailwind CSS</a>
+                                </p>
+                        </div>
+                </footer>
+                </div>
+        </body>
 </html>

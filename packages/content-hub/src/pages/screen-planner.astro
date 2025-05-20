@@ -4,8 +4,7 @@ import ScreenPlannerApp from '../components/screen-planner/ScreenPlannerApp.tsx'
 ---
 
 <BaseLayout title="Screen Planner">
-  <div class="p-6 max-w-5xl mx-auto space-y-6">
-    <ScreenPlannerApp client:load />
+  <ScreenPlannerApp client:load />
 
     <footer>
       <div class="bg-gray-50 p-4 rounded text-sm text-gray-700 space-y-2">
@@ -29,5 +28,4 @@ import ScreenPlannerApp from '../components/screen-planner/ScreenPlannerApp.tsx'
         </p>
       </div>
     </footer>
-  </div>
 </BaseLayout>
