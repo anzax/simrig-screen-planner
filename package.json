@@ -10,7 +10,7 @@
     "build": "pnpm -r build",
     "build:app": "pnpm --filter screen-planner build",
     "build:hub": "pnpm --filter content-hub build",
-    "test": "pnpm --filter screen-planner test",
+    "test": "pnpm -r test",
     "lint": "pnpm --filter screen-planner lint",
     "format": "prettier --write ."
   },
