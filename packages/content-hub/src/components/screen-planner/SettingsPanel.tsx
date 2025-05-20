@@ -2,23 +2,30 @@ import type { ComponentType } from 'preact'
 import MultiToggle from '../ui/MultiToggle'
 import NumberInputWithSlider from '../ui/NumberInputWithSlider'
 import NumberInput from '../ui/NumberInput'
-import { createScreenConfigState } from '@simrigbuild/screen-planner-core'
+import { createScreenConfigState, createScreenPlannerState } from '@simrigbuild/screen-planner-core'
 
 type ConfigState = ReturnType<typeof createScreenConfigState>
+type PlannerState = ReturnType<typeof createScreenPlannerState>
 
 interface SettingsPanelProps {
   config: ConfigState
+  planner: PlannerState
 }
 
-const SettingsPanel: ComponentType<SettingsPanelProps> = ({ config }) => {
+const SettingsPanel: ComponentType<SettingsPanelProps> = ({ config, planner }) => {
   const { screen, distance, layout, curvature } = config
   const { diagIn, ratio, bezelMm, screenWidth, screenHeight, inputMode } = screen
   const { distCm } = distance
   const { setupType, angleMode, manualAngle } = layout
   const { isCurved, curveRadius } = curvature
 
+  const borderColor =
+    planner.activeConfigId.value === 'comparison' ? 'border-blue-600' : 'border-gray-600'
+  const bgColor = planner.activeConfigId.value === 'comparison' ? 'bg-blue-100' : 'bg-white'
+  const recommendedAngle = manualAngle.value
+
   return (
-    <section class="bg-white rounded-lg shadow-sm border p-4">
+    <div class={`${bgColor} rounded-lg shadow-sm border ${borderColor} p-4`}>
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         {/* Screen Size */}
         <div class="bg-gray-50 rounded-lg p-3">
@@ -115,14 +122,25 @@ const SettingsPanel: ComponentType<SettingsPanelProps> = ({ config }) => {
                   { value: 'manual', label: 'Manual' },
                 ]}
               />
-              <NumberInputWithSlider
-                label="Angle, degrees"
-                min={30}
-                max={90}
-                value={manualAngle.value}
-                onChange={v => (manualAngle.value = v)}
-                unit="°"
-              />
+              {angleMode.value === 'auto' ? (
+                <div class="bg-green-50 border border-green-200 rounded-lg py-1.5 px-2 text-xs text-green-700">
+                  Recommended: <span class="font-medium">{recommendedAngle.toFixed(1)}°</span>
+                </div>
+              ) : (
+                <>
+                  <div class="bg-yellow-50 border border-yellow-200 rounded-lg py-1.5 px-2 mb-1.5 text-xs text-yellow-700">
+                    Recommended: <span class="font-medium">{recommendedAngle.toFixed(1)}°</span>
+                  </div>
+                  <NumberInputWithSlider
+                    label="Angle, degrees"
+                    min={30}
+                    max={90}
+                    value={manualAngle.value}
+                    onChange={v => (manualAngle.value = v)}
+                    unit="°"
+                  />
+                </>
+              )}
             </div>
           ) : (
             <div class="bg-blue-50 border border-blue-200 rounded-lg py-3 px-3 text-xs text-blue-700 h-24 flex items-center justify-center">
@@ -170,7 +188,7 @@ const SettingsPanel: ComponentType<SettingsPanelProps> = ({ config }) => {
           </div>
         </div>
       </div>
-    </section>
+    </div>
   )
 }
 
