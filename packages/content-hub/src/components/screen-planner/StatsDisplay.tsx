@@ -24,7 +24,7 @@ const StatsDisplay: ComponentType<StatsDisplayProps> = ({ config, results }) => 
       : `${screenWidth.value}×${screenHeight.value}mm`
   return (
     <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <div class="bg-white rounded-lg shadow-sm border p-4">
+      <div class="bg-white rounded-lg shadow-sm border p-4 h-full flex flex-col">
         <div class="text-center mb-2">
           <span class="inline-block text-sm font-medium bg-gray-100 text-gray-600 px-3 py-1 rounded-full mb-4">
             Main Setup
@@ -70,7 +70,7 @@ const StatsDisplay: ComponentType<StatsDisplayProps> = ({ config, results }) => 
           </div>
         </div>
       </div>
-      <div class="bg-white rounded-lg shadow-sm border border-blue-200 p-4 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 transition-colors">
+      <div class="bg-white rounded-lg shadow-sm border border-blue-200 p-4 flex flex-col items-center justify-center cursor-pointer hover:border-blue-500 transition-colors h-full">
         <div class="text-xl font-semibold text-blue-600 py-4">Add a Comparison</div>
         <div class="text-sm text-blue-500 mb-2 text-center">
           Compare with standard triple 32&quot; flat setup

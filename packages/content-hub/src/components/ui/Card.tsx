@@ -17,8 +17,8 @@ interface CardProps {
  */
 const Card: ComponentType<CardProps> = ({ v, l, tooltip }) => (
   <div class="bg-gray-100 rounded p-4 shadow flex flex-col items-center" title={tooltip}>
-    <div class="text-xl font-semibold leading-none">{v}</div>
-    <div class="text-sm text-gray-600 mt-1">{l}</div>
+    <div class="text-lg font-semibold leading-none">{v}</div>
+    <div class="text-xs text-gray-500 mt-1">{l}</div>
   </div>
 )
 

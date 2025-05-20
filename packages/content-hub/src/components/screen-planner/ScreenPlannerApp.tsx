@@ -6,11 +6,11 @@ import ScreenVisualizer from './ScreenVisualizer'
 
 const ScreenPlannerApp: ComponentType = () => {
   return (
-    <>
+    <div class="space-y-6">
       <SettingsPanel config={screenConfig} />
       <StatsDisplay config={screenConfig} results={screenConfig.calculatedResults} />
       <ScreenVisualizer data={screenConfig.visualizationData} />
-    </>
+    </div>
   )
 }
 
