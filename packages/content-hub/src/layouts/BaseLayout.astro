@@ -1,0 +1,57 @@
+---
+import '../styles/global.css';
+const {
+  title = 'SimRigBuild Content Hub',
+  description = 'Tools and knowledge for the perfect sim-racing setup',
+} = Astro.props;
+---
+
+<html lang="en" class="h-full">
+	<head>
+		<meta charset="utf-8" />
+		<meta name="viewport" content="width=device-width" />
+		<meta name="generator" content={Astro.generator} />
+		<title>{title}</title>
+		<meta name="description" content={description} />
+
+		<!-- Tailwind base styles are injected by Astro/Vite pipeline -->
+	</head>
+
+	<body class="min-h-full flex flex-col bg-gray-50 text-gray-900 antialiased">
+		<!-- Site Header -->
+		<header class="bg-gray-900 text-white">
+			<div class="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+				<a href="/" class="text-lg font-semibold tracking-wide">SimRigBuild</a>
+
+				<nav class="space-x-6 text-sm">
+					<a href="/" class="hover:text-indigo-300 transition-colors">Home</a>
+					<a
+						href="/screen-planner"
+						class="hover:text-indigo-300 transition-colors"
+						>Screen Planner</a
+					>
+					<!-- Add further links as needed -->
+				</nav>
+			</div>
+		</header>
+
+		<!-- Main Content -->
+		<main class="flex-1 p-6 max-w-5xl mx-auto space-y-6">
+			<slot />
+		</main>
+
+		<!-- Site Footer -->
+		<footer class="bg-gray-100 text-xs text-gray-500">
+			<div class="max-w-6xl mx-auto px-4 py-6 flex flex-col sm:flex-row justify-between">
+				<p>
+					© {new Date().getFullYear()} <a href="/" class="hover:underline">SimRigBuild</a
+					>. All rights reserved.
+				</p>
+				<p class="mt-2 sm:mt-0">
+					Built with <a href="https://astro.build" target="_blank" class="underline">Astro</a
+					> & <a href="https://tailwindcss.com" target="_blank" class="underline">Tailwind CSS</a>
+				</p>
+			</div>
+		</footer>
+	</body>
+</html>

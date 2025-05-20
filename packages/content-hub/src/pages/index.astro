@@ -1,0 +1,49 @@
+---
+import BaseLayout from '../layouts/BaseLayout.astro';
+---
+
+<BaseLayout title="SimRigBuild">
+  <!-- Hero / Intro -->
+  <section class="bg-white">
+    <div class="max-w-6xl mx-auto px-4 py-20 text-center">
+      <h1 class="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">SimRigBuild</h1>
+      <p class="text-lg text-gray-700 mb-8">
+        Tools and knowledge for the perfect&nbsp;sim-racing&nbsp;setup.
+      </p>
+      <a
+        href="/screen-planner"
+        class="inline-block rounded-md bg-indigo-600 px-6 py-3 text-white font-medium shadow hover:bg-indigo-700 transition-colors"
+      >
+        Try the Screen Planner →
+      </a>
+    </div>
+  </section>
+
+  <!-- Feature cards -->
+  <section class="bg-gray-50 border-t">
+    <div
+      class="max-w-6xl mx-auto px-4 py-16 grid gap-4 sm:grid-cols-2 lg:grid-cols-3"
+    >
+      <div class="bg-white rounded-lg shadow-sm border p-4">
+        <h3 class="text-xl font-semibold mb-2">Screen Planner</h3>
+        <p class="text-sm text-gray-600">
+          Calculate ideal FOV and monitor angles for single or triple setups.
+        </p>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-sm border p-4">
+        <h3 class="text-xl font-semibold mb-2">Guides & Tutorials</h3>
+        <p class="text-sm text-gray-600">
+          In-depth articles on building rigs, dialing in ergonomics, and more.
+        </p>
+      </div>
+
+      <div class="bg-white rounded-lg shadow-sm border p-4">
+        <h3 class="text-xl font-semibold mb-2">Community Builds</h3>
+        <p class="text-sm text-gray-600">
+          Get inspiration from other racers’ setups.
+        </p>
+      </div>
+    </div>
+  </section>
+</BaseLayout>
