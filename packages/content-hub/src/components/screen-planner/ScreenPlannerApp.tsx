@@ -8,7 +8,7 @@ const ScreenPlannerApp: ComponentType = () => {
   return (
     <>
       <SettingsPanel config={screenConfig} />
-      <StatsDisplay results={screenConfig.calculatedResults} />
+      <StatsDisplay config={screenConfig} results={screenConfig.calculatedResults} />
       <ScreenVisualizer data={screenConfig.visualizationData} />
     </>
   )
