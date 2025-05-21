@@ -17,6 +17,7 @@ describe('createLayout', () => {
     const layout = createLayout(cfg, calc)
     expect(layout.screens.length).toBe(1)
     expect(layout.viewPoint).toBeDefined()
+    expect(layout.rigBase).toBeDefined()
     expect(layout.bounds).toBeDefined()
   })
 
@@ -26,5 +27,6 @@ describe('createLayout', () => {
     const calc = calculateResults(cfg)
     const layout = createLayout(cfg, calc)
     expect(layout.screens.length).toBe(3)
+    expect(layout.rigBase.width).toBeGreaterThan(0)
   })
 })

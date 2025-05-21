@@ -38,9 +38,16 @@ export namespace SimRigLayout {
     angle: number
   }
 
+  export interface RigBase extends Entity {
+    type: 'rigBase'
+    width: number
+    depth: number
+  }
+
   export interface Layout {
     screens: Screen[]
     viewPoint: ViewPoint
+    rigBase: RigBase
     fovRays: FovRay[]
     bounds: { min: Point3D; max: Point3D }
     debug: {

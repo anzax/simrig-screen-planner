@@ -15,6 +15,21 @@ export function generateScreenDebugPoints(
   return corners.map((p, i) => ({ position: p, label: `${id}-corner-${i}` }))
 }
 
+export function generateRigBaseDebugPoints(
+  base: SimRigLayout.RigBase
+): SimRigLayout.Layout['debug']['points'] {
+  const { width, depth, position, id } = base
+  const hw = width / 2
+  const hd = depth / 2
+  const corners = [
+    { x: position.x - hw, y: position.y, z: position.z - hd },
+    { x: position.x + hw, y: position.y, z: position.z - hd },
+    { x: position.x - hw, y: position.y, z: position.z + hd },
+    { x: position.x + hw, y: position.y, z: position.z + hd },
+  ]
+  return corners.map((p, i) => ({ position: p, label: `${id}-corner-${i}` }))
+}
+
 export function aggregateBounds(points: SimRigLayout.Point3D[]): {
   min: SimRigLayout.Point3D
   max: SimRigLayout.Point3D
