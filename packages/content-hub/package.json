@@ -11,7 +11,8 @@
     "build": "astro build",
     "preview": "astro preview",
     "astro": "astro",
-    "test": "vitest run"
+    "test": "vitest run",
+    "lint": "eslint src"
   },
   "dependencies": {
     "@astrojs/preact": "^4.0.11",
@@ -21,5 +22,15 @@
     "preact": "^10.26.6",
     "tailwindcss": "^4.1.7",
     "@simrigbuild/screen-planner-core": "workspace:*"
+  },
+  "devDependencies": {
+    "eslint": "^8.57.0",
+    "eslint-plugin-astro": "^0.31.4",
+    "astro-eslint-parser": "^0.16.3",
+    "@typescript-eslint/eslint-plugin": "^7.4.0",
+    "@typescript-eslint/parser": "^7.4.0",
+    "eslint-plugin-preact": "^0.1.0",
+    "eslint-config-prettier": "^9.1.0",
+    "@eslint/js": "^8.57.0"
   }
 }

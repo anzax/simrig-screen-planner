@@ -11,7 +11,7 @@
     "build:app": "pnpm --filter screen-planner build",
     "build:hub": "pnpm --filter content-hub build",
     "test": "pnpm -r test",
-    "lint": "pnpm --filter screen-planner lint",
+    "lint": "pnpm -r lint",
     "format": "prettier --write ."
   },
   "devDependencies": {
