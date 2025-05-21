@@ -1,5 +1,5 @@
 import type { ComponentType } from 'preact'
-import { useState, useEffect } from 'preact/hooks'
+import { useEffect, useState } from 'preact/hooks'
 
 interface NumberInputWithSliderProps {
   /** Optional field label shown above the controls */
@@ -14,14 +14,13 @@ interface NumberInputWithSliderProps {
   value: number
   /** Callback fired when the committed value changes */
   onChange: (v: number) => void
-  /** Unit label displayed next to the number input */
-  unit?: string
+
   /** Additional CSS classes for the outer wrapper */
   className?: string
 }
 
 /**
- * Combined range slider + numeric input with optional label and unit.
+ * Combined range slider and numeric input with optional label.
  *
  * Mirrors the legacy React component but rewritten for Preact/TypeScript.
  */
@@ -32,7 +31,7 @@ const NumberInputWithSlider: ComponentType<NumberInputWithSliderProps> = ({
   step = 1,
   value,
   onChange,
-  unit = '',
+
   className = '',
 }) => {
   const [localValue, setLocalValue] = useState<number>(value)
@@ -93,7 +92,6 @@ const NumberInputWithSlider: ComponentType<NumberInputWithSliderProps> = ({
             onBlur={commit}
             onKeyDown={handleKeyDown}
           />
-          {unit && <span class="text-xs text-gray-500 ml-1">{unit}</span>}
         </div>
       </div>
     </div>

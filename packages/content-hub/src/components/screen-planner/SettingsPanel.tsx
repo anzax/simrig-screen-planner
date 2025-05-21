@@ -46,7 +46,6 @@ const SettingsPanel: ComponentType<SettingsPanelProps> = ({ config, planner }) =
                 max={77}
                 value={diagIn.value}
                 onChange={v => (diagIn.value = v)}
-                unit="in"
               />
               <MultiToggle
                 label="Aspect Ratio"
@@ -64,7 +63,6 @@ const SettingsPanel: ComponentType<SettingsPanelProps> = ({ config, planner }) =
                 max={50}
                 value={bezelMm.value}
                 onChange={v => (bezelMm.value = v)}
-                unit="mm"
               />
             </div>
           ) : (
@@ -94,7 +92,6 @@ const SettingsPanel: ComponentType<SettingsPanelProps> = ({ config, planner }) =
                 max={50}
                 value={bezelMm.value}
                 onChange={v => (bezelMm.value = v)}
-                unit="mm"
               />
             </div>
           )}
@@ -137,7 +134,6 @@ const SettingsPanel: ComponentType<SettingsPanelProps> = ({ config, planner }) =
                     max={90}
                     value={manualAngle.value}
                     onChange={v => (manualAngle.value = v)}
-                    unit="°"
                   />
                 </>
               )}
@@ -162,7 +158,6 @@ const SettingsPanel: ComponentType<SettingsPanelProps> = ({ config, planner }) =
             max={150}
             value={distCm.value}
             onChange={v => (distCm.value = v)}
-            unit="cm"
           />
           <div class="mt-4">
             <h3 class="text-sm font-medium text-gray-700 mb-2">Screen Curvature</h3>
@@ -182,7 +177,6 @@ const SettingsPanel: ComponentType<SettingsPanelProps> = ({ config, planner }) =
                 step={100}
                 value={curveRadius.value}
                 onChange={v => (curveRadius.value = v)}
-                unit="mm"
               />
             )}
           </div>
