@@ -1,5 +1,5 @@
 import { signal, computed } from '@preact/signals'
-import { createScreenConfigState } from './screenConfig'
+import { createScreenConfigState } from '../input/screenConfig'
 
 export type ConfigId = 'main' | 'comparison'
 export type PlannerConfig = ReturnType<typeof createScreenConfigState>

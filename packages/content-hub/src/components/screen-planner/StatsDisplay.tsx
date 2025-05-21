@@ -1,14 +1,14 @@
 import type { ComponentType } from 'preact'
 import Card from '../ui/Card'
-import { createScreenPlannerState } from '@simrigbuild/screen-planner-core'
+import { createScreenPlannerState, createCalculationState } from '@simrigbuild/screen-planner-core'
 
 type PlannerState = ReturnType<typeof createScreenPlannerState>
 
 interface StatsDisplayProps {
-  planner: PlannerState
+  plannerStore: PlannerState
 }
 
-const StatsDisplay: ComponentType<StatsDisplayProps> = ({ planner }) => {
+const StatsDisplay: ComponentType<StatsDisplayProps> = ({ plannerStore }) => {
   const {
     configs,
     activeConfigId,
@@ -16,22 +16,28 @@ const StatsDisplay: ComponentType<StatsDisplayProps> = ({ planner }) => {
     addComparisonConfig,
     removeComparisonConfig,
     hasComparison,
-  } = planner
+  } = plannerStore
   const mainConfig = configs.main
   const compConfig = configs.comparison.value
+  const mainCalcs = createCalculationState(mainConfig)
+  const compCalcs = compConfig ? createCalculationState(compConfig) : null
 
-  const renderCard = (config: PlannerState['configs']['main'], type: 'main' | 'comparison') => {
-    const { screen, distance, layout, curvature, calculatedResults } = config
-    const res = calculatedResults.value
-    const { diagIn, ratio, screenWidth, screenHeight, inputMode } = screen
-    const { distCm } = distance
-    const { setupType } = layout
-    const { isCurved, curveRadius } = curvature
+  const renderCard = (
+    config: PlannerState['configs']['main'],
+    calcs: ReturnType<typeof createCalculationState>,
+    type: 'main' | 'comparison'
+  ) => {
+    const { size, distance, arrangement, curvature } = config
+    const { angles, fov, footprint } = calcs
+    const { diagonal, aspectRatio, width, height, inputMode } = size
+    const { eye } = distance
+    const { type: setupType } = arrangement
+    const { isCurved, radius } = curvature
 
     const sizeDisplay =
       inputMode.value === 'diagonal'
-        ? `${diagIn.value}″ ${ratio.value}`
-        : `${screenWidth.value}×${screenHeight.value}mm`
+        ? `${diagonal.value}″ ${aspectRatio.value}`
+        : `${width.value}×${height.value}mm`
     return (
       <div class="flex flex-col h-full">
         <div class="text-center mb-2">
@@ -67,28 +73,36 @@ const StatsDisplay: ComponentType<StatsDisplayProps> = ({ planner }) => {
             <span class="mx-2 text-gray-300">|</span>
             <span>
               <span class="text-gray-600 text-sm">
-                {isCurved.value ? `Curved (${curveRadius.value}R)` : 'Flat'}
+                {isCurved.value ? `Curved (${radius.value}R)` : 'Flat'}
               </span>
             </span>
             <span class="mx-2 text-gray-300">|</span>
             <span>
               <span class="text-gray-400">Distance:</span>{' '}
-              <span class="text-gray-600 text-sm">{distCm.value}cm</span>
+              <span class="text-gray-600 text-sm">{(eye.value / 10).toFixed(1)}cm</span>
             </span>
           </div>
         </div>
         <div class="border-t border-gray-200 my-2" />
         <div class="text-center mt-2">
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 text-center">
-            <Card v={`${res.hFOVdeg.toFixed(1)}°`} l="H-FOV" tooltip="Horizontal field-of-view" />
-            <Card v={`${res.vFOVdeg.toFixed(1)}°`} l="V-FOV" tooltip="Vertical field-of-view" />
             <Card
-              v={`${res.sideAngleDeg.toFixed(1)}°`}
+              v={`${fov.value.horizontal.toFixed(1)}°`}
+              l="H-FOV"
+              tooltip="Horizontal field-of-view"
+            />
+            <Card
+              v={`${fov.value.vertical.toFixed(1)}°`}
+              l="V-FOV"
+              tooltip="Vertical field-of-view"
+            />
+            <Card
+              v={`${angles.value.actualSideAngle.toFixed(1)}°`}
               l="Side Angle"
               tooltip="Recommended monitor angle"
             />
             <Card
-              v={`${res.totalWidth.toFixed(1)} cm`}
+              v={`${(footprint.value.totalWidth / 10).toFixed(1)} cm`}
               l="Total Width"
               tooltip="Overall monitor span"
             />
@@ -117,7 +131,7 @@ const StatsDisplay: ComponentType<StatsDisplayProps> = ({ planner }) => {
         }`}
         onClick={() => hasComparison.value && setActiveConfigId('main')}
       >
-        {renderCard(mainConfig, 'main')}
+        {renderCard(mainConfig, mainCalcs, 'main')}
       </div>
       <div
         class={`rounded-lg shadow-sm border p-4 transition-all h-full ${
@@ -131,7 +145,9 @@ const StatsDisplay: ComponentType<StatsDisplayProps> = ({ planner }) => {
           hasComparison.value ? setActiveConfigId('comparison') : addComparisonConfig()
         }
       >
-        {hasComparison.value && compConfig ? renderCard(compConfig, 'comparison') : renderAddCard()}
+        {hasComparison.value && compConfig && compCalcs
+          ? renderCard(compConfig, compCalcs, 'comparison')
+          : renderAddCard()}
       </div>
     </section>
   )
