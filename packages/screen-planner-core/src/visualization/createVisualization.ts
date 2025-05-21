@@ -32,8 +32,8 @@ export function createVisualization(
 
   const minX = Math.min(layout.bounds.min.x, layout.bounds.max.x)
   const maxX = Math.max(layout.bounds.min.x, layout.bounds.max.x)
-  const minY = Math.min(-layout.bounds.max.z, -layout.bounds.min.z)
-  const maxY = Math.max(-layout.bounds.max.z, -layout.bounds.min.z)
+  const minY = Math.min(layout.bounds.min.z, layout.bounds.max.z)
+  const maxY = Math.max(layout.bounds.min.z, layout.bounds.max.z)
   const topLeft = viewport.worldToScreen({ x: minX, y: minY })
   const bottomRight = viewport.worldToScreen({ x: maxX, y: maxY })
 

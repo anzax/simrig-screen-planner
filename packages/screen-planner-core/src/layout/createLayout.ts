@@ -37,14 +37,27 @@ export function createLayout(
 
   if (setup === 'triple') {
     const angleRad = (Math.PI / 180) * sideAngle
-    const offset = screenWidth / 2 + bezel + screenWidth / 2
+    const a = screenWidth / 2 + bezel
+    const pivotL = { x: -a, z: -config.distance.eye.value }
+    const pivotR = { x: a, z: -config.distance.eye.value }
+    const uR = {
+      x: screenWidth * Math.cos(angleRad),
+      z: screenWidth * Math.sin(angleRad),
+    }
+    const uL = { x: -uR.x, z: uR.z }
+    const leftPos = {
+      x: pivotL.x + uL.x / 2,
+      y: 0,
+      z: pivotL.z + uL.z / 2,
+    }
+    const rightPos = {
+      x: pivotR.x + uR.x / 2,
+      y: 0,
+      z: pivotR.z + uR.z / 2,
+    }
     screens.push(
       createScreen({
-        position: {
-          x: -offset * Math.cos(angleRad),
-          y: 0,
-          z: -config.distance.eye.value + offset * Math.sin(angleRad),
-        },
+        position: leftPos,
         rotation: { x: 0, y: sideAngle, z: 0 },
         width: screenWidth,
         height: screenHeight,
@@ -55,11 +68,7 @@ export function createLayout(
     )
     screens.push(
       createScreen({
-        position: {
-          x: offset * Math.cos(angleRad),
-          y: 0,
-          z: -config.distance.eye.value + offset * Math.sin(angleRad),
-        },
+        position: rightPos,
         rotation: { x: 0, y: -sideAngle, z: 0 },
         width: screenWidth,
         height: screenHeight,

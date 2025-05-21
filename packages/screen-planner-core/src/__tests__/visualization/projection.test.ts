@@ -18,10 +18,10 @@ describe('topDown projection', () => {
     const viewData = projectViewPoint(layout.viewPoint)
 
     expect(screenData.centerPoint.x).toBeCloseTo(layout.screens[0].position.x, 5)
-    expect(screenData.centerPoint.y).toBeCloseTo(-layout.screens[0].position.z, 5)
+    expect(screenData.centerPoint.y).toBeCloseTo(layout.screens[0].position.z, 5)
     expect(screenData.rotation).toBeCloseTo(layout.screens[0].rotation.y, 5)
     expect(viewData.position.x).toBeCloseTo(layout.viewPoint.position.x, 5)
-    expect(viewData.position.y).toBeCloseTo(-layout.viewPoint.position.z, 5)
+    expect(viewData.position.y).toBeCloseTo(layout.viewPoint.position.z, 5)
   })
 
   it('projects triple screen rotations', () => {
@@ -45,6 +45,24 @@ describe('topDown projection', () => {
     const base = projectRigBase(layout.rigBase)
     expect(base.corners.length).toBe(4)
     expect(base.centerPoint.x).toBeCloseTo(layout.rigBase.position.x, 5)
-    expect(base.centerPoint.y).toBeCloseTo(-layout.rigBase.position.z, 5)
+    expect(base.centerPoint.y).toBeCloseTo(layout.rigBase.position.z, 5)
+  })
+
+  it('orders screen corners sequentially', () => {
+    const cfg = createScreenConfigState()
+    const calc = calculateResults(cfg)
+    const layout = createLayout(cfg, calc)
+    const proj = projectScreen(layout.screens[0])
+    const { width } = layout.screens[0]
+    const hw = width / 2
+    const expectedX = [-hw, hw, hw, -hw]
+    const rel = proj.corners.map(c => ({
+      x: c.x - proj.centerPoint.x,
+      y: c.y - proj.centerPoint.y,
+    }))
+    expectedX.forEach((x, i) => {
+      expect(rel[i].x).toBeCloseTo(x, 5)
+      expect(rel[i].y).toBeCloseTo(0, 5)
+    })
   })
 })

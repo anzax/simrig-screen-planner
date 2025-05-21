@@ -2,7 +2,7 @@ import type { SimRigLayout } from '../../layout/types'
 import type { SimRigVisualization } from '../types'
 
 export function projectPoint(point: SimRigLayout.Point3D): { x: number; y: number } {
-  return { x: point.x, y: -point.z }
+  return { x: point.x, y: point.z }
 }
 
 export function projectScreen(screen: SimRigLayout.Screen): SimRigVisualization.ScreenRenderData {
@@ -17,7 +17,7 @@ export function projectScreen(screen: SimRigLayout.Screen): SimRigVisualization.
     return projectPoint({ x, y: screen.position.y + dy, z })
   }
 
-  const corners = [corner(-hw, hh), corner(hw, hh), corner(-hw, -hh), corner(hw, -hh)]
+  const corners = [corner(-hw, hh), corner(hw, hh), corner(hw, -hh), corner(-hw, -hh)]
 
   return {
     id: screen.id,

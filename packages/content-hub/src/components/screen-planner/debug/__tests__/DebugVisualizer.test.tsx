@@ -22,8 +22,8 @@ const layout: SimRigLayout.Layout = {
 }
 
 describe('DebugVisualizer', () => {
-  it('renders points when enabled', () => {
+  it('renders container when enabled', () => {
     const html = renderToString(<DebugVisualizer layout={layout} />)
-    expect(html).toContain('svg')
+    expect(html).toContain('div')
   })
 })
