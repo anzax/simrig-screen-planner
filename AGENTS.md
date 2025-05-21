@@ -17,11 +17,28 @@
 - **Migration Guide**: [2025-05-18-migration-guide.md](/.agents/2025-05-18-migration-guide.md) - Monorepo restructuring
 - **Implementation Strategy**: [2025-05-19-screen-planner-in-astro.md](/.agents/2025-05-19-screen-planner-in-astro.md) - UI approach
 
+## Implementation Specifications
+
+- **Type-First Development**: All implementations start with well-defined TypeScript interfaces
+- **Spec**: Use provided Spec as the basis for all implementation tasks
+- **Decision Making**: Make reasonable decisions without waiting for clarification on minor details
+- **Document Choices**: Explain significant design decisions in PR descriptions
+
+## Implementation Approach
+
+- **Interface-First**: Begin by understanding the domain interfaces that define boundaries
+- **Test-Driven**: Write tests before implementation based on requirements
+- **Layer Separation**: Maintain clear boundaries between domain, calculation, state, and visualization
+- **Proactive Improvement**: Enhance designs when clearly beneficial without breaking interfaces
+- **Decisiveness**: Use best judgment to move forward rather than waiting for perfect information
+
 ## Code Standards
 
 - **Code Hygiene**: Remove dead code, unused variables, imports, and leftover comments
 - **Maintainability**: Follow existing styles and patterns
 - **Compatibility**: Backward compatibility only required when specified or critical
+- **Pure Functions**: Keep calculation functions pure with no side effects
+- **Clear Boundaries**: Respect layer separation in the architecture
 
 ## Testing and Submission Checklist
 
@@ -34,7 +51,10 @@
   - Core calculation functions
   - State management logic
   - Critical user interactions
-- **Note**: Unit tests not mandatory for all components
+- **PR Format**:
+  - Brief implementation summary
+  - Explanation of key design decisions
+  - How tests verify the requirements
 
 ## Environment Notes
 
