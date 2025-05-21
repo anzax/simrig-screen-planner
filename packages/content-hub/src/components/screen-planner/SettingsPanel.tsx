@@ -6,6 +6,10 @@ import {
   createScreenConfigState,
   createScreenPlannerState,
   createCalculationState,
+  InputMode,
+  AspectRatio,
+  SetupType,
+  AngleMode,
 } from '@simrigbuild/screen-planner-core'
 
 type ConfigState = ReturnType<typeof createScreenConfigState>
@@ -36,9 +40,9 @@ const SettingsPanel: ComponentType<SettingsPanelProps> = ({ config, plannerStore
         {/* Screen Size */}
         <div class="bg-gray-50 rounded-lg p-3">
           <h3 class="text-sm font-medium text-gray-700 mb-2">Screen Size</h3>
-          <MultiToggle
+          <MultiToggle<InputMode>
             value={inputMode.value}
-            onChange={v => (inputMode.value = v as any)}
+            onChange={v => (inputMode.value = v as InputMode)}
             options={[
               { value: 'diagonal', label: 'Diagonal' },
               { value: 'manual', label: 'Width × Height' },
@@ -53,10 +57,10 @@ const SettingsPanel: ComponentType<SettingsPanelProps> = ({ config, plannerStore
                 value={diagonal.value}
                 onChange={v => (diagonal.value = v)}
               />
-              <MultiToggle
+              <MultiToggle<AspectRatio>
                 label="Aspect Ratio"
                 value={aspectRatio.value}
-                onChange={v => (aspectRatio.value = v as any)}
+                onChange={v => (aspectRatio.value = v as AspectRatio)}
                 options={[
                   { value: '16:9', label: '16:9' },
                   { value: '21:9', label: '21:9' },
@@ -106,9 +110,9 @@ const SettingsPanel: ComponentType<SettingsPanelProps> = ({ config, plannerStore
         {/* Screen Layout */}
         <div class="bg-gray-50 rounded-lg p-3">
           <h3 class="text-sm font-medium text-gray-700 mb-2">Screen Layout</h3>
-          <MultiToggle
+          <MultiToggle<SetupType>
             value={setupType.value}
-            onChange={v => (setupType.value = v as any)}
+            onChange={v => (setupType.value = v as SetupType)}
             options={[
               { value: 'single', label: 'Single' },
               { value: 'triple', label: 'Triple' },
@@ -116,10 +120,10 @@ const SettingsPanel: ComponentType<SettingsPanelProps> = ({ config, plannerStore
           />
           {setupType.value === 'triple' ? (
             <div class="mt-3 space-y-3">
-              <MultiToggle
+              <MultiToggle<AngleMode>
                 label="Side Screen Angle"
                 value={angleMode.value}
-                onChange={v => (angleMode.value = v as any)}
+                onChange={v => (angleMode.value = v as AngleMode)}
                 options={[
                   { value: 'auto', label: 'Auto' },
                   { value: 'manual', label: 'Manual' },

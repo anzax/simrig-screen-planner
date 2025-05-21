@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest'
-import { h } from 'preact'
+import { h as _h } from 'preact'
 import renderToString from 'preact-render-to-string'
 import SettingsPanel from '../SettingsPanel'
 import { screenPlanner } from '@simrigbuild/screen-planner-core'

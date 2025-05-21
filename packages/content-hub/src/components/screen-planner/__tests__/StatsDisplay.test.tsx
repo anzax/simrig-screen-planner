@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest'
 import { screenPlanner } from '@simrigbuild/screen-planner-core'
 import StatsDisplay from '../StatsDisplay'
-import { h } from 'preact'
+import { h as _h } from 'preact'
 import renderToString from 'preact-render-to-string'
 
 describe('StatsDisplay', () => {
