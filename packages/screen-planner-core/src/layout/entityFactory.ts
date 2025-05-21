@@ -54,3 +54,19 @@ export function createFovRay(
     ...rest,
   }
 }
+
+export function createRigBase(
+  params: Omit<SimRigLayout.RigBase, 'id' | 'layer' | 'visible' | 'type'> & {
+    layer?: string
+    visible?: boolean
+  }
+): SimRigLayout.RigBase {
+  const { layer = 'default', visible = true, ...rest } = params
+  return {
+    id: createId('rigbase'),
+    type: 'rigBase',
+    layer,
+    visible,
+    ...rest,
+  }
+}

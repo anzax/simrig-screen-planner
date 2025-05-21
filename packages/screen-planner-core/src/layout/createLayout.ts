@@ -1,14 +1,18 @@
 import type { ScreenConfigState } from '../input/types'
 import type { CalculationResults } from '../calculation/types'
 import type { SimRigLayout } from './types'
-import { createScreen, createViewPoint, createFovRay } from './entityFactory'
-import { generateScreenDebugPoints, aggregateBounds } from './debug'
+import { createScreen, createViewPoint, createFovRay, createRigBase } from './entityFactory'
+import { generateScreenDebugPoints, generateRigBaseDebugPoints, aggregateBounds } from './debug'
 
 export function createLayout(
   config: ScreenConfigState,
   calculations: CalculationResults
 ): SimRigLayout.Layout {
   const eye = { x: 0, y: 0, z: 0 }
+
+  const RIG_WIDTH_MM = 600
+  const RIG_DEPTH_MM = 1500
+  const HEAD_OFFSET_MM = 100
 
   const screenWidth = calculations.dimensions.panel.width
   const screenHeight = calculations.dimensions.panel.height
@@ -73,6 +77,13 @@ export function createLayout(
     fov: calculations.fov,
   })
 
+  const rigBase = createRigBase({
+    position: { x: 0, y: 0, z: RIG_DEPTH_MM / 2 - HEAD_OFFSET_MM },
+    rotation: { x: 0, y: 0, z: 0 },
+    width: RIG_WIDTH_MM,
+    depth: RIG_DEPTH_MM,
+  })
+
   const fovRays: SimRigLayout.FovRay[] = []
   const angles = [-calculations.fov.horizontal / 2, calculations.fov.horizontal / 2]
   angles.forEach(angle => {
@@ -89,12 +100,16 @@ export function createLayout(
     )
   })
 
-  const debugPoints = screens.flatMap(s => generateScreenDebugPoints(s))
+  const debugPoints = [
+    ...screens.flatMap(s => generateScreenDebugPoints(s)),
+    ...generateRigBaseDebugPoints(rigBase),
+  ]
   const bounds = aggregateBounds(debugPoints.map(p => p.position).concat(eye))
 
   return {
     screens,
     viewPoint,
+    rigBase,
     fovRays,
     bounds,
     debug: { enabled: false, points: debugPoints },
