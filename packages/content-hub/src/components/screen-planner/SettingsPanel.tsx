@@ -1,4 +1,5 @@
 import type { ComponentType } from 'preact'
+import { useEffect, useState } from 'preact/hooks'
 import MultiToggle from '../ui/MultiToggle'
 import NumberInputWithSlider from '../ui/NumberInputWithSlider'
 import NumberInput from '../ui/NumberInput'
@@ -21,6 +22,42 @@ interface SettingsPanelProps {
 }
 
 const SettingsPanel: ComponentType<SettingsPanelProps> = ({ config, plannerStore }) => {
+  const [isClient, setIsClient] = useState(false)
+
+  // Handle client-side rendering and respond to config updates (including when restored from localStorage)
+  useEffect(() => {
+    setIsClient(true)
+  }, [config])
+
+  // Render a placeholder during server-side rendering (skip in test environment)
+  if (!isClient && !(import.meta.env?.VITEST ?? false)) {
+    return (
+      <div class={`bg-white rounded-lg shadow-sm border border-gray-600 p-4`}>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+          <div class="bg-gray-50 rounded-lg p-3">
+            <h3 class="text-sm font-medium text-gray-700 mb-2">Screen Size</h3>
+            <div class="h-32 flex items-center justify-center">
+              <p class="text-center text-gray-500">Loading...</p>
+            </div>
+          </div>
+          <div class="bg-gray-50 rounded-lg p-3">
+            <h3 class="text-sm font-medium text-gray-700 mb-2">Screen Layout</h3>
+            <div class="h-32 flex items-center justify-center">
+              <p class="text-center text-gray-500">Loading...</p>
+            </div>
+          </div>
+          <div class="bg-gray-50 rounded-lg p-3">
+            <h3 class="text-sm font-medium text-gray-700 mb-2">Viewing Distance</h3>
+            <div class="h-32 flex items-center justify-center">
+              <p class="text-center text-gray-500">Loading...</p>
+            </div>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // Recalculate when config changes
   const calculations = createCalculationState(config)
   const { size, bezel, distance, arrangement, curvature } = config
   const { diagonal, aspectRatio, width, height, inputMode } = size

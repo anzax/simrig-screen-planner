@@ -1,4 +1,5 @@
 import type { ComponentType } from 'preact'
+import { useEffect, useState } from 'preact/hooks'
 import Card from '../ui/Card'
 import { createScreenPlannerState, createCalculationState } from '@simrigbuild/screen-planner-core'
 
@@ -9,6 +10,12 @@ interface StatsDisplayProps {
 }
 
 const StatsDisplay: ComponentType<StatsDisplayProps> = ({ plannerStore }) => {
+  const [isClient, setIsClient] = useState(false)
+
+  useEffect(() => {
+    setIsClient(true)
+  }, [])
+
   const {
     configs,
     activeConfigId,
@@ -121,6 +128,34 @@ const StatsDisplay: ComponentType<StatsDisplayProps> = ({ plannerStore }) => {
     </div>
   )
 
+  // Render a placeholder during server-side rendering
+  if (!isClient) {
+    return (
+      <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <div class="bg-white rounded-lg shadow-sm border p-4 transition-all h-full border-gray-600">
+          <div class="flex flex-col h-full">
+            <div class="text-center mb-2">
+              <span class="inline-block text-sm font-medium px-3 py-1 rounded-full mb-4 bg-gray-100 text-gray-600">
+                Main Setup
+              </span>
+              <div class="text-xs flex justify-center items-center">
+                <span>
+                  <span class="text-gray-600 text-sm">Loading...</span>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="bg-white rounded-lg shadow-sm border p-4 transition-all h-full border-blue-200">
+          <div class="flex flex-col items-center justify-center h-full">
+            <div class="text-xl font-semibold text-blue-600 py-4">Add a Comparison</div>
+          </div>
+        </div>
+      </section>
+    )
+  }
+
+  // Client-side rendering with full interactivity
   return (
     <section class="grid grid-cols-1 md:grid-cols-2 gap-4">
       <div
