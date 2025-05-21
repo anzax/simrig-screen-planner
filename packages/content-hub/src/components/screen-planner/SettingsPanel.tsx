@@ -2,10 +2,10 @@ import type { ComponentType } from 'preact'
 import MultiToggle from '../ui/MultiToggle'
 import NumberInputWithSlider from '../ui/NumberInputWithSlider'
 import NumberInput from '../ui/NumberInput'
-import {
+import { createCalculationState } from '@simrigbuild/screen-planner-core'
+import type {
   createScreenConfigState,
   createScreenPlannerState,
-  createCalculationState,
   InputMode,
   AspectRatio,
   SetupType,
