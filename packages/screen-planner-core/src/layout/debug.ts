@@ -3,7 +3,7 @@ import type { SimRigLayout } from './types'
 export function generateScreenDebugPoints(
   screen: SimRigLayout.Screen
 ): SimRigLayout.Layout['debug']['points'] {
-  const { width, height, position } = screen
+  const { width, height, position, id } = screen
   const hw = width / 2
   const hh = height / 2
   const corners = [
@@ -12,7 +12,7 @@ export function generateScreenDebugPoints(
     { x: position.x - hw, y: position.y - hh, z: position.z },
     { x: position.x + hw, y: position.y - hh, z: position.z },
   ]
-  return corners.map((p, i) => ({ position: p, label: `corner-${i}` }))
+  return corners.map((p, i) => ({ position: p, label: `${id}-corner-${i}` }))
 }
 
 export function aggregateBounds(points: SimRigLayout.Point3D[]): {
