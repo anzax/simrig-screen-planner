@@ -91,10 +91,16 @@ export function deserializeScreenConfig(data: SerializedScreenConfig): ScreenCon
 }
 
 export function saveScreenPlannerData(data: ScreenPlannerData): void {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+  if (typeof localStorage !== 'undefined') {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(data))
+  }
 }
 
 export function loadScreenPlannerData(): ScreenPlannerData | null {
+  if (typeof localStorage === 'undefined') {
+    return null
+  }
+
   const raw = localStorage.getItem(STORAGE_KEY)
   if (!raw) return null
   try {
