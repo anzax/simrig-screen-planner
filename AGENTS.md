@@ -43,6 +43,9 @@
 ## Testing and Submission Checklist
 
 - **Test, Lint, Format**: Before submitting any code, always run all tests, linters, and code formatters to ensure code quality and consistency.
+  - `pnpm format`
+  - `pnpm lint`
+  - `pnpm test`
 - **Focus Areas for Testing**:
   - Critical path functionality over full coverage
   - Core business logic and user-facing features
