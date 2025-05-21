@@ -1,0 +1,36 @@
+import { describe, it, expect } from 'vitest'
+import { createScreenConfigState } from '../../input/screenConfig'
+import { calculateResults } from '../../calculation/screenCalculations'
+import { createLayout } from '../../layout/createLayout'
+import { projectScreen, projectViewPoint } from '../../visualization/projections/topDown'
+
+describe('topDown projection', () => {
+  it('projects single screen and viewpoint', () => {
+    const cfg = createScreenConfigState()
+    cfg.arrangement.type.value = 'single'
+    const calc = calculateResults(cfg)
+    const layout = createLayout(cfg, calc)
+    const screenData = projectScreen(layout.screens[0])
+    const viewData = projectViewPoint(layout.viewPoint)
+
+    expect(screenData.centerPoint.x).toBeCloseTo(layout.screens[0].position.x, 5)
+    expect(screenData.centerPoint.y).toBeCloseTo(-layout.screens[0].position.z, 5)
+    expect(screenData.rotation).toBeCloseTo(layout.screens[0].rotation.y, 5)
+    expect(viewData.position.x).toBeCloseTo(layout.viewPoint.position.x, 5)
+    expect(viewData.position.y).toBeCloseTo(-layout.viewPoint.position.z, 5)
+  })
+
+  it('projects triple screen rotations', () => {
+    const cfg = createScreenConfigState()
+    cfg.arrangement.type.value = 'triple'
+    const calc = calculateResults(cfg)
+    const layout = createLayout(cfg, calc)
+    expect(layout.screens.length).toBe(3)
+    const left = projectScreen(layout.screens[1])
+    const center = projectScreen(layout.screens[0])
+    const right = projectScreen(layout.screens[2])
+    expect(left.rotation).toBeGreaterThan(0)
+    expect(center.rotation).toBe(0)
+    expect(right.rotation).toBeLessThan(0)
+  })
+})
