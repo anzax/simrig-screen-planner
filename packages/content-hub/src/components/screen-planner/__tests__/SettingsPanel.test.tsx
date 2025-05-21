@@ -7,8 +7,8 @@ import { screenPlanner } from '@simrigbuild/screen-planner-core'
 describe('SettingsPanel', () => {
   it('renders recommended angle notice', () => {
     const cfg = screenPlanner.activeConfig.value
-    cfg.layout.angleMode.value = 'manual'
-    const html = renderToString(<SettingsPanel config={cfg} planner={screenPlanner} />)
+    cfg.arrangement.angleMode.value = 'manual'
+    const html = renderToString(<SettingsPanel config={cfg} plannerStore={screenPlanner} />)
     expect(html).toContain('Recommended')
   })
 })

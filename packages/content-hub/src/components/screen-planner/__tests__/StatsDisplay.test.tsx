@@ -7,13 +7,13 @@ import renderToString from 'preact-render-to-string'
 describe('StatsDisplay', () => {
   it('renders without crashing', () => {
     screenPlanner.removeComparisonConfig()
-    const html = renderToString(<StatsDisplay planner={screenPlanner} />)
+    const html = renderToString(<StatsDisplay plannerStore={screenPlanner} />)
     expect(html).toContain('Main Setup')
   })
 
   it('shows comparison after adding', () => {
     screenPlanner.addComparisonConfig()
-    const html = renderToString(<StatsDisplay planner={screenPlanner} />)
+    const html = renderToString(<StatsDisplay plannerStore={screenPlanner} />)
     expect(html).toContain('Comparison')
     screenPlanner.removeComparisonConfig()
   })

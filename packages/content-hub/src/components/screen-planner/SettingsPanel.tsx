@@ -2,27 +2,33 @@ import type { ComponentType } from 'preact'
 import MultiToggle from '../ui/MultiToggle'
 import NumberInputWithSlider from '../ui/NumberInputWithSlider'
 import NumberInput from '../ui/NumberInput'
-import { createScreenConfigState, createScreenPlannerState } from '@simrigbuild/screen-planner-core'
+import {
+  createScreenConfigState,
+  createScreenPlannerState,
+  createCalculationState,
+} from '@simrigbuild/screen-planner-core'
 
 type ConfigState = ReturnType<typeof createScreenConfigState>
 type PlannerState = ReturnType<typeof createScreenPlannerState>
 
 interface SettingsPanelProps {
   config: ConfigState
-  planner: PlannerState
+  plannerStore: PlannerState
 }
 
-const SettingsPanel: ComponentType<SettingsPanelProps> = ({ config, planner }) => {
-  const { screen, distance, layout, curvature } = config
-  const { diagIn, ratio, bezelMm, screenWidth, screenHeight, inputMode } = screen
-  const { distCm } = distance
-  const { setupType, angleMode, manualAngle } = layout
-  const { isCurved, curveRadius } = curvature
+const SettingsPanel: ComponentType<SettingsPanelProps> = ({ config, plannerStore }) => {
+  const calculations = createCalculationState(config)
+  const { size, bezel, distance, arrangement, curvature } = config
+  const { diagonal, aspectRatio, width, height, inputMode } = size
+  const { width: bezelWidth } = bezel
+  const { eye } = distance
+  const { type: setupType, angleMode, manualAngle } = arrangement
+  const { isCurved, radius } = curvature
 
   const borderColor =
-    planner.activeConfigId.value === 'comparison' ? 'border-blue-600' : 'border-gray-600'
-  const bgColor = planner.activeConfigId.value === 'comparison' ? 'bg-blue-100' : 'bg-white'
-  const recommendedAngle = manualAngle.value
+    plannerStore.activeConfigId.value === 'comparison' ? 'border-blue-600' : 'border-gray-600'
+  const bgColor = plannerStore.activeConfigId.value === 'comparison' ? 'bg-blue-100' : 'bg-white'
+  const recommendedAngle = calculations.angles.value.recommendedSideAngle
 
   return (
     <div class={`${bgColor} rounded-lg shadow-sm border ${borderColor} p-4`}>
@@ -44,13 +50,13 @@ const SettingsPanel: ComponentType<SettingsPanelProps> = ({ config, planner }) =
                 label="Diagonal, in"
                 min={17}
                 max={77}
-                value={diagIn.value}
-                onChange={v => (diagIn.value = v)}
+                value={diagonal.value}
+                onChange={v => (diagonal.value = v)}
               />
               <MultiToggle
                 label="Aspect Ratio"
-                value={ratio.value}
-                onChange={v => (ratio.value = v as any)}
+                value={aspectRatio.value}
+                onChange={v => (aspectRatio.value = v as any)}
                 options={[
                   { value: '16:9', label: '16:9' },
                   { value: '21:9', label: '21:9' },
@@ -61,8 +67,8 @@ const SettingsPanel: ComponentType<SettingsPanelProps> = ({ config, planner }) =
                 label="Bezel width, mm"
                 min={0}
                 max={50}
-                value={bezelMm.value}
-                onChange={v => (bezelMm.value = v)}
+                value={bezelWidth.value}
+                onChange={v => (bezelWidth.value = v)}
               />
             </div>
           ) : (
@@ -75,14 +81,14 @@ const SettingsPanel: ComponentType<SettingsPanelProps> = ({ config, planner }) =
               <div class="flex space-x-2">
                 <NumberInput
                   label="Width, mm"
-                  value={screenWidth.value}
-                  onChange={v => (screenWidth.value = v)}
+                  value={width.value}
+                  onChange={v => (width.value = v)}
                   className="flex-1"
                 />
                 <NumberInput
                   label="Height, mm"
-                  value={screenHeight.value}
-                  onChange={v => (screenHeight.value = v)}
+                  value={height.value}
+                  onChange={v => (height.value = v)}
                   className="flex-1"
                 />
               </div>
@@ -90,8 +96,8 @@ const SettingsPanel: ComponentType<SettingsPanelProps> = ({ config, planner }) =
                 label="Bezel width, mm"
                 min={0}
                 max={50}
-                value={bezelMm.value}
-                onChange={v => (bezelMm.value = v)}
+                value={bezelWidth.value}
+                onChange={v => (bezelWidth.value = v)}
               />
             </div>
           )}
@@ -156,8 +162,8 @@ const SettingsPanel: ComponentType<SettingsPanelProps> = ({ config, planner }) =
             label="Eye Distance, cm"
             min={40}
             max={150}
-            value={distCm.value}
-            onChange={v => (distCm.value = v)}
+            value={eye.value / 10}
+            onChange={v => (eye.value = v * 10)}
           />
           <div class="mt-4">
             <h3 class="text-sm font-medium text-gray-700 mb-2">Screen Curvature</h3>
@@ -175,8 +181,8 @@ const SettingsPanel: ComponentType<SettingsPanelProps> = ({ config, planner }) =
                 min={800}
                 max={2300}
                 step={100}
-                value={curveRadius.value}
-                onChange={v => (curveRadius.value = v)}
+                value={radius.value}
+                onChange={v => (radius.value = v)}
               />
             )}
           </div>
